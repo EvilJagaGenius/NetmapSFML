@@ -1,0 +1,5 @@
+bin/Release
+obj/Release
+NetmapSFML.layout
+SFML_Libraries
+bin/Debug/*.dll
