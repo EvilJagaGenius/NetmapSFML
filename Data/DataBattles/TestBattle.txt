@@ -1,0 +1,16 @@
+bkg:LinuxDNA_Resized.png
+cash:500
+music:hacking.ogg
+start_grid
+00000
+00000
+00000
+00000
+00000
+end_grid
+start_commands
+addUpload:1:4
+addUpload:3:4
+addProgram:Sentinel:1:0:sent1:defender
+addSector:sent1:2:0:0
+end_commands

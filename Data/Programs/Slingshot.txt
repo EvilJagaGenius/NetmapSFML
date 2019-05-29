@@ -1,0 +1,9 @@
+name:Slingshot
+maxSize:2
+speed:2
+maxSpeed:10
+action:Stone
+sprite:0:18
+color:0:217:165
+symbol:h
+description:Basic ranged attack program

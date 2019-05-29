@@ -1,0 +1,9 @@
+name:Hack
+maxSize:3
+speed:2
+maxSpeed:10
+action:Slice
+sprite:0:4
+color:0:199:252
+symbol:h
+description:Basic attack program

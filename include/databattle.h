@@ -6,6 +6,10 @@
 #include <string>
 #include <fstream>
 #include <SFML/Graphics.hpp>
+
+#include "toolbox.h"
+#include "coord.h"
+
 using namespace std;
 
 class DataBattle
@@ -17,8 +21,8 @@ class DataBattle
         sf::Texture bkg;
         // Insert music file here
         int cashReward;
-        vector<int[2]> cashPickups;  // A list of coordinates
-        vector<int[2]> uploads;
+        vector<Coord> cashPickups;  // A list of coordinates
+        vector<Coord> uploads;
         int grid[16][16];
 
         // play()-specific variables here

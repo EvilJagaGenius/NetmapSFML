@@ -2,22 +2,21 @@
 #include <vector>
 #include <string>
 #include <SFML/Graphics.hpp>
-#include <databattle.h>
 
+#include "toolbox.h"
+#include "databattle.h"
 
-sf::Texture imgLoad(std::string filename) {
-    sf::Texture texture;
-    texture.loadFromFile(filename);
-    return texture;
-}
 
 int main()
 {
     // Default SFML test program
 
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
+
+    // Databattle testing
+    DataBattle* testBattle = new DataBattle("TestBattle");
 
     while (window.isOpen())
     {
@@ -32,9 +31,6 @@ int main()
         window.draw(shape);
         window.display();
     }
-
-    // Databattle testing
-    DataBattle* testBattle = new DataBattle("testBattle");
 
     return 0;
 }

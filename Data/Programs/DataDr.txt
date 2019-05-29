@@ -1,0 +1,9 @@
+name:Data Doctor
+maxSize:4
+speed:2
+maxSpeed:10
+action:Grow
+sprite:0:6
+color:0:0:255
+symbol:d
+description:Healer meta-program

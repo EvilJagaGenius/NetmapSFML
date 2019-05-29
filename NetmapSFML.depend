@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1559150620 source:c:\users\nathan\documents\codeblocks\netmapsfml\main.cpp
+1559169629 source:c:\users\nathan\documents\codeblocks\netmapsfml\main.cpp
 	<iostream>
 	<vector>
 	<string>
 	<SFML/Graphics.hpp>
-	<databattle.h>
+	"toolbox.h"
+	"databattle.h"
 
 1525815618 c:\users\nathan\documents\codeblocks\netmapsfml\sfml_libraries\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -415,13 +416,55 @@
 	<SFML/Graphics/Drawable.hpp>
 	<SFML/Window/GlResource.hpp>
 
-1559150525 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\databattle.cpp
+1559175833 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\databattle.cpp
 	"databattle.h"
 
-1559152252 c:\users\nathan\documents\codeblocks\netmapsfml\include\databattle.h
+1559175257 c:\users\nathan\documents\codeblocks\netmapsfml\include\databattle.h
 	<iostream>
 	<vector>
 	<string>
 	<fstream>
 	<SFML/Graphics.hpp>
+	"toolbox.h"
+	"coord.h"
+
+1559175856 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\program.cpp
+	"program.h"
+
+1559175529 c:\users\nathan\documents\codeblocks\netmapsfml\include\program.h
+	<iostream>
+	<vector>
+	<string>
+	<fstream>
+	<SFML/Graphics.hpp>
+	"toolbox.h"
+	"coord.h"
+
+1559174125 c:\users\nathan\documents\codeblocks\netmapsfml\include\toolbox.h
+	<iostream>
+	<vector>
+	<string>
+	<sstream>
+	<fstream>
+	<SFML/Graphics.hpp>
+
+1559174326 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\toolbox.cpp
+	<toolbox.h>
+
+1559176353 c:\users\nathan\documents\codeblocks\netmapsfml\include\coord.h
+
+1559176371 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\coord.cpp
+	"coord.h"
+
+1559176424 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\programsector.cpp
+	"programsector.h"
+
+1559176413 c:\users\nathan\documents\codeblocks\netmapsfml\include\programsector.h
+	<iostream>
+	<vector>
+	<string>
+	<fstream>
+	<SFML/Graphics.hpp>
+	"toolbox.h"
+	"coord.h"
 
