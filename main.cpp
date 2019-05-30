@@ -3,9 +3,8 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
-#include "toolbox.h"
 #include "databattle.h"
-
+#include "toolbox.h"
 
 int main()
 {

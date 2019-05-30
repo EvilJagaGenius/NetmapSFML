@@ -416,10 +416,10 @@
 	<SFML/Graphics/Drawable.hpp>
 	<SFML/Window/GlResource.hpp>
 
-1559175833 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\databattle.cpp
+1559182044 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\databattle.cpp
 	"databattle.h"
 
-1559175257 c:\users\nathan\documents\codeblocks\netmapsfml\include\databattle.h
+1559182021 c:\users\nathan\documents\codeblocks\netmapsfml\include\databattle.h
 	<iostream>
 	<vector>
 	<string>
@@ -427,18 +427,20 @@
 	<SFML/Graphics.hpp>
 	"toolbox.h"
 	"coord.h"
-
-1559175856 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\program.cpp
 	"program.h"
 
-1559175529 c:\users\nathan\documents\codeblocks\netmapsfml\include\program.h
+1559186592 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\program.cpp
+	"program.h"
+
+1559187121 c:\users\nathan\documents\codeblocks\netmapsfml\include\program.h
 	<iostream>
 	<vector>
 	<string>
 	<fstream>
 	<SFML/Graphics.hpp>
-	"toolbox.h"
 	"coord.h"
+	"programsector.h"
+	"toolbox.h"
 
 1559174125 c:\users\nathan\documents\codeblocks\netmapsfml\include\toolbox.h
 	<iostream>

@@ -1,5 +1,9 @@
 #include "databattle.h"
 
+DataBattle::DataBattle() {
+
+}
+
 DataBattle::DataBattle(string filename)
 {
     //ctor
@@ -75,7 +79,7 @@ void DataBattle::load() {
 
                 if (startsWith(line, "addProgram")) {  // Enemy program
                     vector<string> splitLine = splitString(line, ':');
-                    //Program newProgram = new Program(splitLine[1]);
+                    Program* newProgram = new Program(splitLine[1]);
                 }
 
             }

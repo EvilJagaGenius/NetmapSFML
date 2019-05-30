@@ -9,6 +9,7 @@
 
 #include "toolbox.h"
 #include "coord.h"
+#include "program.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ class DataBattle
         // play()-specific variables here
 
         // Functions
+        DataBattle();
         DataBattle(string filename);
         virtual ~DataBattle();
         void load();
