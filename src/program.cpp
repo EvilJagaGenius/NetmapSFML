@@ -28,7 +28,7 @@ void Program::load() {
         } else if (startsWith(line, "action")) {
             // Do something, Taipu
         } else if (startsWith(line, "sprite")) {
-            this->spriteCoord = *(new Coord(stoi(splitLine[1]), stoi(splitLine[2])));
+            this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
         } else if (startsWith(line, "maxSize")) {
             this->color = *(new sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3])));
         } else if (startsWith(line, "description")) {
@@ -37,15 +37,28 @@ void Program::load() {
     }
 }
 
-void Program::move(Coord c, bool firstTime) {
-
+void Program::move(sf::Vector2i coord, bool firstTime=false) {
+    if (firstTime) {
+        sectors = *(new vector<ProgramSector>);
+        sectors.push_back(*(new ProgramSector(coord)));
+        this->size = 1;
+    } else {
+        ProgramSector newSector = *(new ProgramSector(coord, sectors[0]));
+        vector<ProgramSector>::iterator itr = sectors.begin();
+        sectors.insert(itr, newSector);
+        this->size++;
+    }
 }
 
-void Program::addSector(Coord c) {
-
+void Program::addSector(sf::Vector2i coord, int pos=0) {
+    vector<ProgramSector>::iterator itr = sectors.begin();
+    advance(itr, pos);
+    ProgramSector newSector = *(new ProgramSector(coord, sectors[pos]));
+    sectors.push_back(newSector);
+    this->size++;
 }
 
-void Program::useAction(int actionIndex, Coord targetCoord) {
+void Program::useAction(DataBattle* level, int actionIndex, sf::Vector2i targetCoord) {
 
 }
 
@@ -57,7 +70,7 @@ void Program::takeDamage(DataBattle* level, int damage) {
 
 }
 
-void Program::grow(int amtToGrow) {
+void Program::grow(DataBattle* level, int amtToGrow) {
 
 }
 

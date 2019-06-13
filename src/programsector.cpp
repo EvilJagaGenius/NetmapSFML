@@ -1,12 +1,12 @@
 #include "programsector.h"
 
-ProgramSector::ProgramSector(Coord c) {
-    this->coord = c;
+ProgramSector::ProgramSector(sf::Vector2i coord) {
+    this->coord = coord;
     this->numLinks = 0;
 }
 
-ProgramSector::ProgramSector(Coord c, ProgramSector lastSector) {
-    this->coord = c;
+ProgramSector::ProgramSector(sf::Vector2i coord, ProgramSector lastSector) {
+    this->coord = coord;
     this->numLinks = 1;
     this->links.push_back(lastSector);
 }

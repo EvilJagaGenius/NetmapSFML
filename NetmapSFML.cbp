@@ -48,14 +48,16 @@
 		<Linker>
 			<Add directory="SFML_Libraries/lib" />
 		</Linker>
-		<Unit filename="include/coord.h" />
 		<Unit filename="include/databattle.h" />
+		<Unit filename="include/hud.h" />
+		<Unit filename="include/player.h" />
 		<Unit filename="include/program.h" />
 		<Unit filename="include/programsector.h" />
 		<Unit filename="include/toolbox.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/coord.cpp" />
 		<Unit filename="src/databattle.cpp" />
+		<Unit filename="src/hud.cpp" />
+		<Unit filename="src/player.cpp" />
 		<Unit filename="src/program.cpp" />
 		<Unit filename="src/programsector.cpp" />
 		<Unit filename="src/toolbox.cpp" />

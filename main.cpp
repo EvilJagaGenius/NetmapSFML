@@ -8,28 +8,12 @@
 
 int main()
 {
-    // Default SFML test program
-
-    sf::RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
 
     // Databattle testing
+    HUD* testHUD = new HUD();
     DataBattle* testBattle = new DataBattle("TestBattle");
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
+    testBattle->play(&window, testHUD);
 
     return 0;
 }

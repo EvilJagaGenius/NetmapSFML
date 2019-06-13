@@ -21,3 +21,19 @@ sf::Texture imgLoad(string filename) {
     texture.loadFromFile(filename);
     return texture;
 }
+
+sf::Font fontLoad(string filename) {
+    sf::Font newFont;
+    newFont.loadFromFile(filename);
+    return newFont;
+}
+
+void renderText(sf::RenderTexture* targetTexture,
+                string text,
+                //sf::Rect<int> boundaryRect,
+                sf::Font font,
+                sf::Color color) {
+    // Do something, Taipu
+    sf::Text textBox(text, font, 12);
+    targetTexture->draw(textBox);
+}

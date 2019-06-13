@@ -8,17 +8,16 @@
 #include <SFML/Graphics.hpp>
 
 #include "toolbox.h"
-#include "coord.h"
 
 class ProgramSector
 {
     public:
-        Coord coord;
+        sf::Vector2i coord;
         vector<ProgramSector> links;
         int numLinks;
 
-        ProgramSector(Coord c);
-        ProgramSector(Coord c, ProgramSector lastSector);
+        ProgramSector(sf::Vector2i coord);
+        ProgramSector(sf::Vector2i coord, ProgramSector lastSector);
         virtual ~ProgramSector();
 
     protected:
