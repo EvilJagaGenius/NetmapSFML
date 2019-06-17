@@ -13,14 +13,14 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/include" />
+					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-graphics-d.a" />
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-window-d.a" />
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-system-d.a" />
-					<Add directory="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib" />
+					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
+					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
+					<Add library="SFML_Libraries/lib/libsfml-system-d.a" />
+					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -30,13 +30,15 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-graphics.a" />
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-window.a" />
-					<Add library="C:/Users/Nathan/Documents/CodeBlocks/Additional Libraries/SFML-2.5.0/lib/libsfml-system.a" />
+					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
+					<Add library="SFML_Libraries/lib/libsfml-window.a" />
+					<Add library="SFML_Libraries/lib/libsfml-system.a" />
+					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>
 		</Build>

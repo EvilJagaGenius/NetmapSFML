@@ -7,6 +7,8 @@
 #include <SFML/Graphics.hpp>
 
 #include "toolbox.h"
+#include "player.h"
+#include "program.h"
 
 const static sf::Font DEFAULT_FONT = fontLoad("Data\\Fonts\\Terminus.ttf");  // I needed someplace to put this
 const static int WX = 1024;
@@ -30,12 +32,15 @@ class HUD
         sf::RenderTexture contentTexture;
         sf::Sprite contentSprite;
 
+        Player* player;
+
         // Functions
         HUD();
         virtual ~HUD();
         void setMousePos(sf::Vector2i mousePos);
         void takeInput(sf::Event event);
         void render(sf::RenderWindow* window);
+        void setPlayer(Player* p);
 
     protected:
 

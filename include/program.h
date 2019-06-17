@@ -6,14 +6,14 @@
 #include <string>
 #include <fstream>
 #include <iterator>
+#include <unordered_map>
 #include <SFML/Graphics.hpp>
 
 #include "programsector.h"
 
 #include "toolbox.h"
 
-// Constants
-const static sf::Texture PROGRAM_SHEET = imgLoad("Data\\Sprites\\Programs.png");
+using namespace std;
 
 class DataBattle;  // Used to break a circular dependency
 class Program
@@ -25,7 +25,7 @@ class Program
         string description;
         sf::Vector2i spriteCoord;
         sf::Color color;
-        vector<ProgramSector> sectors;  // As opposed to the original Netmap code, let's make the head the back of this vector
+        vector<ProgramSector> sectors;
 
         int size;  // Is size is reserved in C++?
         int maxSize;
@@ -54,5 +54,11 @@ class Program
 
     private:
 };
+
+
+// Constants
+const static sf::Texture PROGRAM_SHEET = imgLoad("Data\\Sprites\\Programs.png");
+static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack")},
+                                                    {"Slingshot", new Program("Slingshot")}};
 
 #endif // PROGRAM_H

@@ -63,7 +63,24 @@ void HUD::render(sf::RenderWindow* window) {
     this->contentTexture.clear(sf::Color::Transparent);
 
     this->contentTexture.draw(this->borderSprite);
-    renderText(&(this->contentTexture), "Hello world!", DEFAULT_FONT, sf::Color::White);
+
+    // Draw program names
+    int i=0;
+    sf::RectangleShape programButton(*(new sf::Vector2<float>(448, 16)));
+    sf::Rect<int> programButtonRect(592, 0, 448, 16);
+    programButton.setFillColor(sf::Color::Transparent);
+    programButton.setOutlineColor(sf::Color::White);
+    programButton.setOutlineThickness(1);
+    for (pair<string, int> p : this->player->programs) {
+        // Do something, Taipu
+        renderText(&(this->contentTexture), PROGRAM_DB[p.first]->screenName + " x" + to_string(p.second), *(new sf::Rect<int>(16, i*16, 448, 16)), DEFAULT_FONT, 12, PROGRAM_DB[p.first]->color);
+        programButton.setPosition(16, i*16);
+        programButtonRect.top = i*16;
+        if (programButtonRect.contains(this->mousePos)) {
+            this->contentTexture.draw(programButton);
+        }
+        i++;
+    }
 
     // Done drawing to the content layer
     this->contentTexture.display();
@@ -76,4 +93,8 @@ void HUD::render(sf::RenderWindow* window) {
     }
     window->draw(this->contentSprite);
 
+}
+
+void HUD::setPlayer(Player* p) {
+    this->player = p;
 }

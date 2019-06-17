@@ -33,6 +33,8 @@ void Program::load() {
             this->color = *(new sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3])));
         } else if (startsWith(line, "description")) {
             this->description = splitLine[1];
+        } else if (startsWith(line, "color")) {
+            this->color = *(new sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3])));
         }
     }
 }

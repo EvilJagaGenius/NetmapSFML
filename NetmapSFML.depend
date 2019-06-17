@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1560459876 source:c:\users\nathan\documents\codeblocks\netmapsfml\main.cpp
+1560717017 source:c:\users\nathan\documents\codeblocks\netmapsfml\main.cpp
 	<iostream>
 	<vector>
 	<string>
@@ -430,20 +430,21 @@
 	"program.h"
 	"hud.h"
 
-1559785832 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\program.cpp
+1560719854 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\program.cpp
 	"program.h"
 
-1559773929 c:\users\nathan\documents\codeblocks\netmapsfml\include\program.h
+1560719893 c:\users\nathan\documents\codeblocks\netmapsfml\include\program.h
 	<iostream>
 	<vector>
 	<string>
 	<fstream>
 	<iterator>
+	<unordered_map>
 	<SFML/Graphics.hpp>
 	"programsector.h"
 	"toolbox.h"
 
-1560471507 c:\users\nathan\documents\codeblocks\netmapsfml\include\toolbox.h
+1560719542 c:\users\nathan\documents\codeblocks\netmapsfml\include\toolbox.h
 	<iostream>
 	<vector>
 	<string>
@@ -451,7 +452,7 @@
 	<fstream>
 	<SFML/Graphics.hpp>
 
-1560471643 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\toolbox.cpp
+1560720330 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\toolbox.cpp
 	<toolbox.h>
 
 1559176353 c:\users\nathan\documents\codeblocks\netmapsfml\include\coord.h
@@ -470,13 +471,26 @@
 	<SFML/Graphics.hpp>
 	"toolbox.h"
 
-1560471592 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\hud.cpp
+1560719583 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\hud.cpp
 	"hud.h"
 
-1560471215 c:\users\nathan\documents\codeblocks\netmapsfml\include\hud.h
+1560717784 c:\users\nathan\documents\codeblocks\netmapsfml\include\hud.h
 	<iostream>
 	<vector>
 	<string>
 	<SFML/Graphics.hpp>
 	"toolbox.h"
+	"player.h"
+	"program.h"
+
+1560717054 c:\users\nathan\documents\codeblocks\netmapsfml\include\player.h
+	<iostream>
+	<vector>
+	<string>
+	<fstream>
+	<unordered_map>
+	<SFML/Graphics.hpp>
+
+1560717083 source:c:\users\nathan\documents\codeblocks\netmapsfml\src\player.cpp
+	"player.h"
 

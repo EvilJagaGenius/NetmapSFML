@@ -12,6 +12,8 @@ int main()
 
     // Databattle testing
     HUD* testHUD = new HUD();
+    Player* PLAYER = new Player;
+    testHUD->setPlayer(PLAYER);
     DataBattle* testBattle = new DataBattle("TestBattle");
     testBattle->play(&window, testHUD);
 

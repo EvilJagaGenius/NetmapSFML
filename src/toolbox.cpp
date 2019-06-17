@@ -2,7 +2,15 @@
 #include <toolbox.h>
 
 bool startsWith(string str, string prefix) {
-    return (str.compare(0, prefix.length(), prefix) == 0);
+    return (0 == str.compare(0, prefix.length(), prefix));
+}
+
+bool endsWith(string str, string postfix) {
+    if (str.length() >= postfix.length()) {
+        return (0 == str.compare(str.length() - postfix.length(), postfix.length(), postfix));
+    } else {
+        return false;
+    }
 }
 
 vector<string> splitString(string str, char delimiter) {
@@ -30,10 +38,32 @@ sf::Font fontLoad(string filename) {
 
 void renderText(sf::RenderTexture* targetTexture,
                 string text,
-                //sf::Rect<int> boundaryRect,
+                sf::Rect<int> boundaryRect,
                 sf::Font font,
+                int fontSize,
                 sf::Color color) {
     // Do something, Taipu
-    sf::Text textBox(text, font, 12);
-    targetTexture->draw(textBox);
+    int x=boundaryRect.left;
+    int y=boundaryRect.top;
+    vector<string> words = splitString(text, ' ');
+
+    sf::Text textBox(' ', font, fontSize);
+    int spaceLength = textBox.getLocalBounds().width;
+    int wordLength;
+
+    textBox.setColor(color);
+    for (string s : words) {
+        textBox.setString(s);
+        wordLength = textBox.getLocalBounds().width;
+        if ((x + wordLength) > (boundaryRect.left + boundaryRect.width)) {
+            x + boundaryRect.left;
+            y += fontSize;
+        }
+        textBox.setPosition(x, y);
+        targetTexture->draw(textBox);
+        x += (spaceLength + wordLength);
+        if (endsWith(s, ".") || endsWith(s, "!") || endsWith(s, "?")) {
+            x += spaceLength;
+        }
+    }
 }

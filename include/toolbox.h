@@ -17,8 +17,9 @@ sf::Texture imgLoad(string filename);
 sf::Font fontLoad(string filename);
 void renderText(sf::RenderTexture* targetTexture,
                        string text,
-                       //sf::Rect<int> boundaryRect,
+                       sf::Rect<int> boundaryRect,
                        sf::Font font,
+                       int fontSize,
                        sf::Color color);
 
 
