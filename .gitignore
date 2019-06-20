@@ -1,5 +1,6 @@
 bin/Release
 obj/Release
 NetmapSFML.layout
+NetmapSFML.depend
 SFML_Libraries
 bin/Debug/*.dll

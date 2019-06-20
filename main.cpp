@@ -3,8 +3,9 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
-#include "databattle.h"
 #include "toolbox.h"
+#include "databattle.h"
+#include "hud.h"
 
 int main()
 {
@@ -14,8 +15,16 @@ int main()
     HUD* testHUD = new HUD();
     Player* PLAYER = new Player;
     testHUD->setPlayer(PLAYER);
-    DataBattle* testBattle = new DataBattle("TestBattle");
+
+    Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
+    CURRENT_PLAYABLE->setHUD(testHUD);
+    CURRENT_PLAYABLE->setPlayer(PLAYER);
+    CURRENT_PLAYABLE->play(&window);
+
+    /*
+    Netmap_Playable* testBattle = new DataBattle("TestBattle");
     testBattle->play(&window, testHUD);
+    */
 
     return 0;
 }

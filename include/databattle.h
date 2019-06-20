@@ -8,18 +8,18 @@
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 
+#include "netmap_playable.h"
 #include "toolbox.h"
 #include "program.h"
-#include "hud.h"
+#include "inputbox.h"
+#include "player.h"
 
 using namespace std;
 
-// Constants
 const static int TILE_SIZE = 32;
 const static int GAP_SIZE = 4;
 
-class HUD;
-class DataBattle
+class DataBattle: public Netmap_Playable
 {
     // Following my style, make everything public until needed otherwise
     public:
@@ -31,7 +31,9 @@ class DataBattle
         int cashReward;
         vector<sf::Vector2i> cashPickups;  // A list of coordinates
         vector<sf::Vector2i> uploads;
+        int selectedUpload;
         unordered_map<string, Program*> defenders;
+        vector<Program*> friendlies;
         int grid[16][16];
 
         // play()-specific variables here
@@ -40,6 +42,9 @@ class DataBattle
         sf::Sprite programSprite;
         sf::Vector2<int> mousePos;
         char phase;
+        string lookingAt;
+        InputBox* hud;
+        Player* player;
 
         // Functions
         DataBattle();
@@ -47,8 +52,11 @@ class DataBattle
         virtual ~DataBattle();
         void load();
         void render(sf::RenderWindow* window);
-        void play(sf::RenderWindow* window, HUD* hud);
-        void takeCommand(string command);
+        void setHUD(InputBox* hud);
+        void setPlayer(Player* player);
+        void play(sf::RenderWindow* window);
+        string takeCommand(string command);
+        string lookAt(sf::Vector2i coord);
 
     protected:
 

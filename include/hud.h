@@ -6,6 +6,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
+#include "databattle.h"
 #include "toolbox.h"
 #include "player.h"
 #include "program.h"
@@ -14,8 +15,7 @@ const static sf::Font DEFAULT_FONT = fontLoad("Data\\Fonts\\Terminus.ttf");  // 
 const static int WX = 1024;
 const static int WY = 576;
 
-class DataBattle;
-class HUD
+class HUD: public InputBox
 {
     public:
         // Variables
@@ -33,12 +33,14 @@ class HUD
         sf::Sprite contentSprite;
 
         Player* player;
+        int programListIndex;
 
         // Functions
         HUD();
         virtual ~HUD();
         void setMousePos(sf::Vector2i mousePos);
-        void takeInput(sf::Event event);
+        void takeInput(sf::Event event, Netmap_Playable* playable);
+        void takeInput(sf::Event event, DataBattle* playable);
         void render(sf::RenderWindow* window);
         void setPlayer(Player* p);
 

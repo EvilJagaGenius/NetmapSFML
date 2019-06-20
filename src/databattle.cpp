@@ -6,7 +6,8 @@ DataBattle::DataBattle() {
 
 DataBattle::DataBattle(string filename)
 {
-    //ctor
+    this->playableType = 'd';
+
     this->filename = filename;
 
     for (int i=0; i<16; i++) {
@@ -120,11 +121,29 @@ void DataBattle::render(sf::RenderWindow* window) {
 
     // Draw upload zones
     if (this->phase == 'u') {  // If in the upload phase
-        this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-        for (sf::Vector2<int> coord : this->uploads) {
-            this->gridSprite.setPosition(*(new sf::Vector2<float>(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE)));
+        for (int i = 0; i < this->uploads.size(); i++) {
+            sf::Vector2i coord = this->uploads[i];
+            this->gridSprite.setPosition(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE);
+            if (i == this->selectedUpload) {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            } else {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            }
             window->draw(this->gridSprite);
         }
+        /*
+        int i = 0;
+        for (sf::Vector2<int> coord : this->uploads) {
+            this->gridSprite.setPosition(*(new sf::Vector2<float>(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE)));
+            if (i == this->selectedUpload) {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            } else {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            }
+            window->draw(this->gridSprite);
+            i++;
+        }
+        */
     }
 
     // Draw defenders
@@ -152,12 +171,21 @@ void DataBattle::render(sf::RenderWindow* window) {
     }
 }
 
-void DataBattle::play(sf::RenderWindow* window, HUD* hud) {
+void DataBattle::setHUD(InputBox* hud) {
+    this->hud = hud;
+}
+
+void DataBattle::setPlayer(Player* player) {
+    this->player = player;
+}
+
+void DataBattle::play(sf::RenderWindow* window) {
     sf::Texture viewSurf;
     this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
     this->gridSprite = *(new sf::Sprite(this->gridSheet));
     this->programSprite = *(new sf::Sprite(PROGRAM_SHEET));
     this->phase = 'u'; // Upload
+    this->selectedUpload = -1;
 
     // FPS measurements
     sf::Clock chrono;
@@ -179,7 +207,7 @@ void DataBattle::play(sf::RenderWindow* window, HUD* hud) {
 
         sf::Event event;
         while (window->pollEvent(event)) {
-            hud->takeInput(event);
+            hud->takeInput(event, this);
             if (event.type == sf::Event::Closed)
                 window->close();
 
@@ -194,6 +222,66 @@ void DataBattle::play(sf::RenderWindow* window, HUD* hud) {
     }
 }
 
-void DataBattle::takeCommand(string command) {
+string DataBattle::takeCommand(string command) {
+    if (startsWith(command, "upload")) {
+        vector<string> splitCommand = splitString(command, ' ');
+        string programName = splitCommand[1];
+        // See if there's a friendly program there
+        for (int i=0; i < this->friendlies.size(); i++) {
+            for (ProgramSector s : this->friendlies[i]->sectors) {
+                if (s.coord == this->uploads[stoi(splitCommand[2])]) {
+                    return "conflict";
+                }
+            }
+        }
+    }
+    if (startsWith(command, "look")) {
+        vector<string> splitCommand = splitString(command, ' ');
+        sf::Vector2<int> coord = *(new sf::Vector2<int>(stoi(splitCommand[1]), stoi(splitCommand[2])));
+        return this->lookAt(coord);
+    }
 
+    return "";
+}
+
+string DataBattle::lookAt(sf::Vector2i coord) {
+    // Uploads
+    if (this->phase == 'u') {
+        for (int i=0; i<this->uploads.size(); i++) {
+            if (coord == this->uploads[i]) {
+                this->selectedUpload = i;
+                return "upload " + to_string(i);
+            }
+        }
+    }
+    // Cash pickups
+    for (sf::Vector2i c : this->cashPickups) {
+        if (c == coord) {
+            return "cash";
+        }
+    }
+    // Defenders
+    for (pair<string, Program*> p : this->defenders) {
+        for (ProgramSector s : p.second->sectors) {
+            if (s.coord == coord) {
+                return "defender " + p.first;
+            }
+        }
+    }
+
+    // Friendlies
+    for (int i=0; i<this->friendlies.size(); i++) {
+        for (ProgramSector s : this->friendlies[i]->sectors) {
+            if (s.coord == coord) {
+                return "friendly " + to_string(i);
+            }
+        }
+    }
+
+    // Tiles
+    if (this->grid[coord.x][coord.y] == 0) {
+        return "empty";
+    } else {
+        return "tile";
+    }
 }
