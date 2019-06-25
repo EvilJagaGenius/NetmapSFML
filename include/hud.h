@@ -11,7 +11,6 @@
 #include "player.h"
 #include "program.h"
 
-const static sf::Font DEFAULT_FONT = fontLoad("Data\\Fonts\\Terminus.ttf");  // I needed someplace to put this
 const static int WX = 1024;
 const static int WY = 576;
 
@@ -22,7 +21,6 @@ class HUD: public InputBox
         bool open;
         sf::Vector2i mousePos;
 
-        sf::Sprite focusSprite;
         sf::Texture panelTexture;
         sf::Sprite panelSprite;
         sf::Texture borderTexture;
@@ -31,6 +29,13 @@ class HUD: public InputBox
 
         sf::RenderTexture contentTexture;
         sf::Sprite contentSprite;
+
+        sf::Sprite focusSprite;
+        char focusType;
+        Program* focusProgram;
+        sf::Vector2i focusCoord;
+        int subFocus;
+        sf::Text focusTextBox;
 
         Player* player;
         int programListIndex;

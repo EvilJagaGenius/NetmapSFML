@@ -67,3 +67,18 @@ void renderText(sf::RenderTexture* targetTexture,
         }
     }
 }
+
+string getByteCoord(sf::Vector2i coord) {
+    string result = "";
+    if (coord.x > 9) {
+        result.push_back('A' + 10 - coord.x);
+    } else {
+        result.push_back('0' + coord.x);
+    }
+    if (coord.y > 9) {
+        result.push_back('A' + 10 - coord.y);
+    } else {
+        result.push_back('0' + coord.y);
+    }
+    return result;
+}

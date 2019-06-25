@@ -11,6 +11,8 @@
 
 using namespace std;
 
+
+
 bool startsWith(string str, string prefix);
 vector<string> splitString(string str, char delimiter);
 sf::Texture imgLoad(string filename);
@@ -21,6 +23,7 @@ void renderText(sf::RenderTexture* targetTexture,
                        sf::Font font,
                        int fontSize,
                        sf::Color color);
+string getByteCoord(sf::Vector2i coord);
 
 
 #endif // TOOLBOX_H_INCLUDED

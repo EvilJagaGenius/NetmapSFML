@@ -2,6 +2,7 @@
 
 Program::Program(string programType) {
     this->programType = programType;
+    this->color = sf::Color::White;
     this->load();
 }
 

@@ -14,6 +14,10 @@ HUD::HUD()
     this->contentTexture.create(448, 576);
 
     this->programListIndex = 0;
+
+    this->focusType = '0';
+    this->focusCoord = *(new sf::Vector2<int>(-1, -1));
+    this->focusTextBox = *(new sf::Text("", DEFAULT_FONT, 12));
 }
 
 HUD::~HUD()
@@ -59,15 +63,47 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                 this->panelSprite.setPosition(576, 0);
             }
         }
-        if (playable->playableType == 'd') { // If it's a databattle
-            // Calculate which tile coordinate, if any, we'd be pointing to
-            if (this->mousePos.x < WY) {
-                if ((this->mousePos.x % (TILE_SIZE+GAP_SIZE) <= TILE_SIZE) && (this->mousePos.y % (TILE_SIZE+GAP_SIZE) <= TILE_SIZE)) {  // If we're on a tile
-                    int tileX = this->mousePos.x / (TILE_SIZE+GAP_SIZE);
-                    int tileY = this->mousePos.y / (TILE_SIZE+GAP_SIZE);
-                    cout << playable->takeCommand("look " + to_string(tileX) + " " + to_string(tileY)) << "\n";
+
+        // Calculate which tile coordinate, if any, we'd be pointing to
+        if (this->mousePos.x < WY) {
+            if ((this->mousePos.x % (TILE_SIZE+GAP_SIZE) <= TILE_SIZE) && (this->mousePos.y % (TILE_SIZE+GAP_SIZE) <= TILE_SIZE)) {  // If we're on a tile
+                int tileX = this->mousePos.x / (TILE_SIZE+GAP_SIZE);
+                int tileY = this->mousePos.y / (TILE_SIZE+GAP_SIZE);
+                sf::Vector2<int> tileCoord(tileX, tileY);
+                // Uploads
+                if (playable->phase == 'u') {
+                    for (int i=0; i<playable->uploads.size(); i++) {
+                        sf::Vector2<int> coord = playable->uploads[i];
+                        if (tileCoord == coord) {
+                            playable->selectedUpload = i;
+                            // Set an upload as the focus
+                            this->focusType = 'u';
+                            this->subFocus = i;
+                            this->focusCoord.x = tileX;
+                            this->focusCoord.y = tileY;
+                            break;
+                        }
+                    }
+                    // Defenders
+                    for (pair<string, Program*> p : playable->defenders) {
+                        for (ProgramSector sector : p.second->sectors) {
+                            if (sector.coord == tileCoord) {
+                                this->focusType = 'p';
+                                this->subFocus = -1;
+                                this->focusProgram = p.second;
+                                this->focusCoord.x = tileX;
+                                this->focusCoord.y = tileY;
+                            }
+                        }
+                    }
+
+                } else {
+                    // Do something, Taipu
                 }
             }
+        } else {  // If we're pointing somewhere on the HUD itself
+            // See if we clicked a program button
+
         }
     }
 }
@@ -101,6 +137,48 @@ void HUD::render(sf::RenderWindow* window) {
             i++;
         }
         currentIndex++;
+    }
+
+    // Draw focus and associated data
+    if (this->focusType != '0') {
+        this->focusTextBox.setStyle(sf::Text::Regular);
+        this->focusTextBox.setColor(sf::Color::White);
+        this->focusTextBox.setString("@" + getByteCoord(this->focusCoord));
+        this->focusTextBox.setPosition(20 + TILE_SIZE, 170);
+        this->contentTexture.draw(this->focusTextBox);
+        if (this->focusType == 'u') { // Upload zone
+            // Draw the sprite
+            this->focusSprite.setTexture(GRID_SHEET);  // Maybe I should combine the program sheets and grid sheets at some point
+            this->focusSprite.setTextureRect(sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->focusSprite.setPosition(16, 160);
+            this->contentTexture.draw(this->focusSprite);
+
+            // Draw name
+            this->focusTextBox.setPosition(20 + TILE_SIZE, 160);
+            this->focusTextBox.setString("UPLOAD ZONE " + to_string(this->subFocus));
+            this->contentTexture.draw(this->focusTextBox);
+
+            // Draw description
+            this->focusTextBox.setPosition(220, 160);
+            this->focusTextBox.setString("Upload programs to the memory grid");
+            this->contentTexture.draw(this->focusTextBox);
+
+        } else if (this->focusType == 'p') { // Program
+            // Draw the sprite
+            this->focusSprite.setTexture(PROGRAM_SHEET);
+            this->focusSprite.setTextureRect(sf::Rect<int>(this->focusProgram->spriteCoord.x*TILE_SIZE, this->focusProgram->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->focusSprite.setPosition(16, 160);
+            this->contentTexture.draw(this->focusSprite);
+
+            // Draw name
+            this->focusTextBox.setPosition(20 + TILE_SIZE, 160);
+            this->focusTextBox.setColor(this->focusProgram->color);
+            this->focusTextBox.setString(this->focusProgram->screenName);
+            this->contentTexture.draw(this->focusTextBox);
+
+            // Draw description
+            renderText(&this->contentTexture, this->focusProgram->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
+        }
     }
 
     // Done drawing to the content layer

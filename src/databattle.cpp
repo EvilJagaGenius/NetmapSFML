@@ -181,8 +181,8 @@ void DataBattle::setPlayer(Player* player) {
 
 void DataBattle::play(sf::RenderWindow* window) {
     sf::Texture viewSurf;
-    this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
-    this->gridSprite = *(new sf::Sprite(this->gridSheet));
+    //this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
+    this->gridSprite = *(new sf::Sprite(GRID_SHEET));
     this->programSprite = *(new sf::Sprite(PROGRAM_SHEET));
     this->phase = 'u'; // Upload
     this->selectedUpload = -1;
