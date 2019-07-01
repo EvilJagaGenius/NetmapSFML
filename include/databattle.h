@@ -45,6 +45,17 @@ class DataBattle: public Netmap_Playable
         string lookingAt;
         InputBox* hud;
         Player* player;
+        int friendliesLoaded;
+        int currentProgramIndex;
+        Program* currentProgram;
+        Program* programStartingState; // Write a copy constructor for Program
+        string currentDefenderIndex;
+        sf::Vector2i programHead;
+        sf::Vector2i nButton;
+        sf::Vector2i sButton;
+        sf::Vector2i eButton;
+        sf::Vector2i wButton;
+        vector<sf::Vector2i> moveArea;
 
         // Functions
         DataBattle();
@@ -55,6 +66,7 @@ class DataBattle: public Netmap_Playable
         void setHUD(InputBox* hud);
         void setPlayer(Player* player);
         void play(sf::RenderWindow* window);
+        void switchTurns(InputBox* hud);
         string takeCommand(string command);
         string lookAt(sf::Vector2i coord);
 

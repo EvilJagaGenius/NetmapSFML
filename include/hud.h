@@ -46,8 +46,9 @@ class HUD: public InputBox
         void setMousePos(sf::Vector2i mousePos);
         void takeInput(sf::Event event, Netmap_Playable* playable);
         void takeInput(sf::Event event, DataBattle* playable);
-        void render(sf::RenderWindow* window);
+        void render(sf::RenderWindow* window, DataBattle* playable);
         void setPlayer(Player* p);
+        void setFocus(Program* focus);
 
     protected:
 

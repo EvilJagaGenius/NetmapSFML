@@ -24,6 +24,7 @@ void renderText(sf::RenderTexture* targetTexture,
                        int fontSize,
                        sf::Color color);
 string getByteCoord(sf::Vector2i coord);
+vector<sf::Vector2i> getRadius(int radius, sf::Vector2i origin, bool includeOrigin=false);
 
 
 #endif // TOOLBOX_H_INCLUDED

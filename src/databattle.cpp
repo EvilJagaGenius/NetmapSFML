@@ -10,6 +10,9 @@ DataBattle::DataBattle(string filename)
 
     this->filename = filename;
 
+    this->friendliesLoaded = 0;
+
+
     for (int i=0; i<16; i++) {
         for (int j=0; j<16; j++) {
             this->grid[i][j] = 0;
@@ -118,34 +121,6 @@ void DataBattle::render(sf::RenderWindow* window) {
             }
         }
     }
-
-    // Draw upload zones
-    if (this->phase == 'u') {  // If in the upload phase
-        for (int i = 0; i < this->uploads.size(); i++) {
-            sf::Vector2i coord = this->uploads[i];
-            this->gridSprite.setPosition(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE);
-            if (i == this->selectedUpload) {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-            } else {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-            }
-            window->draw(this->gridSprite);
-        }
-        /*
-        int i = 0;
-        for (sf::Vector2<int> coord : this->uploads) {
-            this->gridSprite.setPosition(*(new sf::Vector2<float>(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE)));
-            if (i == this->selectedUpload) {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-            } else {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-            }
-            window->draw(this->gridSprite);
-            i++;
-        }
-        */
-    }
-
     // Draw defenders
     for (pair<string, Program*> element : defenders) {
         Program* p = element.second;
@@ -159,6 +134,57 @@ void DataBattle::render(sf::RenderWindow* window) {
                 this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
                 this->programSprite.setPosition(*(new sf::Vector2<float>(sector.coord.x*TILE_SIZE + sector.coord.x*GAP_SIZE, sector.coord.y*TILE_SIZE + sector.coord.y*GAP_SIZE)));
                 window->draw(this->programSprite);
+            }
+        }
+    }
+
+    // Draw friendlies
+    for (int i=0; i<this->friendlies.size(); i++) {
+        Program* p = this->friendlies[i];
+        for (int j=0; j<(p->size); j++) {
+            ProgramSector sector = p->sectors[j];
+            if (j==0) {  // Blit head sprite
+                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+                this->programSprite.setPosition(*(new sf::Vector2<float>(sector.coord.x*TILE_SIZE + sector.coord.x*GAP_SIZE, sector.coord.y*TILE_SIZE + sector.coord.y*GAP_SIZE)));
+                window->draw(this->programSprite);
+            } else {  // Blit tail sprite
+                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+                this->programSprite.setPosition(*(new sf::Vector2<float>(sector.coord.x*TILE_SIZE + sector.coord.x*GAP_SIZE, sector.coord.y*TILE_SIZE + sector.coord.y*GAP_SIZE)));
+                window->draw(this->programSprite);
+            }
+        }
+    }
+
+
+    // Draw upload zones
+    if (this->phase == 'u') {  // If in the upload phase
+        for (int i = 0; i < this->uploads.size(); i++) {
+            sf::Vector2i coord = this->uploads[i];
+            this->gridSprite.setPosition(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE);
+            if (i == this->selectedUpload) {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            } else {
+                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+            }
+            window->draw(this->gridSprite);
+        }
+    } else {
+        // Draw movement area, associated buttons
+        for (sf::Vector2i coord : this->moveArea) {
+            if (this->grid[coord.x][coord.y] != 0) {
+                if (coord == this->nButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->sButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->eButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(2*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->wButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                }
+                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                window->draw(this->gridSprite);
             }
         }
     }
@@ -217,8 +243,44 @@ void DataBattle::play(sf::RenderWindow* window) {
         }
 
         this->render(window);
-        hud->render(window);
+        hud->render(window, this);
         window->display();
+    }
+}
+
+void DataBattle::switchTurns(InputBox* hud) {
+    if (this->phase == 'u' || this->phase == 'e') { // Player or enemy
+        // Switch to player
+        this->phase = 'p';
+        // Add the textbox here
+        for (Program* p : this->friendlies) {
+            p->prepForTurn();
+        }
+        this->currentProgramIndex = 0;
+        this->currentProgram = this->friendlies[this->currentProgramIndex];
+        // Copy the program for undo operations here
+        this->programHead = this->currentProgram->sectors[0].coord;
+        this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
+        this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
+        this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
+        this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
+        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+        hud->setFocus(this->currentProgram);
+
+    } else {
+        // Switch to enemy
+        this->phase = 'e';  // Switch to enemy
+        // Add textbox here;
+        bool first = true;
+        for (pair<string, Program*> p : this->defenders) {
+            if (first) {
+                this->currentDefenderIndex = p.first;
+                first = false;
+            }
+            p.second->prepForTurn();
+        }
+        this->currentProgram = this->defenders[this->currentDefenderIndex];
+        this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0].coord);
     }
 }
 

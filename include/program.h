@@ -21,6 +21,7 @@ class Program
     public:
         // Variables
         string programType;
+        string name;
         string screenName;
         string description;
         sf::Vector2i spriteCoord;
@@ -37,6 +38,7 @@ class Program
 
         // Functions
         Program(string programType);
+        Program(Program* original);  // Copy constructor
         virtual ~Program();
         void load();
         void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?

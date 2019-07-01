@@ -9,16 +9,19 @@ using namespace std;
 
 class Netmap_Playable;
 class DataBattle;
+class Program;
 class InputBox
 {
     public:
         InputBox();
         virtual ~InputBox();
         void virtual setMousePos(sf::Vector2i mousePos);
-        void virtual render(sf::RenderWindow* window);
+        void virtual render(sf::RenderWindow* window, Netmap_Playable* playable);
+        void virtual render(sf::RenderWindow* window, DataBattle* playable);
         void virtual takeInput(sf::Event event, Netmap_Playable* playable);
         void virtual takeInput(sf::Event event, DataBattle* playable);
         void virtual setFocus(string focus);
+        void virtual setFocus(Program* focus);
         string virtual getFocus();
 
     protected:

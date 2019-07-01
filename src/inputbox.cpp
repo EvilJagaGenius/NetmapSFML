@@ -11,7 +11,9 @@ InputBox::~InputBox()
 }
 void InputBox::setMousePos(sf::Vector2i mousePos) {
 }
-void InputBox::render(sf::RenderWindow* window) {
+void InputBox::render(sf::RenderWindow* window, Netmap_Playable* playable) {
+}
+void InputBox::render(sf::RenderWindow* window, DataBattle* playable) {
 }
 void InputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
     cout << "Called InputBox version of takeInput\n";
@@ -21,6 +23,8 @@ void InputBox::takeInput(sf::Event event, DataBattle* playable) {
 }
 
 void InputBox::setFocus(string focus) {
+}
+void InputBox::setFocus(Program* focus) {
 }
 string InputBox::getFocus() {
     return "";

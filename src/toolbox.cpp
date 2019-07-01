@@ -68,6 +68,32 @@ void renderText(sf::RenderTexture* targetTexture,
     }
 }
 
+vector<sf::Vector2i> getRadius(int radius, sf::Vector2i origin, bool includeOrigin) {
+    vector<sf::Vector2i> coords;
+    int x = 0;
+    while (x <= radius) {
+        for (int y=0; y<(radius-x+1); y++) {
+            if (x != 0 && y != 0) {
+                coords.push_back(sf::Vector2<int>(origin.x + x, origin.y + y));
+                coords.push_back(sf::Vector2<int>(origin.x + x, origin.y - y));
+                coords.push_back(sf::Vector2<int>(origin.x - x, origin.y + y));
+                coords.push_back(sf::Vector2<int>(origin.x - x, origin.y - y));
+            } else if (x == 0 && y != 0) {
+                coords.push_back(sf::Vector2<int>(origin.x + x, origin.y + y));
+                coords.push_back(sf::Vector2<int>(origin.x + x, origin.y - y));
+            } else if (x != 0 && y == 0) {
+                coords.push_back(sf::Vector2<int>(origin.x + x, origin.y + y));
+                coords.push_back(sf::Vector2<int>(origin.x - x, origin.y + y));
+            }
+        }
+        x++;
+    }
+    if (includeOrigin) {
+        coords.push_back(sf::Vector2<int>(origin.x, origin.y));
+    }
+    return coords;
+}
+
 string getByteCoord(sf::Vector2i coord) {
     string result = "";
     if (coord.x > 9) {

@@ -1,5 +1,5 @@
 bin/Release
-obj/Release
+obj
 NetmapSFML.layout
 NetmapSFML.depend
 SFML_Libraries

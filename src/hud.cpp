@@ -103,12 +103,61 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
             }
         } else {  // If we're pointing somewhere on the HUD itself
             // See if we clicked a program button
+            int i=0;
+            int currentIndex = 0;
+            sf::Rect<int> programButtonRect(592, 0, 448, 16);
 
+            for (pair<string, int> p : this->player->programs) {
+                if (currentIndex >= this->programListIndex) {
+                    programButtonRect.top = i*16;
+                    if (programButtonRect.contains(this->mousePos)) {
+                        if ((playable->phase == 'u') && (playable->selectedUpload != -1) && (p.second > 0)) {
+                            // Upload the program to the grid
+                            // Check to see if a program is in the selected spot
+                            for (int j=0; j<playable->friendlies.size(); j++) {
+                                Program* program = playable->friendlies[j];
+                                if (playable->uploads[playable->selectedUpload] == program->sectors[0].coord) {
+                                    this->player->programs[program->name]++;   // Add that program to the inventory
+                                    playable->friendlies.erase(playable->friendlies.begin()+j);  // Remove from the databattle
+                                    playable->friendliesLoaded--;
+                                    break;
+                                }
+                            }
+                            Program* newProgram = new Program(p.first);
+                            newProgram->move(playable->uploads[playable->selectedUpload], true);
+                            playable->friendlies.push_back(newProgram);  // Add to databattle
+                            playable->friendliesLoaded++;
+                            this->player->programs[p.first]--;  // Remove one from the inventory
+
+                            this->focusProgram = newProgram;
+                            this->focusCoord = newProgram->sectors[0].coord;
+                            this->focusType = 'p';
+                            break;
+                        }
+                    }
+                    i++;
+                }
+                currentIndex++;
+            }
+
+            // DB Initialize
+            programButtonRect.top = WY-32;
+            if (programButtonRect.contains(this->mousePos) && playable->phase == 'u') {
+                if (playable->friendliesLoaded > 0) {
+                    playable->switchTurns(this);
+                }
+            }
+
+            // Disconnect
+            programButtonRect.top = WY-16;
+            if (programButtonRect.contains(this->mousePos)) {
+                cout << "Disconnect\n";
+            }
         }
     }
 }
 
-void HUD::render(sf::RenderWindow* window) {
+void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
     window->draw(this->panelSprite);  // Draw the transparent panel first
     // Draw the contents
 
@@ -119,7 +168,7 @@ void HUD::render(sf::RenderWindow* window) {
     // Draw program names
     int i=0;
     int currentIndex = 0;
-    sf::RectangleShape programButton(*(new sf::Vector2<float>(448, 16)));
+    sf::RectangleShape programButton(sf::Vector2<float>(448, 16));
     sf::Rect<int> programButtonRect(592, 0, 448, 16);
     programButton.setFillColor(sf::Color::Transparent);
     programButton.setOutlineColor(sf::Color::White);
@@ -128,9 +177,9 @@ void HUD::render(sf::RenderWindow* window) {
     for (pair<string, int> p : this->player->programs) {
         if (currentIndex >= this->programListIndex) {
             // Do something, Taipu
-            renderText(&(this->contentTexture), PROGRAM_DB[p.first]->screenName + " x" + to_string(p.second), *(new sf::Rect<int>(16, i*16, 448, 16)), DEFAULT_FONT, 12, PROGRAM_DB[p.first]->color);
-            programButton.setPosition(16, i*16);
+            renderText(&(this->contentTexture), PROGRAM_DB[p.first]->screenName + " x" + to_string(p.second), sf::Rect<int>(16, i*16, 448, 16), DEFAULT_FONT, 12, PROGRAM_DB[p.first]->color);
             programButtonRect.top = i*16;
+            programButton.setPosition(16, programButtonRect.top);
             if (programButtonRect.contains(this->mousePos)) {
                 this->contentTexture.draw(programButton);
             }
@@ -181,6 +230,30 @@ void HUD::render(sf::RenderWindow* window) {
         }
     }
 
+    // Draw DB Initialize, Disconnect buttons
+    programButtonRect.top = WY-32;
+    programButton.setPosition(16, programButtonRect.top);
+    if (playable->phase == 'u') {
+        if (playable->friendliesLoaded > 0) {
+            renderText(&(this->contentTexture), "DATABATTLE INITIALIZE", sf::Rect<int>(16, programButtonRect.top, 448, 16), DEFAULT_FONT, 12, sf::Color::Green);
+        } else {
+            renderText(&(this->contentTexture), "UPLOAD PROGRAMS", sf::Rect<int>(16, programButtonRect.top, 448, 16), DEFAULT_FONT, 12, sf::Color::Red);
+        }
+    } else {
+        renderText(&(this->contentTexture), "DATABATTLE IN PROGRESS", sf::Rect<int>(16, programButtonRect.top, 448, 16), DEFAULT_FONT, 12, sf::Color::White);
+    }
+    if (programButtonRect.contains(this->mousePos)) {
+        this->contentTexture.draw(programButton);
+    }
+
+    // Disconnect button
+    programButtonRect.top = WY-16;
+    programButton.setPosition(16, programButtonRect.top);
+    renderText(&(this->contentTexture), "DISCONNECT", sf::Rect<int>(16, programButtonRect.top, 448, 16), DEFAULT_FONT, 12, sf::Color::White);
+    if (programButtonRect.contains(this->mousePos)) {
+        this->contentTexture.draw(programButton);
+    }
+
     // Done drawing to the content layer
     this->contentTexture.display();
     this->contentSprite = *(new sf::Sprite(this->contentTexture.getTexture()));
@@ -196,4 +269,9 @@ void HUD::render(sf::RenderWindow* window) {
 
 void HUD::setPlayer(Player* p) {
     this->player = p;
+}
+void HUD::setFocus(Program* focus) {
+    this->focusType = 'p';
+    this->focusProgram = focus;
+    this->focusCoord = focus->sectors[0].coord;
 }

@@ -6,6 +6,10 @@ Program::Program(string programType) {
     this->load();
 }
 
+Program::Program(Program* original) {  // Copy constructor
+    // Do something, Taipu
+}
+
 Program::~Program()
 {
     //dtor
@@ -19,6 +23,9 @@ void Program::load() {
     while (getline(textFile, line)) {
         splitLine = splitString(line, ':');
         if (startsWith(line, "name")) {
+            this->name = splitLine[1];
+            this->screenName = splitLine[1];
+        } else if (startsWith(line, "screenName")) {
             this->screenName = splitLine[1];
         } else if (startsWith(line, "maxSize")) {
             this->maxSize = stoi(splitLine[1]);
@@ -77,6 +84,6 @@ void Program::grow(DataBattle* level, int amtToGrow) {
 
 }
 
-void prepForTurn() {
+void Program::prepForTurn() {
 
 }
