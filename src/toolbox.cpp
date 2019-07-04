@@ -42,10 +42,10 @@ void renderText(sf::RenderTexture* targetTexture,
                 sf::Font font,
                 int fontSize,
                 sf::Color color) {
-    // Do something, Taipu
     int x=boundaryRect.left;
     int y=boundaryRect.top;
     vector<string> words = splitString(text, ' ');
+    // Have newlines as their own word
 
     sf::Text textBox(' ', font, fontSize);
     int spaceLength = textBox.getLocalBounds().width;
@@ -54,16 +54,21 @@ void renderText(sf::RenderTexture* targetTexture,
     textBox.setColor(color);
     for (string s : words) {
         textBox.setString(s);
-        wordLength = textBox.getLocalBounds().width;
-        if ((x + wordLength) > (boundaryRect.left + boundaryRect.width)) {
-            x + boundaryRect.left;
+        if (!startsWith(s, "\n")) {
+            wordLength = textBox.getLocalBounds().width;
+            if ((x + wordLength) > (boundaryRect.left + boundaryRect.width)) {
+                x = boundaryRect.left;
+                y += fontSize;
+            }
+            textBox.setPosition(x, y);
+            targetTexture->draw(textBox);
+            x += (spaceLength + wordLength);
+            if (endsWith(s, ".") || endsWith(s, "!") || endsWith(s, "?")) {
+                x += spaceLength;
+            }
+        } else {
+            x = boundaryRect.left;
             y += fontSize;
-        }
-        textBox.setPosition(x, y);
-        targetTexture->draw(textBox);
-        x += (spaceLength + wordLength);
-        if (endsWith(s, ".") || endsWith(s, "!") || endsWith(s, "?")) {
-            x += spaceLength;
         }
     }
 }

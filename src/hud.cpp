@@ -132,12 +132,31 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             this->focusProgram = newProgram;
                             this->focusCoord = newProgram->sectors[0].coord;
                             this->focusType = 'p';
+                            this->subFocus = -1;
+                            break;
+                        } else {
+                            this->focusProgram = PROGRAM_DB[p.first];
+                            this->focusCoord.x = -1;
+                            this->focusCoord.y = -1;
+                            this->focusType = 'p';
+                            this->subFocus = -1;
                             break;
                         }
                     }
                     i++;
                 }
                 currentIndex++;
+            }
+
+            // Actions
+            sf::Rect<int> actionButtonRect(592, 200, 100, 14);
+            if (focusType == 'p') {
+                for (int i=0; i<this->focusProgram->actions.size(); i++) {
+                    actionButtonRect.top = 215 + i*14;
+                    if (actionButtonRect.contains(this->mousePos)) {
+                        this->subFocus = i;
+                    }
+                }
             }
 
             // DB Initialize
@@ -190,11 +209,13 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
 
     // Draw focus and associated data
     if (this->focusType != '0') {
-        this->focusTextBox.setStyle(sf::Text::Regular);
-        this->focusTextBox.setColor(sf::Color::White);
-        this->focusTextBox.setString("@" + getByteCoord(this->focusCoord));
-        this->focusTextBox.setPosition(20 + TILE_SIZE, 170);
-        this->contentTexture.draw(this->focusTextBox);
+        if (this->focusCoord.x != -1) {
+            this->focusTextBox.setStyle(sf::Text::Regular);
+            this->focusTextBox.setColor(sf::Color::White);
+            this->focusTextBox.setString("@" + getByteCoord(this->focusCoord));
+            this->focusTextBox.setPosition(20 + TILE_SIZE, 170);
+            this->contentTexture.draw(this->focusTextBox);
+        }
         if (this->focusType == 'u') { // Upload zone
             // Draw the sprite
             this->focusSprite.setTexture(GRID_SHEET);  // Maybe I should combine the program sheets and grid sheets at some point
@@ -226,7 +247,60 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
             this->contentTexture.draw(this->focusTextBox);
 
             // Draw description
-            renderText(&this->contentTexture, this->focusProgram->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
+            if (this->subFocus != -1) {
+                renderText(&this->contentTexture, this->focusProgram->actions[this->subFocus]->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
+            } else {
+                renderText(&this->contentTexture, this->focusProgram->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
+            }
+
+            // Draw action buttons
+            sf::Rect<int> actionButtonRect(592, 200, 100, 14);
+            sf::RectangleShape actionButton(sf::Vector2<float>(actionButtonRect.width, actionButtonRect.height));
+            actionButton.setFillColor(sf::Color::Transparent);
+            actionButton.setOutlineColor(sf::Color::White);
+            actionButton.setOutlineThickness(1);
+
+            this->focusTextBox.setPosition(18, actionButtonRect.top);
+            this->focusTextBox.setString("ACTIONS:");
+            this->contentTexture.draw(this->focusTextBox);
+
+            for (int i=0; i<this->focusProgram->actions.size(); i++) {
+                actionButtonRect.top = 215 + i*14;
+                actionButton.setPosition(16, actionButtonRect.top);
+                this->focusTextBox.setPosition(32, actionButtonRect.top);
+                this->focusTextBox.setString(this->focusProgram->actions[i]->actionName);
+                if (this->focusProgram->actions[i]->checkPrereqs(this->focusProgram)) {  // If the current program meets the prerequisites
+                    this->focusTextBox.setColor(sf::Color::White);
+                } else {
+                    this->focusTextBox.setColor(sf::Color::Red);
+                }
+                this->contentTexture.draw(this->focusTextBox);
+                if (actionButtonRect.contains(this->mousePos)) {
+                    this->contentTexture.draw(actionButton);
+                }
+            }
+
+            // No action, Undo
+            if (playable->phase == 'p') {
+                actionButtonRect.top = 271;
+                actionButton.setPosition(16, actionButtonRect.top);
+                this->focusTextBox.setPosition(32, actionButtonRect.top);
+                this->focusTextBox.setString("No Action");
+                this->focusTextBox.setColor(sf::Color::Red);
+                this->contentTexture.draw(this->focusTextBox);
+                if (actionButtonRect.contains(this->mousePos)) {
+                    this->contentTexture.draw(actionButton);
+                }
+                actionButtonRect.top = 285;
+                actionButton.setPosition(16, actionButtonRect.top);
+                this->focusTextBox.setPosition(32, actionButtonRect.top);
+                this->focusTextBox.setString("Undo");
+                this->focusTextBox.setColor(sf::Color::Red);
+                this->contentTexture.draw(this->focusTextBox);
+                if (actionButtonRect.contains(this->mousePos)) {
+                    this->contentTexture.draw(actionButton);
+                }
+            }
         }
     }
 
@@ -274,4 +348,9 @@ void HUD::setFocus(Program* focus) {
     this->focusType = 'p';
     this->focusProgram = focus;
     this->focusCoord = focus->sectors[0].coord;
+    this->subFocus = -1;
+}
+
+void HUD::setSubFocus(int subFocus) {
+    this->subFocus = subFocus;
 }

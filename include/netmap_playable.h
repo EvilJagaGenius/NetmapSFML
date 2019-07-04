@@ -3,8 +3,11 @@
 #define NETMAP_PLAYABLE_H
 
 #include <iostream>
+#include <unordered_map>
 #include <string>
 #include <SFML/Graphics.hpp>
+
+#include "databattlepiece.h"
 
 using namespace std;
 
@@ -14,6 +17,8 @@ class Netmap_Playable
 {
     public:
         char playableType;
+        unordered_map<string, DataBattlePiece*> defenders;
+        vector<DataBattlePiece*> friendlies;
 
         Netmap_Playable();
         virtual ~Netmap_Playable();

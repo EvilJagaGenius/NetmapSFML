@@ -11,9 +11,6 @@
 #include "player.h"
 #include "program.h"
 
-const static int WX = 1024;
-const static int WY = 576;
-
 class HUD: public InputBox
 {
     public:
@@ -34,8 +31,8 @@ class HUD: public InputBox
         char focusType;
         Program* focusProgram;
         sf::Vector2i focusCoord;
-        int subFocus;
         sf::Text focusTextBox;
+        int subFocus;
 
         Player* player;
         int programListIndex;
@@ -49,6 +46,7 @@ class HUD: public InputBox
         void render(sf::RenderWindow* window, DataBattle* playable);
         void setPlayer(Player* p);
         void setFocus(Program* focus);
+        void setSubFocus(int subFocus);
 
     protected:
 

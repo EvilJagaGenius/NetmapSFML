@@ -34,7 +34,7 @@ void Program::load() {
         } else if (startsWith(line, "maxSpeed")) {
             this->maxSpeed = stoi(splitLine[1]);
         } else if (startsWith(line, "action")) {
-            // Do something, Taipu
+            this->actions.push_back(&ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
         } else if (startsWith(line, "maxSize")) {
@@ -53,37 +53,77 @@ void Program::move(sf::Vector2i coord, bool firstTime=false) {
         sectors.push_back(*(new ProgramSector(coord)));
         this->size = 1;
     } else {
-        ProgramSector newSector = *(new ProgramSector(coord, sectors[0]));
-        vector<ProgramSector>::iterator itr = sectors.begin();
-        sectors.insert(itr, newSector);
-        this->size++;
+        bool doublingBack = false;
+        int doubleBackIndex = -1;
+        for (int i=0; i<this->sectors.size(); i++) {
+            if (this->sectors[i].coord == coord) {
+                doublingBack = true;
+                doubleBackIndex = i;
+            }
+        }
+
+        if (doublingBack) {
+            // Swap the positions of the current head and the sector we're going to
+            ProgramSector doubleBackSector = this->sectors[doubleBackIndex];
+            this->sectors[doubleBackIndex] = this->sectors[0];
+            this->sectors[0] = doubleBackSector;
+            this->currentMove++;
+        } else {
+            this->sectors.insert(this->sectors.begin(), ProgramSector(coord, this->sectors[0]));  // Add new sector as the head
+            while (this->sectors.size() > this->maxSize) {  // Trim program down if necessary
+                for (int i=0; i<this->sectors.size(); i++) {
+                    ProgramSector s = this->sectors[i];
+                    if ((s.numLinks == 1) && (i != 0)) {
+                        ProgramSector connectedSector = s.links[0];
+                        // Unlink the sectors
+                        for (int j=0; j<connectedSector.links.size(); j++) {
+                            if (connectedSector.links[j].coord == s.coord) {
+                                connectedSector.links.erase(connectedSector.links.begin() + i);
+                                break;
+                            }
+                        }
+                        connectedSector.numLinks--;
+                        break;
+                    }
+                }
+            }
+            this->currentMove++;
+        }
+        this->size = this->sectors.size();
     }
 }
 
 void Program::addSector(sf::Vector2i coord, int pos=0) {
     vector<ProgramSector>::iterator itr = sectors.begin();
     advance(itr, pos);
-    ProgramSector newSector = *(new ProgramSector(coord, sectors[pos]));
+    ProgramSector newSector = ProgramSector(coord, sectors[pos]);
     sectors.push_back(newSector);
     this->size++;
 }
 
-void Program::useAction(DataBattle* level, int actionIndex, sf::Vector2i targetCoord) {
-
+void Program::useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord) {
+    this->actions[actionIndex]->use(level, this, targetCoord);
+    // Action is used whether it failed or not, end the turn
+    this->state = 'd';
 }
 
 void Program::switchToAiming(int actionIndex) {
+    this->state = 'a';
+    this->currentActionIndex = actionIndex;
+    this->currentAction = this->actions[this->currentActionIndex];
+    // Should add an if statement to automatically end the turn if we don't have any actions (like the Memory Hog)
+}
+
+void Program::takeDamage(Netmap_Playable* level, int damage) {
 
 }
 
-void Program::takeDamage(DataBattle* level, int damage) {
-
-}
-
-void Program::grow(DataBattle* level, int amtToGrow) {
+void Program::grow(Netmap_Playable* level, int amtToGrow) {
 
 }
 
 void Program::prepForTurn() {
-
+    this->state = 'm';
+    this->currentActionIndex = -1;
+    this->currentMove = 0;
 }

@@ -51,20 +51,24 @@
 			<Add directory="SFML_Libraries/lib" />
 		</Linker>
 		<Unit filename="include/databattle.h" />
+		<Unit filename="include/databattlepiece.h" />
 		<Unit filename="include/hud.h" />
 		<Unit filename="include/inputbox.h" />
 		<Unit filename="include/netmap_playable.h" />
 		<Unit filename="include/player.h" />
 		<Unit filename="include/program.h" />
+		<Unit filename="include/programaction.h" />
 		<Unit filename="include/programsector.h" />
 		<Unit filename="include/toolbox.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/databattle.cpp" />
+		<Unit filename="src/databattlepiece.cpp" />
 		<Unit filename="src/hud.cpp" />
 		<Unit filename="src/inputbox.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
 		<Unit filename="src/player.cpp" />
 		<Unit filename="src/program.cpp" />
+		<Unit filename="src/programaction.cpp" />
 		<Unit filename="src/programsector.cpp" />
 		<Unit filename="src/toolbox.cpp" />
 		<Extensions>

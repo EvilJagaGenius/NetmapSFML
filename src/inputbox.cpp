@@ -21,11 +21,9 @@ void InputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
 void InputBox::takeInput(sf::Event event, DataBattle* playable) {
     cout << "Called InputBox/DataBattle version of takeInput\n";
 }
-
-void InputBox::setFocus(string focus) {
-}
-void InputBox::setFocus(Program* focus) {
-}
+void InputBox::setFocus(string focus) {}
+void InputBox::setFocus(Program* focus) {}
+void InputBox::setSubFocus(int subFocus) {}
 string InputBox::getFocus() {
     return "";
 }

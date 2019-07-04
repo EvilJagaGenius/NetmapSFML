@@ -19,6 +19,9 @@ using namespace std;
 const static int TILE_SIZE = 32;
 const static int GAP_SIZE = 4;
 
+const static int WX = 1024;
+const static int WY = 576;
+
 class DataBattle: public Netmap_Playable
 {
     // Following my style, make everything public until needed otherwise
@@ -56,6 +59,7 @@ class DataBattle: public Netmap_Playable
         sf::Vector2i eButton;
         sf::Vector2i wButton;
         vector<sf::Vector2i> moveArea;
+        vector<sf::Vector2i> aimArea;
 
         // Functions
         DataBattle();

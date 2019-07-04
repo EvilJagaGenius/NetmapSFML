@@ -83,7 +83,7 @@ void DataBattle::load() {
                 }
 
                 if (startsWith(line, "addDefender")) {  // Enemy program
-                    // 1:Program type, 2:x, 3:y, 4:Reference name
+                    // 1:DataBattlePiece type, 2:x, 3:y, 4:Reference name
                     vector<string> splitLine = splitString(line, ':');
                     Program* newProgram = new Program(splitLine[1]);
                     newProgram->move(*(new sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3]))), true);
@@ -170,21 +170,31 @@ void DataBattle::render(sf::RenderWindow* window) {
         }
     } else {
         // Draw movement area, associated buttons
-        for (sf::Vector2i coord : this->moveArea) {
-            if (this->grid[coord.x][coord.y] != 0) {
-                if (coord == this->nButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->sButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->eButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(2*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->wButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+        if (this->currentProgram->state == 'm') {
+            for (sf::Vector2i coord : this->moveArea) {
+                if (this->grid[coord.x][coord.y] != 0) {
+                    if (coord == this->nButton) {
+                        this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    } else if (coord == this->sButton) {
+                        this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    } else if (coord == this->eButton) {
+                        this->gridSprite.setTextureRect(sf::Rect<int>(2*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    } else if (coord == this->wButton) {
+                        this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    } else {
+                        this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    }
+                    this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                    window->draw(this->gridSprite);
                 }
-                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
-                window->draw(this->gridSprite);
+            }
+        } else if (this->currentProgram->state == 'a') {
+            for (sf::Vector2i coord : this->aimArea) {
+                this->gridSprite.setTextureRect(sf::Rect<int>(this->currentProgram->currentAction->targetSprite*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                if (this->grid[coord.x][coord.y] != 0) {
+                    this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                    window->draw(this->gridSprite);
+                }
             }
         }
     }
@@ -219,10 +229,23 @@ void DataBattle::play(sf::RenderWindow* window) {
     float currentTime;
     float fps;
 
+    bool clicked;
+    sf::Vector2i tileCoord(-1, -1);
+
     while (window->isOpen()) {
-        // Do something, Taipu
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
+        clicked = false;
+
+        if (mousePos.x <= WY) {
+            if ((mousePos.x % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE) && (mousePos.y % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE)) {  // If on a valid coord
+                tileCoord.x = mousePos.x / (TILE_SIZE + GAP_SIZE);
+                tileCoord.y = mousePos.y / (TILE_SIZE + GAP_SIZE);
+            } else {
+                tileCoord.x = -1;
+                tileCoord.y = -1;
+            }
+        }
 
         // FPS measurements
         currentTime = chrono.restart().asSeconds();
@@ -239,6 +262,64 @@ void DataBattle::play(sf::RenderWindow* window) {
 
             if (event.type == sf::Event::KeyPressed) {
                 cout << fps << '\n';
+            } else if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    clicked = true;
+                }
+            }
+        }
+
+        // Player's turn
+        if (this->phase == 'p'  && this->currentProgram != nullptr) {
+            this->programHead = this->currentProgram->sectors[0].coord;
+
+            if ((this->currentProgram->state == 'm') && (this->currentProgram->currentMove >= this->currentProgram->speed)) {  // If out of moves
+                this->currentProgram->switchToAiming(0);
+                // Get aim area here
+            }
+
+            if (clicked) {
+                if (this->currentProgram->state == 'm') {  // If moving
+
+                    if (this->grid[tileCoord.x][tileCoord.y] != 0) {
+                        if (tileCoord == nButton) {
+                            this->currentProgram->move(nButton, false);
+                        } else if (tileCoord == sButton) {
+                            this->currentProgram->move(sButton, false);
+                        } else if (tileCoord == eButton) {
+                            this->currentProgram->move(eButton, false);
+                        } else if (tileCoord == wButton) {
+                            this->currentProgram->move(wButton, false);
+                        }
+                    }
+
+                    this->programHead = this->currentProgram->sectors[0].coord;
+                    if (this->currentProgram->currentMove < this->currentProgram->speed) {
+                        this->moveArea = getRadius(this->currentProgram->speed - this->currentProgram->currentMove, this->programHead, false);
+
+                        this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
+                        this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
+                        this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
+                        this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
+                    } else {
+                        this->currentProgram->switchToAiming(0);
+                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead);
+                        this->hud->setSubFocus(0);
+                    }
+
+                } else if (this->currentProgram->state == 'a') {  // If aiming
+                    for (sf::Vector2i coord : this->aimArea) {
+                        if (coord == tileCoord) {
+                            this->currentProgram->useAction(this, this->currentProgram->currentActionIndex, tileCoord);
+                            for (int i=0; i<this->friendlies.size(); i++) {
+                                if (this->friendlies[i]->state != 'd') {
+                                    this->currentProgramIndex = i;
+                                    this->currentProgram = this->friendlies[this->currentProgramIndex];
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

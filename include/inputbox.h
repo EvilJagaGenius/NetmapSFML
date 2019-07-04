@@ -13,6 +13,7 @@ class Program;
 class InputBox
 {
     public:
+
         InputBox();
         virtual ~InputBox();
         void virtual setMousePos(sf::Vector2i mousePos);
@@ -22,6 +23,7 @@ class InputBox
         void virtual takeInput(sf::Event event, DataBattle* playable);
         void virtual setFocus(string focus);
         void virtual setFocus(Program* focus);
+        void virtual setSubFocus(int subFocus);
         string virtual getFocus();
 
     protected:
