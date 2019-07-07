@@ -86,8 +86,8 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     }
                     // Defenders
                     for (pair<string, Program*> p : playable->defenders) {
-                        for (ProgramSector sector : p.second->sectors) {
-                            if (sector.coord == tileCoord) {
+                        for (ProgramSector* sector : p.second->sectors) {
+                            if (sector->coord == tileCoord) {
                                 this->focusType = 'p';
                                 this->subFocus = -1;
                                 this->focusProgram = p.second;
@@ -116,7 +116,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             // Check to see if a program is in the selected spot
                             for (int j=0; j<playable->friendlies.size(); j++) {
                                 Program* program = playable->friendlies[j];
-                                if (playable->uploads[playable->selectedUpload] == program->sectors[0].coord) {
+                                if (playable->uploads[playable->selectedUpload] == program->sectors[0]->coord) {
                                     this->player->programs[program->name]++;   // Add that program to the inventory
                                     playable->friendlies.erase(playable->friendlies.begin()+j);  // Remove from the databattle
                                     playable->friendliesLoaded--;
@@ -130,7 +130,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             this->player->programs[p.first]--;  // Remove one from the inventory
 
                             this->focusProgram = newProgram;
-                            this->focusCoord = newProgram->sectors[0].coord;
+                            this->focusCoord = newProgram->sectors[0]->coord;
                             this->focusType = 'p';
                             this->subFocus = -1;
                             break;
@@ -156,6 +156,29 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     if (actionButtonRect.contains(this->mousePos)) {
                         this->subFocus = i;
                     }
+                }
+            }
+
+            if (playable->phase == 'p') {
+                // No Action
+                actionButtonRect.top = 271;
+                if (actionButtonRect.contains(this->mousePos)) {
+                    cout << "No Action\n";
+                }
+
+                // Undo
+                actionButtonRect.top = 285;
+                if (actionButtonRect.contains(this->mousePos)) {
+                    playable->friendlies[playable->currentProgramIndex] = new Program(playable->programStartingState);
+                    playable->currentProgram = playable->friendlies[playable->currentProgramIndex];
+                    playable->programHead = playable->currentProgram->sectors[0]->coord;
+                    playable->nButton = sf::Vector2<int>(playable->programHead.x, playable->programHead.y - 1);
+                    playable->sButton = sf::Vector2<int>(playable->programHead.x, playable->programHead.y + 1);
+                    playable->eButton = sf::Vector2<int>(playable->programHead.x + 1, playable->programHead.y);
+                    playable->wButton = sf::Vector2<int>(playable->programHead.x - 1, playable->programHead.y);
+                    playable->moveArea = getRadius(playable->currentProgram->speed, playable->programHead);
+                    this->setFocus(playable->currentProgram);
+                    cout << "Undo\n";
                 }
             }
 
@@ -347,7 +370,7 @@ void HUD::setPlayer(Player* p) {
 void HUD::setFocus(Program* focus) {
     this->focusType = 'p';
     this->focusProgram = focus;
-    this->focusCoord = focus->sectors[0].coord;
+    this->focusCoord = focus->sectors[0]->coord;
     this->subFocus = -1;
 }
 

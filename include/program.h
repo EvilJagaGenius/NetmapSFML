@@ -29,7 +29,7 @@ class Program: public DataBattlePiece
         string description;
         sf::Vector2i spriteCoord;
         sf::Color color;
-        vector<ProgramSector> sectors;
+        vector<ProgramSector*> sectors;
         vector<ProgramAction*> actions;
 
         int size;  // Is size is reserved in C++?

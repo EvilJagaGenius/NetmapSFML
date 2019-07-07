@@ -13,12 +13,13 @@ class ProgramSector
 {
     public:
         sf::Vector2i coord;
-        vector<ProgramSector> links;
+        vector<ProgramSector*> links;
         int numLinks;
 
         ProgramSector(sf::Vector2i coord);
-        ProgramSector(sf::Vector2i coord, ProgramSector lastSector);
+        ProgramSector(sf::Vector2i coord, ProgramSector* lastSector);
         virtual ~ProgramSector();
+        static void linkSectors(ProgramSector* a, ProgramSector* b);
 
     protected:
 
