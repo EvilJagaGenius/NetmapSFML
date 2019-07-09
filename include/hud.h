@@ -29,7 +29,7 @@ class HUD: public InputBox
 
         sf::Sprite focusSprite;
         char focusType;
-        Program* focusProgram;
+        DataBattlePiece* focusProgram;
         sf::Vector2i focusCoord;
         sf::Text focusTextBox;
         int subFocus;
@@ -45,7 +45,7 @@ class HUD: public InputBox
         void takeInput(sf::Event event, DataBattle* playable);
         void render(sf::RenderWindow* window, DataBattle* playable);
         void setPlayer(Player* p);
-        void setFocus(Program* focus);
+        void setFocus(DataBattlePiece* focus);
         void setSubFocus(int subFocus);
 
     protected:

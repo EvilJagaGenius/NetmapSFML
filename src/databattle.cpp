@@ -27,7 +27,7 @@ DataBattle::~DataBattle() {
     for (int i=0; i<this->friendlies.size(); i++) {
         delete this->friendlies[i];
     }
-    for (pair<string, Program*> p : this->defenders) {
+    for (pair<string, DataBattlePiece*> p : this->defenders) {
         delete this->defenders[p.first];
     }
 }
@@ -49,8 +49,8 @@ void DataBattle::load() {
         if (startsWith(line, "cash:")) {  // Cash reward
             this->cashReward = stoi(line.substr(5));
         }
-        if (startsWith(line, "music:")) {  // Music (nothing right now)
-            // Do something, Taipu
+        if (startsWith(line, "music:")) {  // Music
+            musicFilename = line.substr(6);
         }
 
         // Grid
@@ -96,7 +96,7 @@ void DataBattle::load() {
 
                 if (startsWith(line, "addSector")) {
                     vector<string> splitLine = splitString(line, ':');
-                    Program* targetProgram = this->defenders[splitLine[1]];
+                    DataBattlePiece* targetProgram = this->defenders[splitLine[1]];
                     int targetSector = stoi(splitLine[4]);
                     targetProgram->addSector(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), targetSector);
                 }
@@ -108,9 +108,11 @@ void DataBattle::load() {
 }
 
 void DataBattle::render(sf::RenderWindow* window) {
+    //cout << "Rendering\n";
     // Draw the background
     window->draw(this->bkgSprite);
     sf::Vector2<int> cursorTile(-1, -1);
+    //cout << "Background\n";
 
     // Draw the grid
     for (int x=0; x<16; x++) {
@@ -125,15 +127,19 @@ void DataBattle::render(sf::RenderWindow* window) {
             }
         }
     }
+    //cout << "Grid\n";
+
     // Draw defenders
-    for (pair<string, Program*> element : defenders) {
-        Program* p = element.second;
+    for (pair<string, DataBattlePiece*> element : defenders) {
+        DataBattlePiece* p = element.second;
         for (int i=0; i<(p->size); i++) {
             ProgramSector* sector = p->sectors[i];
+            //cout << "Got sector\n";
             if (i==0) {  // Blit head sprite
                 this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
                 window->draw(this->programSprite);
+                //cout << "Head sprite\n";
                 if (p->state == 'd') { // If done
                     // Draw the 'done' marker
                     this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
@@ -142,15 +148,24 @@ void DataBattle::render(sf::RenderWindow* window) {
                 }
             } else {  // Blit tail sprite
                 this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
+                //cout << "Set tail sprite texture rect\n";
+                //cout << TILE_SIZE << '\n';
+                //cout << GAP_SIZE << '\n';
+                //cout << &sector << '\n';
+                //cout << sector->coord.x << '\n';
+                //cout << sector->coord.y << '\n';
+                this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                //cout << "Set tail sprite position\n";
                 window->draw(this->programSprite);
+                //cout << "Tail sprite\n";
             }
         }
     }
+    //cout << "Defenders\n";
 
     // Draw friendlies
     for (int i=0; i<this->friendlies.size(); i++) {
-        Program* p = this->friendlies[i];
+        DataBattlePiece* p = this->friendlies[i];
         for (int j=0; j<(p->size); j++) {
             ProgramSector* sector = p->sectors[j];
             if (j==0) {  // Blit head sprite
@@ -170,6 +185,7 @@ void DataBattle::render(sf::RenderWindow* window) {
             }
         }
     }
+    //cout << "Friendlies\n";
 
 
     // Draw upload zones
@@ -231,13 +247,21 @@ void DataBattle::setPlayer(Player* player) {
     this->player = player;
 }
 
-void DataBattle::play(sf::RenderWindow* window) {
+string DataBattle::play(sf::RenderWindow* window) {
+    cout << "Called DataBattle::play()\n";
     sf::Texture viewSurf;
     //this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
     this->phase = 'u'; // Upload
     this->selectedUpload = -1;
+
+    // Music
+    if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
+        cout << "Music file not found: " << this->musicFilename << '\n';
+    } else {
+        musicTrack.play();
+    }
 
     // FPS measurements
     sf::Clock chrono;
@@ -249,6 +273,7 @@ void DataBattle::play(sf::RenderWindow* window) {
     sf::Vector2i tileCoord(-1, -1);
 
     while (window->isOpen()) {
+        //cout << "In main loop\n";
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
@@ -304,12 +329,16 @@ void DataBattle::play(sf::RenderWindow* window) {
                     if (this->grid[tileCoord.x][tileCoord.y] != 0) {
                         if (tileCoord == nButton) {
                             this->currentProgram->move(nButton, false);
+                            hud->setFocus(this->currentProgram);
                         } else if (tileCoord == sButton) {
                             this->currentProgram->move(sButton, false);
+                            hud->setFocus(this->currentProgram);
                         } else if (tileCoord == eButton) {
                             this->currentProgram->move(eButton, false);
+                            hud->setFocus(this->currentProgram);
                         } else if (tileCoord == wButton) {
                             this->currentProgram->move(wButton, false);
+                            hud->setFocus(this->currentProgram);
                         }
                     }
 
@@ -339,13 +368,92 @@ void DataBattle::play(sf::RenderWindow* window) {
             }
         }
 
+        // Enemy turn
+        else if (this->phase == 'e') {
+            programHead = this->currentProgram->sectors[0]->coord;
+            // Rudimentary AI here, copied from the Python.  If somebody could help me improve this that'd be nice
+            // Look for closest target
+            sf::Vector2i targetCoord = sf::Vector2<int>(-1, -1);
+            for (int i=0; i<this->friendlies.size(); i++) {
+                for (ProgramSector* s : this->friendlies[i]->sectors) {
+                    if (targetCoord.x == -1) {  // If we haven't set targetCoord yet
+                        targetCoord = s->coord;
+                    } else {
+                        int distanceToTarget = abs(targetCoord.x - programHead.x) + abs(targetCoord.y - programHead.y);
+                        int distanceToCandidate = abs(s->coord.x - programHead.x) + abs(s->coord.y - programHead.y);
+                        if (distanceToCandidate < distanceToTarget) {  // If that target is closer
+                            targetCoord = s->coord;  // Change targets
+                        }
+                    }
+                }
+            }
+            int xDistance = targetCoord.x - programHead.x;
+            int yDistance = targetCoord.y - programHead.y;
+
+            if (this->currentProgram->state == 'm') {  // If moving
+                if ((yDistance < 0) && ((startsWith(this->lookAt(programHead.x, programHead.y-1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y-1), "defender " + this->currentDefenderIndex)))) {
+                    // North
+                    this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y-1), false);
+                } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
+                    // South
+                    this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y+1), false);
+                } else if ((xDistance > 0) && ((startsWith(this->lookAt(programHead.x+1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x+1, programHead.y), "defender " + this->currentDefenderIndex)))) {
+                    // East
+                    this->currentProgram->move(sf::Vector2<int>(programHead.x+1, programHead.y), false);
+                } else if ((xDistance < 0) && ((startsWith(this->lookAt(programHead.x-1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x-1, programHead.y), "defender " + this->currentDefenderIndex)))) {
+                    // West
+                    this->currentProgram->move(sf::Vector2<int>(programHead.x-1, programHead.y), false);
+                } else {  // If you can't move anywhere you'd like to go
+                    if ((xDistance == 0) || (yDistance == 0)) {  // If you're right against the target
+                        this->currentProgram->switchToAiming(0);  // Switch to aiming
+                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord);
+                    } else {
+                        this->currentProgram->noAction();  // Take no action
+                    }
+                }
+
+                if (this->currentProgram->currentMove >= this->currentProgram->speed) {  // If it's out of moves
+                    this->currentProgram->switchToAiming(0);
+                    this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord);
+                }
+            } else if (this->currentProgram->state == 'a') {  // If aiming
+                // Attempt to attack the closest sector of a friendly program
+                int actionIndex = 0;  // This value can be changed if the AI improves and defender Programs get multiple actions to choose from
+                this->currentProgram->useAction(this, actionIndex, targetCoord);
+
+                // Switch to the next available defender; failing that, switch turns
+                this->switchPrograms(hud);
+            }
+
+
+        }
+
+        // Check to see if anybody won, and if so, end the DataBattle
+        if ((this->phase != 'u') && (this->checkForVictory() != '0')) {
+            if (this->checkForVictory() == 'p') {  // If the player won
+                cout << "Databattle won\n";
+                musicTrack.stop();
+                return "";
+            } else {  // If the computer won
+                cout << "Databattle lost\n";
+                musicTrack.stop();
+                return "";
+            }
+        }
+
+        //cout << "Calling render()\n";
         this->render(window);
+        //cout << "Render finished\nCalling hud->render()\n";
         hud->render(window, this);
         window->display();
+        //cout << "Finished main loop\n";
     }
+
+    return "";
 }
 
 void DataBattle::switchTurns(InputBox* hud) {
+    // Right now, we're crashing inside this function when programs die.  Find out what's wrong.
     cout << "Switching turns\n";
     // Check to see if any programs died during the last turn, and if so, delete them.
     bool programsDied = true;
@@ -363,7 +471,7 @@ void DataBattle::switchTurns(InputBox* hud) {
     programsDied = true;
     while (programsDied) {
         programsDied = false;
-        for (pair<string, Program*> p : this->defenders) {
+        for (pair<string, DataBattlePiece*> p : this->defenders) {
             if (this->defenders[p.first]->state == 'x') {
                 delete this->defenders[p.first];
                 this->defenders.erase(p.first);
@@ -375,10 +483,11 @@ void DataBattle::switchTurns(InputBox* hud) {
 
     // Switch turns
     if (this->phase == 'u' || this->phase == 'e') { // Player or enemy
+        cout << "Switching to player\n";
         // Switch to player
         this->phase = 'p';
         // Add the textbox here
-        for (Program* p : this->friendlies) {
+        for (DataBattlePiece* p : this->friendlies) {
             p->prepForTurn();
         }
         this->currentProgramIndex = 0;
@@ -394,19 +503,22 @@ void DataBattle::switchTurns(InputBox* hud) {
         hud->setFocus(this->currentProgram);
 
     } else {
+        cout << "Switching to enemy\n";
         // Switch to enemy
         this->phase = 'e';  // Switch to enemy
         // Add textbox here;
         bool first = true;
-        for (pair<string, Program*> p : this->defenders) {
+        for (pair<string, DataBattlePiece*> p : this->defenders) {
             if (first) {
                 this->currentDefenderIndex = p.first;
                 first = false;
             }
             p.second->prepForTurn();
         }
-        this->currentProgram = this->defenders[this->currentDefenderIndex];
-        this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0]->coord);
+        if (!first) {  // If we found a defender to use, first will be false.  If there are no defenders, first will never have the opportunity to be set to false, and thus be true.  So we should only execute this code if first == false, because we know we found something to switch to.
+            this->currentProgram = this->defenders[this->currentDefenderIndex];
+            this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0]->coord);
+        }
     }
 }
 
@@ -414,7 +526,7 @@ void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available pro
     cout << "Switching programs\n";
     bool outOfPrograms = true;
     if (this->phase == 'e') { // Enemy turn
-        for (pair<string, Program*> p : this->defenders) {
+        for (pair<string, DataBattlePiece*> p : this->defenders) {
             if (p.second->state != 'd' && p.second->state != 'x') {
                 this->currentDefenderIndex = p.first;
                 this->currentProgram = this->defenders[this->currentDefenderIndex];
@@ -486,7 +598,7 @@ string DataBattle::lookAt(sf::Vector2i coord) {
         }
     }
     // Defenders
-    for (pair<string, Program*> p : this->defenders) {
+    for (pair<string, DataBattlePiece*> p : this->defenders) {
         for (ProgramSector* s : p.second->sectors) {
             if (s->coord == coord) {
                 return "defender " + p.first;
@@ -509,4 +621,37 @@ string DataBattle::lookAt(sf::Vector2i coord) {
     } else {
         return "tile";
     }
+}
+
+string DataBattle::lookAt(int x, int y) {
+    sf::Vector2<int> coord(x, y);
+    return this->lookAt(coord);
+}
+
+char DataBattle::checkForVictory() {
+    // Check friendlies
+    bool playerStillAlive = false;
+    for (int i=0; i<this->friendlies.size(); i++) {
+        if (this->friendlies[i]->state != 'x') {
+            playerStillAlive = true;
+        }
+    }
+
+    // Check defenders
+    bool compStillAlive = false;
+    for (pair<string, DataBattlePiece*> p : this->defenders) {
+        if (p.second->state != 'x') {
+            compStillAlive = true;
+        }
+    }
+
+    if (compStillAlive && playerStillAlive) {
+        return '0'; // No one's won yet
+    } else if (compStillAlive && !playerStillAlive) {
+        return 'c'; // The computer won
+    } else if (playerStillAlive && !compStillAlive) {
+        return 'p'; // The player won
+    }
+    // Assuming you reached this point, both player and computer are dead
+    return 'd'; // Draw
 }

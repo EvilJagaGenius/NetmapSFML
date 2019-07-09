@@ -10,6 +10,7 @@ using namespace std;
 class Netmap_Playable;
 class DataBattle;
 class Program;
+class DataBattlePiece;
 class InputBox
 {
     public:
@@ -22,7 +23,7 @@ class InputBox
         void virtual takeInput(sf::Event event, Netmap_Playable* playable);
         void virtual takeInput(sf::Event event, DataBattle* playable);
         void virtual setFocus(string focus);
-        void virtual setFocus(Program* focus);
+        void virtual setFocus(DataBattlePiece* focus);
         void virtual setSubFocus(int subFocus);
         string virtual getFocus();
 

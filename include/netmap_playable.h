@@ -13,6 +13,7 @@ using namespace std;
 
 class InputBox;
 class Player;
+class Program;
 class Netmap_Playable
 {
     public:
@@ -23,7 +24,7 @@ class Netmap_Playable
         Netmap_Playable();
         virtual ~Netmap_Playable();
         virtual void render(sf::RenderWindow* window);
-        virtual void play(sf::RenderWindow* window);
+        virtual string play(sf::RenderWindow* window);
         virtual void setHUD(InputBox* hud);
         virtual void setPlayer(Player* player);
         virtual string takeCommand(string command);

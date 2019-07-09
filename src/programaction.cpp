@@ -3,7 +3,9 @@
 // ProgramAction
 ProgramAction::ProgramAction() {}
 ProgramAction::~ProgramAction() {}
-void ProgramAction::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {}
+void ProgramAction::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+    cout << "Called ProgramAction::use()\n";
+}
 vector<sf::Vector2i> ProgramAction::getAimArea(sf::Vector2i origin) {
     return getRadius(this->range, origin, false);
 }
@@ -20,20 +22,26 @@ Slice::Slice() {
 }
 Slice::~Slice() {}
 void Slice::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
-    sf::Vector2i origin = source->sectors[0].coord;
-    DataBattlePiece* target;
+    cout << "Using Slice\n";
+    sf::Vector2i origin = source->sectors[0]->coord;
+    cout << "Got origin\n";
+    DataBattlePiece* target = nullptr;
 
     // Search defenders
     if ((abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) && (targetCoord != origin)) {  // If in range
+        cout << "Searching defenders\n";
         for (pair<string, DataBattlePiece*> p : db->defenders) {
-            for (ProgramSector s : p.second->sectors) {
-                if (s.coord == targetCoord) {
+            cout << p.first << '\n';
+            for (ProgramSector* s : p.second->sectors) {
+                if (s->coord == targetCoord) {
                     // We've found our target
+                    cout << "Found target\n";
                     target = p.second;
                     break;
                 }
             }
             if (target != nullptr) {
+                cout << "Breaking out of search loop\n";
                 break;
             }
         }
@@ -41,14 +49,17 @@ void Slice::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targe
 
     // Search friendlies (delete if you want to disable friendly fire)
     if (target == nullptr) {
+        cout << "Searching friendlies\n";
         for (DataBattlePiece* p : db->friendlies) {
-            for (ProgramSector s : p->sectors) {
-                if (s.coord == targetCoord) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    cout << "Found target\n";
                     target = p;
                     break;
                 }
             }
             if (target != nullptr) {
+                cout << "Breaking out of search loop\n";
                 break;
             }
         }
@@ -56,6 +67,7 @@ void Slice::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targe
 
     // Take damage
     if (target != nullptr) {
+        cout << "Dealing damage\n";
         target->takeDamage(2);
     }
 }
@@ -69,14 +81,14 @@ Stone::Stone() {
 }
 Stone::~Stone() {}
 void Stone::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
-    sf::Vector2i origin = source->sectors[0].coord;
+    sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target;
 
     // Search defenders
     if ((abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) && (targetCoord != origin)) {  // If in range
         for (pair<string, DataBattlePiece*> p : db->defenders) {
-            for (ProgramSector s : p.second->sectors) {
-                if (s.coord == targetCoord) {
+            for (ProgramSector* s : p.second->sectors) {
+                if (s->coord == targetCoord) {
                     // We've found our target
                     target = p.second;
                     break;
@@ -91,8 +103,8 @@ void Stone::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targe
     // Search friendlies (delete if you want to disable friendly fire)
     if (target == nullptr) {
         for (DataBattlePiece* p : db->friendlies) {
-            for (ProgramSector s : p->sectors) {
-                if (s.coord == targetCoord) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
                     target = p;
                     break;
                 }
@@ -118,24 +130,26 @@ Cut::Cut() {
 }
 Cut::~Cut() {}
 void Cut::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
-    sf::Vector2i origin = source->sectors[0].coord;
+    sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target;
 
-    // Search friendlies
-    for (DataBattlePiece* p : db->friendlies) {
-        for (ProgramSector s : p->sectors) {
-            if (s.coord == targetCoord) {
-                target = p;
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
                 break;
             }
         }
-        if (target != nullptr) {
-            break;
-        }
-    }
 
-    // Take damage
-    if (target != nullptr) {
-        target->takeDamage(2);
+        // Take damage
+        if (target != nullptr) {
+            target->takeDamage(2);
+        }
     }
 }

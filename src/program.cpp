@@ -4,6 +4,8 @@ Program::Program(string programType) {
     this->programType = programType;
     this->color = sf::Color::White;
     this->load();
+    this->currentMove = 0;
+    this->size = 0;
 }
 
 Program::Program(Program* original) {  // Copy constructor
@@ -46,8 +48,49 @@ Program::Program(Program* original) {  // Copy constructor
 
 }
 
+Program::Program(DataBattlePiece* original) {  // Alt copy constructor
+    this->programType = original->programType;
+    this->screenName = original->screenName;
+    this->spriteCoord = original->spriteCoord;
+    this->color = original->color;
+
+    for (ProgramSector* s : original->sectors) {
+        this->sectors.push_back(new ProgramSector(s->coord));
+    }
+
+    for (int i=0; i<this->sectors.size(); i++) {
+        ProgramSector* s = this->sectors[i];
+        vector<sf::Vector2i> linkCoords;
+        vector<int> linkIndices;
+        for (ProgramSector* l : s->links) {
+            linkCoords.push_back(l->coord);
+            for (int j=0; j<this->sectors.size(); j++) {
+                if (this->sectors[j]->coord == l->coord) {
+                    linkIndices.push_back(j);
+                }
+            }
+        }
+        for (int index : linkIndices) {
+            ProgramSector* sectorToLink = this->sectors[index];
+            ProgramSector::linkSectors(s, sectorToLink);
+        }
+    }
+
+    this->actions = original->actions;
+    this->description = original->description;
+    this->size = original->size;
+    this->maxSize = original->maxSize;
+    this->speed = original->speed;
+    this->maxSpeed = original->speed;
+    this->currentMove = original->currentMove;
+    this->state = original->state;
+
+
+}
+
 Program::~Program() {
     // Fill this in, deallocate any sectors.
+    cout << "Program deconstructor called\n";
     for (int i=0; i<this->sectors.size(); i++) {
         delete this->sectors[i];
     }
@@ -72,7 +115,7 @@ void Program::load() {
         } else if (startsWith(line, "maxSpeed")) {
             this->maxSpeed = stoi(splitLine[1]);
         } else if (startsWith(line, "action")) {
-            this->actions.push_back(&ACTION_DB[splitLine[1]]);
+            this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
         } else if (startsWith(line, "maxSize")) {
@@ -153,6 +196,7 @@ void Program::addSector(sf::Vector2i coord, int pos=0) {
 }
 
 void Program::useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord) {
+    cout << "useAction called\n";
     this->actions[actionIndex]->use(level, this, targetCoord);
     // Action is used whether it failed or not, end the turn
     this->state = 'd';
@@ -171,7 +215,8 @@ void Program::noAction() {
     this->currentActionIndex = -1;
 }
 
-void Program::takeDamage(Netmap_Playable* level, int damage) {
+void Program::takeDamage(int damage) {
+    cout << "Program::takeDamage() called\n";
     for (int d=0; d<damage; d++) {  // For each point of damage
         if (this->size > 1) {
             // Loop through the sectors.  Like trimming off stuff in move().

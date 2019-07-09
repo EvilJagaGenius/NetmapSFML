@@ -23,28 +23,29 @@ class Program: public DataBattlePiece
 {
     public:
         // Variables
-        string programType;
-        string name;
-        string screenName;
-        string description;
-        sf::Vector2i spriteCoord;
-        sf::Color color;
-        vector<ProgramSector*> sectors;
-        vector<ProgramAction*> actions;
+        //string programType;
+        //string name;
+        //string screenName;
+        //string description;
+        //sf::Vector2i spriteCoord;
+        //sf::Color color;
+        //vector<ProgramSector*> sectors;
+        //vector<ProgramAction*> actions;
 
-        int size;  // Is size is reserved in C++?
-        int maxSize;
-        int speed;
-        int maxSpeed;
-        int currentMove;
-        int currentActionIndex;
-        ProgramAction* currentAction;
+        //int size;  // Is size is reserved in C++?
+        //int maxSize;
+        //int speed;
+        //int maxSpeed;
+        //int currentMove;
+        //int currentActionIndex;
+        //ProgramAction* currentAction;
 
-        char state;
+        //char state;
 
         // Functions
         Program(string programType);
         Program(Program* original);  // Copy constructor
+        Program(DataBattlePiece* original);  // Alt copy constructor
         virtual ~Program();
         void load();
         void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
@@ -52,7 +53,7 @@ class Program: public DataBattlePiece
         void useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord);
         void switchToAiming(int actionIndex);
         void noAction();
-        void takeDamage(Netmap_Playable* level, int damage);
+        void takeDamage(int damage);
         void grow(Netmap_Playable* level, int amtToGrow);
         void prepForTurn();
 

@@ -40,6 +40,8 @@ class Slice: public ProgramAction {
         Slice();
         virtual ~Slice();
         void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+    protected:
+    private:
 };
 
 class Stone: public ProgramAction {
@@ -56,8 +58,8 @@ class Cut: public ProgramAction {
         void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
 };
 
-static unordered_map<string, ProgramAction> ACTION_DB = {{"Slice", Slice()},
-                                                        {"Stone", Stone()},
-                                                        {"Cut", Cut()}};
+static unordered_map<string, ProgramAction*> ACTION_DB = {{"Slice", new Slice()},
+                                                        {"Stone", new Stone()},
+                                                        {"Cut", new Cut()}};
 
 #endif // PROGRAMACTION_H

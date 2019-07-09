@@ -85,7 +85,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                         }
                     }
                     // Defenders
-                    for (pair<string, Program*> p : playable->defenders) {
+                    for (pair<string, DataBattlePiece*> p : playable->defenders) {
                         for (ProgramSector* sector : p.second->sectors) {
                             if (sector->coord == tileCoord) {
                                 this->focusType = 'p';
@@ -108,14 +108,21 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                                     this->focusProgram = playable->friendlies[i];
                                     this->focusCoord.x = tileX;
                                     this->focusCoord.y = tileY;
-                                    // Add code for switching to other programs here
+
+                                    // Switching to other programs
+                                    if (playable->phase == 'p') {
+                                        if (this->focusProgram != playable->currentProgram) {  // If we clicked on a different program
+                                            playable->currentProgram->noAction();
+                                            playable->switchPrograms(this);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
 
                     // Defenders
-                    for (pair<string, Program*> p : playable->defenders) {
+                    for (pair<string, DataBattlePiece*> p : playable->defenders) {
                         if (p.second->state != 'x') {
                             for (ProgramSector* sector : p.second->sectors) {
                                 if (sector->coord == tileCoord) {
@@ -144,9 +151,9 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             // Upload the program to the grid
                             // Check to see if a program is in the selected spot
                             for (int j=0; j<playable->friendlies.size(); j++) {
-                                Program* program = playable->friendlies[j];
-                                if (playable->uploads[playable->selectedUpload] == program->sectors[0]->coord) {
-                                    this->player->programs[program->name]++;   // Add that program to the inventory
+                                DataBattlePiece* p = playable->friendlies[j];
+                                if (playable->uploads[playable->selectedUpload] == p->sectors[0]->coord) {
+                                    this->player->programs[p->name]++;   // Add that program to the inventory
                                     delete playable->friendlies[j];
                                     playable->friendlies.erase(playable->friendlies.begin()+j);  // Remove from the databattle
                                     playable->friendliesLoaded--;
@@ -281,7 +288,7 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
             this->focusTextBox.setStyle(sf::Text::Regular);
             this->focusTextBox.setColor(sf::Color::White);
             this->focusTextBox.setString("@" + getByteCoord(this->focusCoord));
-            this->focusTextBox.setPosition(20 + TILE_SIZE, 170);
+            this->focusTextBox.setPosition(20 + TILE_SIZE, 172);
             this->contentTexture.draw(this->focusTextBox);
         }
         if (this->focusType == 'u') { // Upload zone
@@ -314,10 +321,20 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
             this->focusTextBox.setString(this->focusProgram->screenName);
             this->contentTexture.draw(this->focusTextBox);
 
+            // Draw stats
+            this->focusTextBox.setColor(sf::Color::White);
+            this->focusTextBox.setPosition(120, 200);
+            this->focusTextBox.setString("Size: " + to_string(this->focusProgram->size) + "/" + to_string(this->focusProgram->maxSize));
+            this->contentTexture.draw(this->focusTextBox);
+            this->focusTextBox.setPosition(120, 214);
+            this->focusTextBox.setString("Move: " + to_string(this->focusProgram->currentMove) + "/" + to_string(this->focusProgram->speed));
+            this->contentTexture.draw(this->focusTextBox);
+
+
             // Draw description
             if (this->subFocus != -1) {
                 renderText(&this->contentTexture, this->focusProgram->actions[this->subFocus]->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
-            } else {
+            } else {  // Action description
                 renderText(&this->contentTexture, this->focusProgram->description, sf::Rect<int>(220, 160, 228, 100), DEFAULT_FONT, 12, sf::Color::White);
             }
 
@@ -333,7 +350,7 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
             this->contentTexture.draw(this->focusTextBox);
 
             for (int i=0; i<this->focusProgram->actions.size(); i++) {
-                actionButtonRect.top = 215 + i*14;
+                actionButtonRect.top = 214 + i*12;
                 actionButton.setPosition(16, actionButtonRect.top);
                 this->focusTextBox.setPosition(32, actionButtonRect.top);
                 this->focusTextBox.setString(this->focusProgram->actions[i]->actionName);
@@ -412,7 +429,7 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
 void HUD::setPlayer(Player* p) {
     this->player = p;
 }
-void HUD::setFocus(Program* focus) {
+void HUD::setFocus(DataBattlePiece* focus) {
     this->focusType = 'p';
     this->focusProgram = focus;
     this->focusCoord = focus->sectors[0]->coord;

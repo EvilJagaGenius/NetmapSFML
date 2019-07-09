@@ -7,6 +7,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "netmap_playable.h"
 #include "toolbox.h"
@@ -30,13 +31,14 @@ class DataBattle: public Netmap_Playable
         string filename;
         sf::Texture bkg;
         sf::Sprite bkgSprite;
-        // Insert music file here
+        string musicFilename;
+        sf::Music musicTrack;
         int cashReward;
         vector<sf::Vector2i> cashPickups;  // A list of coordinates
         vector<sf::Vector2i> uploads;
         int selectedUpload;
-        unordered_map<string, Program*> defenders;
-        vector<Program*> friendlies;
+        //unordered_map<string, Program*> defenders;
+        //vector<Program*> friendlies;
         int grid[16][16];
 
         // play()-specific variables here
@@ -50,8 +52,8 @@ class DataBattle: public Netmap_Playable
         Player* player;
         int friendliesLoaded;
         int currentProgramIndex;
-        Program* currentProgram;
-        Program* programStartingState; // Write a copy constructor for Program
+        DataBattlePiece* currentProgram;
+        DataBattlePiece* programStartingState; // Write a copy constructor for Program
         string currentDefenderIndex;
         sf::Vector2i programHead;
         sf::Vector2i nButton;
@@ -69,11 +71,13 @@ class DataBattle: public Netmap_Playable
         void render(sf::RenderWindow* window);
         void setHUD(InputBox* hud);
         void setPlayer(Player* player);
-        void play(sf::RenderWindow* window);
+        string play(sf::RenderWindow* window);
         void switchTurns(InputBox* hud);
         void switchPrograms(InputBox* hud);
         string takeCommand(string command);
         string lookAt(sf::Vector2i coord);
+        string lookAt(int x, int y);
+        char checkForVictory();
 
     protected:
 
