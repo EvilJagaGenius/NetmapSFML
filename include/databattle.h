@@ -71,6 +71,7 @@ class DataBattle: public Netmap_Playable
         void setPlayer(Player* player);
         void play(sf::RenderWindow* window);
         void switchTurns(InputBox* hud);
+        void switchPrograms(InputBox* hud);
         string takeCommand(string command);
         string lookAt(sf::Vector2i coord);
 

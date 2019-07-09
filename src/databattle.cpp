@@ -22,10 +22,14 @@ DataBattle::DataBattle(string filename)
     this->load();
 }
 
-DataBattle::~DataBattle()
-{
-    //dtor
-    // Remember to fill this in
+DataBattle::~DataBattle() {
+    // Remember to fill this in, deallocate your programs.
+    for (int i=0; i<this->friendlies.size(); i++) {
+        delete this->friendlies[i];
+    }
+    for (pair<string, Program*> p : this->defenders) {
+        delete this->defenders[p.first];
+    }
 }
 
 void DataBattle::load() {
@@ -40,7 +44,7 @@ void DataBattle::load() {
         if (startsWith(line, "bkg:")) {  // Background
             string bkgFilename = line.substr(4);
             this->bkg = imgLoad("Data\\DataBattleBkgs\\" + bkgFilename);
-            this->bkgSprite = *(new sf::Sprite(this->bkg));
+            this->bkgSprite = sf::Sprite(this->bkg);
         }
         if (startsWith(line, "cash:")) {  // Cash reward
             this->cashReward = stoi(line.substr(5));
@@ -86,7 +90,7 @@ void DataBattle::load() {
                     // 1:DataBattlePiece type, 2:x, 3:y, 4:Reference name
                     vector<string> splitLine = splitString(line, ':');
                     Program* newProgram = new Program(splitLine[1]);
-                    newProgram->move(*(new sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3]))), true);
+                    newProgram->move(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
                     this->defenders.insert({{splitLine[4], newProgram}});
                 }
 
@@ -94,7 +98,7 @@ void DataBattle::load() {
                     vector<string> splitLine = splitString(line, ':');
                     Program* targetProgram = this->defenders[splitLine[1]];
                     int targetSector = stoi(splitLine[4]);
-                    targetProgram->addSector(*(new sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3]))), targetSector);
+                    targetProgram->addSector(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), targetSector);
                 }
 
             }
@@ -112,12 +116,12 @@ void DataBattle::render(sf::RenderWindow* window) {
     for (int x=0; x<16; x++) {
         for (int y=0; y<16; y++) {
             sf::Rect<int> tileRect(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE, TILE_SIZE, TILE_SIZE);
-            this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, this->grid[x][y]*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-            this->gridSprite.setPosition(*(new sf::Vector2<float>(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE)));
+            this->gridSprite.setTextureRect(sf::Rect<int>(0, this->grid[x][y]*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->gridSprite.setPosition(sf::Vector2<float>(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE));
             window->draw(this->gridSprite);
 
             if (tileRect.contains(this->mousePos)) {
-                cursorTile = *(new sf::Vector2<int>(x, y));
+                cursorTile = sf::Vector2<int>(x, y);
             }
         }
     }
@@ -127,12 +131,18 @@ void DataBattle::render(sf::RenderWindow* window) {
         for (int i=0; i<(p->size); i++) {
             ProgramSector* sector = p->sectors[i];
             if (i==0) {  // Blit head sprite
-                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-                this->programSprite.setPosition(*(new sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE)));
+                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
                 window->draw(this->programSprite);
+                if (p->state == 'd') { // If done
+                    // Draw the 'done' marker
+                    this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                    window->draw(this->gridSprite);
+                }
             } else {  // Blit tail sprite
-                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-                this->programSprite.setPosition(*(new sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE)));
+                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(this->programSprite);
             }
         }
@@ -144,12 +154,18 @@ void DataBattle::render(sf::RenderWindow* window) {
         for (int j=0; j<(p->size); j++) {
             ProgramSector* sector = p->sectors[j];
             if (j==0) {  // Blit head sprite
-                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-                this->programSprite.setPosition(*(new sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE)));
+                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(this->programSprite);
+                if (p->state == 'd') { // If done
+                    // Draw the 'done' marker
+                    this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                    window->draw(this->gridSprite);
+                }
             } else {  // Blit tail sprite
-                this->programSprite.setTextureRect(*(new sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-                this->programSprite.setPosition(*(new sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE)));
+                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(this->programSprite);
             }
         }
@@ -162,9 +178,9 @@ void DataBattle::render(sf::RenderWindow* window) {
             sf::Vector2i coord = this->uploads[i];
             this->gridSprite.setPosition(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE);
             if (i == this->selectedUpload) {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+                this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             } else {
-                this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
+                this->gridSprite.setTextureRect(sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             }
             window->draw(this->gridSprite);
         }
@@ -201,8 +217,8 @@ void DataBattle::render(sf::RenderWindow* window) {
 
     // Last: Draw the tile-highlighting cursor
     if (cursorTile.x != -1) {  // If we found a valid tile to highlight
-        this->gridSprite.setTextureRect(*(new sf::Rect<int>(0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE)));
-        this->gridSprite.setPosition(*(new sf::Vector2<float>(cursorTile.x*TILE_SIZE + cursorTile.x*GAP_SIZE, cursorTile.y*TILE_SIZE + cursorTile.y*GAP_SIZE)));
+        this->gridSprite.setTextureRect(sf::Rect<int>(0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+        this->gridSprite.setPosition(sf::Vector2<float>(cursorTile.x*TILE_SIZE + cursorTile.x*GAP_SIZE, cursorTile.y*TILE_SIZE + cursorTile.y*GAP_SIZE));
         window->draw(gridSprite);
     }
 }
@@ -218,8 +234,8 @@ void DataBattle::setPlayer(Player* player) {
 void DataBattle::play(sf::RenderWindow* window) {
     sf::Texture viewSurf;
     //this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
-    this->gridSprite = *(new sf::Sprite(GRID_SHEET));
-    this->programSprite = *(new sf::Sprite(PROGRAM_SHEET));
+    this->gridSprite = sf::Sprite(GRID_SHEET);
+    this->programSprite = sf::Sprite(PROGRAM_SHEET);
     this->phase = 'u'; // Upload
     this->selectedUpload = -1;
 
@@ -316,19 +332,7 @@ void DataBattle::play(sf::RenderWindow* window) {
                         if (coord == tileCoord) {
                             this->currentProgram->useAction(this, this->currentProgram->currentActionIndex, tileCoord);
                             // Switch to next available program
-                            bool outOfPrograms = true;
-                            for (int i=0; i<this->friendlies.size(); i++) {
-                                if (this->friendlies[i]->state != 'd') {
-                                    this->currentProgramIndex = i;
-                                    this->currentProgram = this->friendlies[this->currentProgramIndex];
-                                    this->programStartingState = new Program(currentProgram);  // Copy the program to use as an undo point
-                                    outOfPrograms = false;
-                                    break;
-                                }
-                            }
-                            if (outOfPrograms) {
-                                this->switchTurns(this->hud);
-                            }
+                            this->switchPrograms(hud);
                         }
                     }
                 }
@@ -342,6 +346,34 @@ void DataBattle::play(sf::RenderWindow* window) {
 }
 
 void DataBattle::switchTurns(InputBox* hud) {
+    cout << "Switching turns\n";
+    // Check to see if any programs died during the last turn, and if so, delete them.
+    bool programsDied = true;
+    while (programsDied) {
+        programsDied = false;
+        for (int i=0; i<this->friendlies.size(); i++) {
+            if (this->friendlies[i]->state == 'x') {  // If the program is marked as dead
+                delete this->friendlies[i];
+                this->friendlies.erase(this->friendlies.begin() + i);
+                programsDied = true;
+                break;
+            }
+        }
+    }
+    programsDied = true;
+    while (programsDied) {
+        programsDied = false;
+        for (pair<string, Program*> p : this->defenders) {
+            if (this->defenders[p.first]->state == 'x') {
+                delete this->defenders[p.first];
+                this->defenders.erase(p.first);
+                programsDied = true;
+                break;
+            }
+        }
+    }
+
+    // Switch turns
     if (this->phase == 'u' || this->phase == 'e') { // Player or enemy
         // Switch to player
         this->phase = 'p';
@@ -351,6 +383,7 @@ void DataBattle::switchTurns(InputBox* hud) {
         }
         this->currentProgramIndex = 0;
         this->currentProgram = this->friendlies[this->currentProgramIndex];
+        delete this->programStartingState;  // Deallocating memory
         this->programStartingState = new Program(currentProgram);  // Copy the program to use as an undo point
         this->programHead = this->currentProgram->sectors[0]->coord;
         this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
@@ -377,6 +410,43 @@ void DataBattle::switchTurns(InputBox* hud) {
     }
 }
 
+void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available program and switch to it
+    cout << "Switching programs\n";
+    bool outOfPrograms = true;
+    if (this->phase == 'e') { // Enemy turn
+        for (pair<string, Program*> p : this->defenders) {
+            if (p.second->state != 'd' && p.second->state != 'x') {
+                this->currentDefenderIndex = p.first;
+                this->currentProgram = this->defenders[this->currentDefenderIndex];
+                this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0]->coord);
+                outOfPrograms = false;
+                break;
+            }
+        }
+    } else if (this->phase == 'p') { // Player turn
+        for (int i=0; i<this->friendlies.size(); i++) {
+            if (this->friendlies[i]->state != 'd' && this->friendlies[i]->state != 'x') {
+                this->currentProgramIndex = i;
+                this->currentProgram = this->friendlies[i];
+                delete this->programStartingState;  // Deallocating memory
+                this->programStartingState = new Program(currentProgram);  // Copy the program to use as an undo point
+                this->programHead = this->currentProgram->sectors[0]->coord;
+                this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
+                this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
+                this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
+                this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
+                this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+                hud->setFocus(this->currentProgram);
+                outOfPrograms = false;
+                break;
+            }
+        }
+    }
+    if (outOfPrograms) {
+        this->switchTurns(hud);
+    }
+}
+
 string DataBattle::takeCommand(string command) {
     if (startsWith(command, "upload")) {
         vector<string> splitCommand = splitString(command, ' ');
@@ -392,7 +462,7 @@ string DataBattle::takeCommand(string command) {
     }
     if (startsWith(command, "look")) {
         vector<string> splitCommand = splitString(command, ' ');
-        sf::Vector2<int> coord = *(new sf::Vector2<int>(stoi(splitCommand[1]), stoi(splitCommand[2])));
+        sf::Vector2<int> coord = sf::Vector2<int>(stoi(splitCommand[1]), stoi(splitCommand[2]));
         return this->lookAt(coord);
     }
 

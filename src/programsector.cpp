@@ -9,8 +9,8 @@ ProgramSector::ProgramSector(sf::Vector2i coord, ProgramSector* lastSector) {
     this->coord = coord;
     this->numLinks = 0;
     linkSectors(this, lastSector);
-    cout << this->numLinks << '\n';
-    cout << lastSector->numLinks << '\n';
+    //cout << this->numLinks << '\n';
+    //cout << lastSector->numLinks << '\n';
 }
 
 ProgramSector::~ProgramSector() {

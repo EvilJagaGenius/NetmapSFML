@@ -4,20 +4,20 @@ HUD::HUD()
 {
     this->open = true;
     this->panelTexture.loadFromFile("Data\\Sprites\\HudPanel.png");
-    this->panelSprite = *(new sf::Sprite(panelTexture));
+    this->panelSprite = sf::Sprite(panelTexture);
     this->panelSprite.setPosition(576, 0);
     this->borderTexture.loadFromFile("Data\\Sprites\\HudBar.png");
-    this->borderSprite = *(new sf::Sprite(borderTexture));
-    this->borderSprite.setTextureRect(*(new sf::Rect<int>(0, 0, 16, 576)));
-    this->borderRect = *(new sf::Rect<int>(1008, 0, 16, 576));
+    this->borderSprite = sf::Sprite(borderTexture);
+    this->borderSprite.setTextureRect(sf::Rect<int>(0, 0, 16, 576));
+    this->borderRect = sf::Rect<int>(1008, 0, 16, 576);
 
     this->contentTexture.create(448, 576);
 
     this->programListIndex = 0;
 
     this->focusType = '0';
-    this->focusCoord = *(new sf::Vector2<int>(-1, -1));
-    this->focusTextBox = *(new sf::Text("", DEFAULT_FONT, 12));
+    this->focusCoord = sf::Vector2<int>(-1, -1);
+    this->focusTextBox = sf::Text("", DEFAULT_FONT, 12);
 }
 
 HUD::~HUD()
@@ -30,16 +30,16 @@ void HUD::setMousePos(sf::Vector2i mousePos) {
     if (this->open) {
         this->borderRect.left = 576;
         if (this->borderRect.contains(mousePos)) {
-            this->borderSprite.setTextureRect(*(new sf::Rect<int>(16, 0, 16, 576)));
+            this->borderSprite.setTextureRect(sf::Rect<int>(16, 0, 16, 576));
         } else {
-            this->borderSprite.setTextureRect(*(new sf::Rect<int>(0, 0, 16, 576)));
+            this->borderSprite.setTextureRect(sf::Rect<int>(0, 0, 16, 576));
         }
     } else {  // If the HUD is closed:
         this->borderRect.left = 1008;
         if (this->borderRect.contains(mousePos)) {
-            this->borderSprite.setTextureRect(*(new sf::Rect<int>(48, 0, 16, 576)));
+            this->borderSprite.setTextureRect(sf::Rect<int>(48, 0, 16, 576));
         } else {
-            this->borderSprite.setTextureRect(*(new sf::Rect<int>(32, 0, 16, 576)));
+            this->borderSprite.setTextureRect(sf::Rect<int>(32, 0, 16, 576));
         }
     }
 }
@@ -97,8 +97,37 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                         }
                     }
 
-                } else {
-                    // Do something, Taipu
+                } else {  // Other phases
+                    // Friendlies
+                    for (int i=0; i<playable->friendlies.size(); i++) {
+                        if (playable->friendlies[i]->state != 'x') {
+                            for (ProgramSector* s : playable->friendlies[i]->sectors) {
+                                if (s->coord == tileCoord) {
+                                    this->focusType = 'p';
+                                    this->subFocus = -1;
+                                    this->focusProgram = playable->friendlies[i];
+                                    this->focusCoord.x = tileX;
+                                    this->focusCoord.y = tileY;
+                                    // Add code for switching to other programs here
+                                }
+                            }
+                        }
+                    }
+
+                    // Defenders
+                    for (pair<string, Program*> p : playable->defenders) {
+                        if (p.second->state != 'x') {
+                            for (ProgramSector* sector : p.second->sectors) {
+                                if (sector->coord == tileCoord) {
+                                    this->focusType = 'p';
+                                    this->subFocus = -1;
+                                    this->focusProgram = p.second;
+                                    this->focusCoord.x = tileX;
+                                    this->focusCoord.y = tileY;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {  // If we're pointing somewhere on the HUD itself
@@ -118,6 +147,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                                 Program* program = playable->friendlies[j];
                                 if (playable->uploads[playable->selectedUpload] == program->sectors[0]->coord) {
                                     this->player->programs[program->name]++;   // Add that program to the inventory
+                                    delete playable->friendlies[j];
                                     playable->friendlies.erase(playable->friendlies.begin()+j);  // Remove from the databattle
                                     playable->friendliesLoaded--;
                                     break;
@@ -155,20 +185,36 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     actionButtonRect.top = 215 + i*14;
                     if (actionButtonRect.contains(this->mousePos)) {
                         this->subFocus = i;
+                        break;
                     }
                 }
             }
 
             if (playable->phase == 'p') {
+                // Actions
+                if (playable->currentProgram == this->focusProgram) {
+                    for (int i=0; i<this->focusProgram->actions.size(); i++) {
+                        actionButtonRect.top = 215 + i*14;
+                        if (actionButtonRect.contains(this->mousePos)) {
+                            this->focusProgram->switchToAiming(i);
+                            playable->aimArea = this->focusProgram->currentAction->getAimArea(this->focusProgram->sectors[0]->coord);
+                            break;
+                        }
+                    }
+                }
+
                 // No Action
                 actionButtonRect.top = 271;
                 if (actionButtonRect.contains(this->mousePos)) {
-                    cout << "No Action\n";
+                    playable->currentProgram->noAction();
+                    // Switch programs
+                    playable->switchPrograms(this);
                 }
 
                 // Undo
                 actionButtonRect.top = 285;
                 if (actionButtonRect.contains(this->mousePos)) {
+                    delete playable->friendlies[playable->currentProgramIndex];
                     playable->friendlies[playable->currentProgramIndex] = new Program(playable->programStartingState);
                     playable->currentProgram = playable->friendlies[playable->currentProgramIndex];
                     playable->programHead = playable->currentProgram->sectors[0]->coord;
@@ -178,7 +224,6 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     playable->wButton = sf::Vector2<int>(playable->programHead.x - 1, playable->programHead.y);
                     playable->moveArea = getRadius(playable->currentProgram->speed, playable->programHead);
                     this->setFocus(playable->currentProgram);
-                    cout << "Undo\n";
                 }
             }
 
@@ -353,7 +398,7 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
 
     // Done drawing to the content layer
     this->contentTexture.display();
-    this->contentSprite = *(new sf::Sprite(this->contentTexture.getTexture()));
+    this->contentSprite = sf::Sprite(this->contentTexture.getTexture());
 
     if (this->open) {
         this->contentSprite.setPosition(576, 0);

@@ -46,9 +46,11 @@ Program::Program(Program* original) {  // Copy constructor
 
 }
 
-Program::~Program()
-{
-    //dtor
+Program::~Program() {
+    // Fill this in, deallocate any sectors.
+    for (int i=0; i<this->sectors.size(); i++) {
+        delete this->sectors[i];
+    }
 }
 
 void Program::load() {
@@ -107,29 +109,31 @@ void Program::move(sf::Vector2i coord, bool firstTime=false) {
             this->sectors[0] = doubleBackSector;
             this->currentMove++;
         } else {
-            cout << "Not doubling back\n";
+            //cout << "Not doubling back\n";
             this->sectors.insert(this->sectors.begin(), new ProgramSector(coord, this->sectors[0]));  // Add new sector as the head
-            cout << "Added new head\n";
+            //cout << "Added new head\n";
             while (this->sectors.size() > this->maxSize) {  // Trim program down if necessary
-                cout << "Trimming program down\n";
-                cout << "Size: " << this->sectors.size() << '\n';
-                cout << "Max size: " << this->maxSize << '\n';
+                //cout << "Trimming program down\n";
+                //cout << "Size: " << this->sectors.size() << '\n';
+                //cout << "Max size: " << this->maxSize << '\n';
                 for (int i=0; i<this->sectors.size(); i++) {
                     ProgramSector* s = this->sectors[i];
                     if ((s->numLinks == 1) && (i != 0)) {
-                        cout << "Found singly-linked sector: (" << s->coord.x << ", " << s->coord.y << ")\n";
+                        //cout << "Found singly-linked sector: (" << s->coord.x << ", " << s->coord.y << ")\n";
                         ProgramSector* connectedSector = s->links[0];
                         // Unlink the sectors
                         for (int j=0; j<connectedSector->links.size(); j++) {
-                            cout << "connectedSector: (" << connectedSector->coord.x << ", " << connectedSector->coord.y << ")\n";
+                            //cout << "connectedSector: (" << connectedSector->coord.x << ", " << connectedSector->coord.y << ")\n";
                             if (connectedSector->links[j]->coord == s->coord) {
                                 connectedSector->links.erase(connectedSector->links.begin() + j);
                                 connectedSector->numLinks--;
-                                cout << connectedSector->numLinks << '\n';
+                                //cout << connectedSector->numLinks << '\n';
                                 break;
                             }
                         }
-                        this->sectors.erase(this->sectors.begin() + i); // Delete the sector from the program
+                        // Delete the sector from the program
+                        delete this->sectors[i];
+                        this->sectors.erase(this->sectors.begin() + i);
                         break;
                     }
                 }
@@ -161,16 +165,88 @@ void Program::switchToAiming(int actionIndex) {
     // Should add an if statement to automatically end the turn if we don't have any actions (like the Memory Hog)
 }
 
-void Program::takeDamage(Netmap_Playable* level, int damage) {
+void Program::noAction() {
+    this->state = 'd';
+    this->currentAction = nullptr;
+    this->currentActionIndex = -1;
+}
 
+void Program::takeDamage(Netmap_Playable* level, int damage) {
+    for (int d=0; d<damage; d++) {  // For each point of damage
+        if (this->size > 1) {
+            // Loop through the sectors.  Like trimming off stuff in move().
+            for (int i=0; i<this->sectors.size(); i++) {
+                ProgramSector* s = this->sectors[i];
+                if ((s->numLinks == 1) && (i != 0)) {  // Find a singly-linked sector that isn't the head
+                    ProgramSector* connectedSector = s->links[0];
+                    // Unlink the sectors
+                    for (int j=0; j<connectedSector->links.size(); j++) {
+                        if (connectedSector->links[j]->coord == s->coord) {
+                            connectedSector->links.erase(connectedSector->links.begin() + j);
+                            connectedSector->numLinks--;
+                            break;
+                        }
+                    }
+                    // Delete the sector from the program
+                    delete this->sectors[i];
+                    this->sectors.erase(this->sectors.begin() + i);
+                    break;
+                }
+            }
+            this->size = this->sectors.size();
+        } else {
+            // Kill the program
+            cout << "X_X\n";
+            // Not sure what to do here, so I'll just set the state to 'x' (dead) and do other stuff in DataBattle::play()
+            this->state = 'x';
+        }
+    }
 }
 
 void Program::grow(Netmap_Playable* level, int amtToGrow) {
+    for (int i=0; i<amtToGrow; i++) {
+        if (this->size < this->maxSize) {  // If we haven't hit max size
+            sf::Vector2i coordToAttach;
+            ProgramSector* previousSector;
 
+            for (ProgramSector* s : this->sectors) {
+                // See if there's a sector we can grow off of.  Check if any of the contiguous sectors are free.
+                sf::Vector2i coord = s->coord;
+                if (startsWith(level->lookAt(sf::Vector2<int>(coord.x, coord.y-1)), "tile")) {  // North
+                    coordToAttach = sf::Vector2<int>(coord.x, coord.y-1);
+                    previousSector = s;
+                    break;
+                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x, coord.y+1)), "tile")) {  // South
+                    coordToAttach = sf::Vector2<int>(coord.x, coord.y+1);
+                    previousSector = s;
+                    break;
+                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x+1, coord.y)), "tile")) {  // East
+                    coordToAttach = sf::Vector2<int>(coord.x+1, coord.y);
+                    previousSector = s;
+                    break;
+                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x-1, coord.y)), "tile")) {  // West
+                    coordToAttach = sf::Vector2<int>(coord.x-1, coord.y);
+                    previousSector = s;
+                    break;
+                }
+            }
+            if (previousSector != nullptr) {  // If we found an empty contiguous sector
+                ProgramSector* newSector = new ProgramSector(coordToAttach, previousSector);
+                this->sectors.push_back(newSector);
+                this->size = this->sectors.size();
+            } else {  // We found no such contiguous sector and can't grow further
+                break;
+            }
+
+        } else {  // If we have hit max size, we can't grow any further
+            break;
+        }
+    }
 }
 
 void Program::prepForTurn() {
     this->state = 'm';
     this->currentActionIndex = -1;
+    this->currentAction = nullptr;
     this->currentMove = 0;
 }

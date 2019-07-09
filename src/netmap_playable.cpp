@@ -26,3 +26,7 @@ void Netmap_Playable::setPlayer(Player* player) {
 string Netmap_Playable::takeCommand(string command) {
     return "";
 }
+
+string Netmap_Playable::lookAt(sf::Vector2i coord) {
+    return "";
+}
