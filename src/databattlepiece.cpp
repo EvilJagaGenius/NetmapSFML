@@ -17,5 +17,6 @@ void DataBattlePiece::useAction(Netmap_Playable* level, int actionIndex, sf::Vec
 void DataBattlePiece::switchToAiming(int actionIndex) {}
 void DataBattlePiece::noAction() {}
 void DataBattlePiece::takeDamage(int damage) {}
+void DataBattlePiece::amputate(sf::Vector2i coord) {}
 void DataBattlePiece::grow(Netmap_Playable* level, int amtToGrow) {}
 void DataBattlePiece::prepForTurn() {}

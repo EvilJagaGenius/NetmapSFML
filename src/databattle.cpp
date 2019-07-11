@@ -11,6 +11,7 @@ DataBattle::DataBattle(string filename)
     this->filename = filename;
 
     this->friendliesLoaded = 0;
+    this->programStartingState = nullptr;
 
 
     for (int i=0; i<16; i++) {
@@ -492,7 +493,9 @@ void DataBattle::switchTurns(InputBox* hud) {
         }
         this->currentProgramIndex = 0;
         this->currentProgram = this->friendlies[this->currentProgramIndex];
-        delete this->programStartingState;  // Deallocating memory
+        if (this->programStartingState != nullptr) {
+            delete this->programStartingState;  // Deallocating memory
+        }
         this->programStartingState = new Program(currentProgram);  // Copy the program to use as an undo point
         this->programHead = this->currentProgram->sectors[0]->coord;
         this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
@@ -520,6 +523,7 @@ void DataBattle::switchTurns(InputBox* hud) {
             this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0]->coord);
         }
     }
+    cout << "Done switching turns\n";
 }
 
 void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available program and switch to it

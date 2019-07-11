@@ -40,8 +40,14 @@ class Slice: public ProgramAction {
         Slice();
         virtual ~Slice();
         void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
-    protected:
-    private:
+};
+
+class Slash: public ProgramAction {
+    public:
+        Slash();
+        virtual ~Slash();
+        void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+        bool checkPrereqs(DataBattlePiece* p);
 };
 
 class Stone: public ProgramAction {
@@ -49,6 +55,14 @@ class Stone: public ProgramAction {
         Stone();
         virtual ~Stone();
         void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+};
+
+class Sling1: public ProgramAction {
+    public:
+        Sling1();
+        virtual ~Sling1();
+        void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+        //bool checkPrereqs(DataBattlePiece* p);  // Don't know if we'll need this yet
 };
 
 class Cut: public ProgramAction {

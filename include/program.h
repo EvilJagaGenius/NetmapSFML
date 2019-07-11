@@ -54,6 +54,7 @@ class Program: public DataBattlePiece
         void switchToAiming(int actionIndex);
         void noAction();
         void takeDamage(int damage);
+        //void amputate(sf::Vector2i coord);
         void grow(Netmap_Playable* level, int amtToGrow);
         void prepForTurn();
 

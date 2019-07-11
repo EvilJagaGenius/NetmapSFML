@@ -17,6 +17,7 @@
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
+					<Add library="SFML_Libraries/lib/libsfml-audio-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-system-d.a" />
@@ -35,6 +36,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="SFML_Libraries/lib/libsfml-audio.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window.a" />
 					<Add library="SFML_Libraries/lib/libsfml-system.a" />
