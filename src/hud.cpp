@@ -102,7 +102,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     for (int i=0; i<playable->friendlies.size(); i++) {
                         if (playable->friendlies[i]->state != 'x') {
                             for (ProgramSector* s : playable->friendlies[i]->sectors) {
-                                if (s->coord == tileCoord) {
+                                if (s->coord == tileCoord && this->focusProgram->state != 'a') {
                                     this->focusType = 'p';
                                     this->subFocus = -1;
                                     this->focusProgram = playable->friendlies[i];

@@ -3,6 +3,7 @@ maxSize:3
 speed:5
 maxSpeed:10
 action:Slice
+action:Slash
 sprite:0:4
 color:0:199:252
 symbol:h

@@ -3,6 +3,7 @@ maxSize:2
 speed:2
 maxSpeed:10
 action:Stone
+action:Sling1
 sprite:0:18
 color:0:217:165
 symbol:h

@@ -224,10 +224,8 @@ void DataBattle::render(sf::RenderWindow* window) {
         } else if (this->currentProgram->state == 'a') {
             for (sf::Vector2i coord : this->aimArea) {
                 this->gridSprite.setTextureRect(sf::Rect<int>(this->currentProgram->currentAction->targetSprite*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                if (this->grid[coord.x][coord.y] != 0) {
-                    this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
-                    window->draw(this->gridSprite);
-                }
+                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                window->draw(this->gridSprite);
             }
         }
     }
@@ -261,6 +259,7 @@ string DataBattle::play(sf::RenderWindow* window) {
     if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
         cout << "Music file not found: " << this->musicFilename << '\n';
     } else {
+        musicTrack.setLoop(true);
         musicTrack.play();
     }
 
@@ -304,6 +303,7 @@ string DataBattle::play(sf::RenderWindow* window) {
 
             if (event.type == sf::Event::KeyPressed) {
                 cout << fps << '\n';
+                cout << "Victory status: " << this->checkForVictory() << '\n';
             } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     clicked = true;
@@ -455,13 +455,17 @@ string DataBattle::play(sf::RenderWindow* window) {
 
 void DataBattle::switchTurns(InputBox* hud) {
     // Right now, we're crashing inside this function when programs die.  Find out what's wrong.
-    cout << "Switching turns\n";
+    //cout << "Switching turns\n";
     // Check to see if any programs died during the last turn, and if so, delete them.
     bool programsDied = true;
     while (programsDied) {
+        //cout << "Looking for dead friendlies\n";
         programsDied = false;
         for (int i=0; i<this->friendlies.size(); i++) {
+            //cout << "Friendly " << i << '\n';
+            //cout << this->friendlies[i]->state << '\n';
             if (this->friendlies[i]->state == 'x') {  // If the program is marked as dead
+                cout << "Deleting dead friendly\n";
                 delete this->friendlies[i];
                 this->friendlies.erase(this->friendlies.begin() + i);
                 programsDied = true;
@@ -484,7 +488,7 @@ void DataBattle::switchTurns(InputBox* hud) {
 
     // Switch turns
     if (this->phase == 'u' || this->phase == 'e') { // Player or enemy
-        cout << "Switching to player\n";
+        //cout << "Switching to player\n";
         // Switch to player
         this->phase = 'p';
         // Add the textbox here
@@ -506,7 +510,7 @@ void DataBattle::switchTurns(InputBox* hud) {
         hud->setFocus(this->currentProgram);
 
     } else {
-        cout << "Switching to enemy\n";
+        //cout << "Switching to enemy\n";
         // Switch to enemy
         this->phase = 'e';  // Switch to enemy
         // Add textbox here;
@@ -523,11 +527,11 @@ void DataBattle::switchTurns(InputBox* hud) {
             this->moveArea = getRadius(this->currentProgram->speed, this->currentProgram->sectors[0]->coord);
         }
     }
-    cout << "Done switching turns\n";
+    //cout << "Done switching turns\n";
 }
 
 void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available program and switch to it
-    cout << "Switching programs\n";
+    //cout << "Switching programs\n";
     bool outOfPrograms = true;
     if (this->phase == 'e') { // Enemy turn
         for (pair<string, DataBattlePiece*> p : this->defenders) {

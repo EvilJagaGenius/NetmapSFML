@@ -13,6 +13,9 @@ Player::~Player()
 }
 
 void Player::giveStartingPrograms() {
-    this->programs.insert({{"Hack", 1},
-                          {"Slingshot", 1}});
+    // Debug mode
+    this->programs.insert({{"Hack", 10},
+                          {"Slingshot", 10},
+                          {"DataDr", 10},
+                          {"Bug", 10}});
 }

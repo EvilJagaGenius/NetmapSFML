@@ -54,7 +54,7 @@ class Program: public DataBattlePiece
         void switchToAiming(int actionIndex);
         void noAction();
         void takeDamage(int damage);
-        //void amputate(sf::Vector2i coord);
+        void amputate(sf::Vector2i coord);
         void grow(Netmap_Playable* level, int amtToGrow);
         void prepForTurn();
 
@@ -67,6 +67,9 @@ class Program: public DataBattlePiece
 // Constants
 const static sf::Texture PROGRAM_SHEET = imgLoad("Data\\Sprites\\Programs.png");
 static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack")},
-                                                    {"Slingshot", new Program("Slingshot")}};
+                                                    {"Slingshot", new Program("Slingshot")},
+                                                    {"DataDr", new Program("DataDr")},
+                                                    {"Bug", new Program("Bug")},
+                                                    {"Sentinel", new Program("Sentinel")}};
 
 #endif // PROGRAM_H

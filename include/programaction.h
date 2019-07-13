@@ -21,6 +21,7 @@ class ProgramAction {
         string description;
         int range;
         int targetSprite;  // An enum might be useful for this.  0 = red (damage), 1 = green (grid), 2 = blue (buff/debuff)
+        int numOfTargets;
 
         // Functions
         ProgramAction();
@@ -65,6 +66,28 @@ class Sling1: public ProgramAction {
         //bool checkPrereqs(DataBattlePiece* p);  // Don't know if we'll need this yet
 };
 
+class Grow: public ProgramAction {
+    public:
+        Grow();
+        virtual ~Grow();
+        void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+};
+
+class Surgery1: public ProgramAction {
+    public:
+        Surgery1();
+        virtual ~Surgery1();
+        void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+        bool checkPrereqs(DataBattlePiece* p);
+};
+
+class Glitch: public ProgramAction {
+    public:
+        Glitch();
+        virtual ~Glitch();
+        void use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord);
+};
+
 class Cut: public ProgramAction {
     public:
         Cut();
@@ -73,7 +96,12 @@ class Cut: public ProgramAction {
 };
 
 static unordered_map<string, ProgramAction*> ACTION_DB = {{"Slice", new Slice()},
+                                                        {"Slash", new Slash()},
                                                         {"Stone", new Stone()},
+                                                        {"Sling1", new Sling1()},
+                                                        {"Grow", new Grow()},
+                                                        {"Surgery1", new Surgery1()},
+                                                        {"Glitch", new Glitch()},
                                                         {"Cut", new Cut()}};
 
 #endif // PROGRAMACTION_H

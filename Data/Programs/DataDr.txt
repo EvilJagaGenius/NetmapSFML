@@ -3,6 +3,7 @@ maxSize:4
 speed:2
 maxSpeed:10
 action:Grow
+action:Surgery1
 sprite:0:6
 color:0:0:255
 symbol:d
