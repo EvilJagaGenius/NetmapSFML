@@ -135,7 +135,31 @@ void DataBattle::render(sf::RenderWindow* window) {
         DataBattlePiece* p = element.second;
         for (int i=0; i<(p->size); i++) {
             ProgramSector* sector = p->sectors[i];
-            //cout << "Got sector\n";
+            // Draw connecting lines
+            for (ProgramSector* s : sector->links) {
+                sf::Vector2i nextCoord = s->coord;
+                sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
+                sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
+                sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
+                sf::Vector2f topLeft;
+                if (centerA.x < centerB.x) {
+                    topLeft.x = centerA.x;
+                } else {
+                    topLeft.x = centerB.x;
+                }
+                if (centerA.y < centerB.y) {
+                    topLeft.y = centerA.y;
+                } else {
+                    topLeft.y = centerB.y;
+                }
+                connectingLine.setFillColor(p->color);
+                connectingLine.setOutlineColor(p->color);
+                connectingLine.setPosition(topLeft);
+                window->draw(connectingLine);
+            }
+        }
+        for (int i=0; i<(p->size); i++) {
+            ProgramSector* sector = p->sectors[i];
             if (i==0) {  // Blit head sprite
                 this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
@@ -167,6 +191,30 @@ void DataBattle::render(sf::RenderWindow* window) {
     // Draw friendlies
     for (int i=0; i<this->friendlies.size(); i++) {
         DataBattlePiece* p = this->friendlies[i];
+        for (int j=0; j<(p->size); j++) {
+            ProgramSector* sector = p->sectors[j];
+            for (ProgramSector* s : sector->links) {
+                sf::Vector2i nextCoord = s->coord;
+                sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
+                sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
+                sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
+                sf::Vector2f topLeft;
+                if (centerA.x < centerB.x) {
+                    topLeft.x = centerA.x;
+                } else {
+                    topLeft.x = centerB.x;
+                }
+                if (centerA.y < centerB.y) {
+                    topLeft.y = centerA.y;
+                } else {
+                    topLeft.y = centerB.y;
+                }
+                connectingLine.setFillColor(p->color);
+                connectingLine.setOutlineColor(p->color);
+                connectingLine.setPosition(topLeft);
+                window->draw(connectingLine);
+            }
+        }
         for (int j=0; j<(p->size); j++) {
             ProgramSector* sector = p->sectors[j];
             if (j==0) {  // Blit head sprite
@@ -352,17 +400,22 @@ string DataBattle::play(sf::RenderWindow* window) {
                         this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
                         this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
                     } else {
+                        this->targets.clear();
                         this->currentProgram->switchToAiming(0);
-                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead);
+                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead, this->targets.size());
                         this->hud->setSubFocus(0);
                     }
 
                 } else if (this->currentProgram->state == 'a') {  // If aiming
                     for (sf::Vector2i coord : this->aimArea) {
                         if (coord == tileCoord) {
-                            this->currentProgram->useAction(this, this->currentProgram->currentActionIndex, tileCoord);
-                            // Switch to next available program
-                            this->switchPrograms(hud);
+                            this->targets.push_back(tileCoord);  // Add it to the target list
+                            this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead, this->targets.size());
+                            if (this->targets.size() >= this->currentProgram->currentAction->numOfTargets) {  // If we've selected all our targets
+                                this->currentProgram->useAction(this, this->currentProgram->currentActionIndex, this->targets);
+                                // Switch to next available program
+                                this->switchPrograms(hud);
+                            }
                         }
                     }
                 }
@@ -407,7 +460,7 @@ string DataBattle::play(sf::RenderWindow* window) {
                 } else {  // If you can't move anywhere you'd like to go
                     if ((xDistance == 0) || (yDistance == 0)) {  // If you're right against the target
                         this->currentProgram->switchToAiming(0);  // Switch to aiming
-                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord);
+                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
                     } else {
                         this->currentProgram->noAction();  // Take no action
                     }
@@ -415,12 +468,14 @@ string DataBattle::play(sf::RenderWindow* window) {
 
                 if (this->currentProgram->currentMove >= this->currentProgram->speed) {  // If it's out of moves
                     this->currentProgram->switchToAiming(0);
-                    this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord);
+                    this->targets.clear();
+                    this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
                 }
             } else if (this->currentProgram->state == 'a') {  // If aiming
                 // Attempt to attack the closest sector of a friendly program
                 int actionIndex = 0;  // This value can be changed if the AI improves and defender Programs get multiple actions to choose from
-                this->currentProgram->useAction(this, actionIndex, targetCoord);
+                this->targets.push_back(targetCoord);
+                this->currentProgram->useAction(this, actionIndex, targets);
 
                 // Switch to the next available defender; failing that, switch turns
                 this->switchPrograms(hud);
@@ -652,7 +707,6 @@ char DataBattle::checkForVictory() {
             compStillAlive = true;
         }
     }
-
     if (compStillAlive && playerStillAlive) {
         return '0'; // No one's won yet
     } else if (compStillAlive && !playerStillAlive) {
@@ -662,4 +716,12 @@ char DataBattle::checkForVictory() {
     }
     // Assuming you reached this point, both player and computer are dead
     return 'd'; // Draw
+}
+
+void DataBattle::flipSector(sf::Vector2i coord) {
+    if (this->grid[coord.x][coord.y] == 0) {
+        this->grid[coord.x][coord.y] = 1;
+    } else {
+        this->grid[coord.x][coord.y] = 0;
+    }
 }

@@ -8,6 +8,7 @@ Program::Program(string programType) {
     this->currentMove = 0;
     this->size = 0;
     this->state = 'm';
+    this->targetCounter = 0;
 }
 
 Program::Program(Program* original) {  // Copy constructor
@@ -47,6 +48,7 @@ Program::Program(Program* original) {  // Copy constructor
     this->maxSpeed = original->speed;
     this->currentMove = original->currentMove;
     this->state = original->state;
+    this->targetCounter = original->targetCounter;
 
 
 }
@@ -198,9 +200,9 @@ void Program::addSector(sf::Vector2i coord, int pos=0) {
     this->size++;
 }
 
-void Program::useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord) {
-    cout << "useAction called\n";
-    this->actions[actionIndex]->use(level, this, targetCoord);
+void Program::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {
+    cout << "Program::useAction() called\n";
+    this->actions[actionIndex]->use(level, this, targets);
     // Action is used whether it failed or not, end the turn
     if (this->state != 'x') {
         this->state = 'd';
@@ -246,10 +248,11 @@ void Program::takeDamage(int damage) {
             this->size = this->sectors.size();
         } else {
             // Kill the program
-            cout << "X_X\n";
+            cout << "X_X: " << this->programType << '\n';
             // Not sure what to do here, so I'll just set the state to 'x' (dead) and do other stuff in DataBattle::play()
             this->state = 'x';
             this->size = 0;
+            break;  // If we're dead, break out of the loop (and function) early
         }
     }
 }

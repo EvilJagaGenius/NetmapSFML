@@ -13,7 +13,7 @@ DataBattlePiece::~DataBattlePiece()
 void DataBattlePiece::load() {}
 void DataBattlePiece::move(sf::Vector2i coord, bool firstTime) {}
 void DataBattlePiece::addSector(sf::Vector2i coord, int pos) {}
-void DataBattlePiece::useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord) {}
+void DataBattlePiece::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {}
 void DataBattlePiece::switchToAiming(int actionIndex) {}
 void DataBattlePiece::noAction() {}
 void DataBattlePiece::takeDamage(int damage) {}

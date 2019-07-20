@@ -29,6 +29,7 @@ class Netmap_Playable
         virtual void setPlayer(Player* player);
         virtual string takeCommand(string command);
         virtual string lookAt(sf::Vector2i coord);
+        virtual void flipSector(sf::Vector2i coord);
 
     protected:
 

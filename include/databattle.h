@@ -62,6 +62,7 @@ class DataBattle: public Netmap_Playable
         sf::Vector2i wButton;
         vector<sf::Vector2i> moveArea;
         vector<sf::Vector2i> aimArea;
+        vector<sf::Vector2i> targets;
 
         // Functions
         DataBattle();
@@ -78,6 +79,7 @@ class DataBattle: public Netmap_Playable
         string lookAt(sf::Vector2i coord);
         string lookAt(int x, int y);
         char checkForVictory();
+        void flipSector(sf::Vector2i coord);
 
     protected:
 

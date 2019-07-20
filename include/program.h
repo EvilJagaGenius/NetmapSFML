@@ -50,7 +50,7 @@ class Program: public DataBattlePiece
         void load();
         void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
         void addSector(sf::Vector2i coord, int pos);
-        void useAction(Netmap_Playable* level, int actionIndex, sf::Vector2i targetCoord);
+        void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
         void switchToAiming(int actionIndex);
         void noAction();
         void takeDamage(int damage);
@@ -70,6 +70,7 @@ static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack"
                                                     {"Slingshot", new Program("Slingshot")},
                                                     {"DataDr", new Program("DataDr")},
                                                     {"Bug", new Program("Bug")},
+                                                    {"BitMan", new Program("BitMan")},
                                                     {"Sentinel", new Program("Sentinel")}};
 
 #endif // PROGRAM_H

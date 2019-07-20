@@ -17,5 +17,6 @@ void Player::giveStartingPrograms() {
     this->programs.insert({{"Hack", 10},
                           {"Slingshot", 10},
                           {"DataDr", 10},
+                          {"BitMan", 10},
                           {"Bug", 10}});
 }

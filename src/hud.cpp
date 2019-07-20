@@ -125,7 +125,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                     for (pair<string, DataBattlePiece*> p : playable->defenders) {
                         if (p.second->state != 'x') {
                             for (ProgramSector* sector : p.second->sectors) {
-                                if (sector->coord == tileCoord) {
+                                if (sector->coord == tileCoord && this->focusProgram->state != 'a') {  // Don't allow focusing on an enemy when we're aiming
                                     this->focusType = 'p';
                                     this->subFocus = -1;
                                     this->focusProgram = p.second;
@@ -185,7 +185,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                 currentIndex++;
             }
 
-            // Actions
+            // Actions, pt.1
             sf::Rect<int> actionButtonRect(592, 200, 100, 14);
             if (focusType == 'p') {
                 for (int i=0; i<this->focusProgram->actions.size(); i++) {
@@ -198,13 +198,15 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
             }
 
             if (playable->phase == 'p') {
-                // Actions
+                // Actions, pt.2
+                // I don't remember why they're split up like this
                 if (playable->currentProgram == this->focusProgram) {
                     for (int i=0; i<this->focusProgram->actions.size(); i++) {
                         actionButtonRect.top = 215 + i*14;
                         if (actionButtonRect.contains(this->mousePos)) {
                             this->focusProgram->switchToAiming(i);
-                            playable->aimArea = this->focusProgram->currentAction->getAimArea(this->focusProgram->sectors[0]->coord);
+                            playable->targets.clear();
+                            playable->aimArea = this->focusProgram->currentAction->getAimArea(this->focusProgram->sectors[0]->coord, playable->targets.size());
                             break;
                         }
                     }
@@ -353,7 +355,11 @@ void HUD::render(sf::RenderWindow* window, DataBattle* playable) {
                 actionButtonRect.top = 214 + i*12;
                 actionButton.setPosition(16, actionButtonRect.top);
                 this->focusTextBox.setPosition(32, actionButtonRect.top);
-                this->focusTextBox.setString(this->focusProgram->actions[i]->actionName);
+                if (this->subFocus == i && this->focusProgram == playable->currentProgram) {
+                    this->focusTextBox.setString(this->focusProgram->actions[i]->actionName + " (" + to_string(playable->targets.size())+ "/" + to_string(this->focusProgram->actions[i]->numOfTargets) + ")");
+                } else {
+                    this->focusTextBox.setString(this->focusProgram->actions[i]->actionName);
+                }
                 if (this->focusProgram->actions[i]->checkPrereqs(this->focusProgram)) {  // If the current program meets the prerequisites
                     this->focusTextBox.setColor(sf::Color::White);
                 } else {

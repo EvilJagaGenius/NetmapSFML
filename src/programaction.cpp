@@ -2,13 +2,13 @@
 
 // ProgramAction
 ProgramAction::ProgramAction() {
-    this->numOfTargets = 1;
+    this->numOfTargets = 1;  // 1 target by default
 }
 ProgramAction::~ProgramAction() {}
-void ProgramAction::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void ProgramAction::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     cout << "Called ProgramAction::use()\n";
 }
-vector<sf::Vector2i> ProgramAction::getAimArea(sf::Vector2i origin) {
+vector<sf::Vector2i> ProgramAction::getAimArea(sf::Vector2i origin, int targetNum) {
     return getRadius(this->range, origin, false);
 }
 bool ProgramAction::checkPrereqs(DataBattlePiece* p) {
@@ -23,8 +23,9 @@ Slice::Slice() {
     this->targetSprite = 0;
 }
 Slice::~Slice() {}
-void Slice::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Slice::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Slice\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target = nullptr;
 
@@ -72,10 +73,11 @@ Slash::Slash() {
     this->targetSprite = 0;
 }
 Slash::~Slash() {}
-void Slash::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Slash::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Slash\n";
     if (checkPrereqs(source)) {
         sf::Vector2i origin = source->sectors[0]->coord;
+        sf::Vector2i targetCoord = targets[0];
         DataBattlePiece* target = nullptr;
 
         // Search defenders
@@ -130,8 +132,9 @@ Stone::Stone() {
     this->targetSprite = 0;
 }
 Stone::~Stone() {}
-void Stone::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Stone::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Stone\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target = nullptr;
 
@@ -178,8 +181,9 @@ Sling1::Sling1() {
     this->targetSprite = 1;
 }
 Sling1::~Sling1() {}
-void Sling1::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Sling1::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Sling1\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range && (targetCoord != origin)) {  // If in range
         // Calculate the vector we're going to warp along.
@@ -207,8 +211,9 @@ Grow::Grow() {
     this->targetSprite = 2;
 }
 Grow::~Grow() {}
-void Grow::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Grow::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Grow\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target = nullptr;
 
@@ -254,8 +259,9 @@ Surgery1::Surgery1() {
     this->targetSprite = 2;
 }
 Surgery1::~Surgery1() {}
-void Surgery1::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Surgery1::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Surgery1\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target = nullptr;
 
@@ -310,8 +316,9 @@ Glitch::Glitch() {
     this->targetSprite = 0;
 }
 Glitch::~Glitch() {}
-void Glitch::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Glitch::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     sf::Vector2i origin = source->sectors[0]->coord;
+    sf::Vector2i targetCoord = targets[0];
     DataBattlePiece* target = nullptr;
 
     if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range && (targetCoord != origin)) {  // If in range
@@ -349,6 +356,101 @@ void Glitch::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targ
     }
 }
 
+// Swarm1
+Swarm1::Swarm1() {
+    this->actionName = "Swarm1";
+    this->description = "Swarm1 \n Range: 2, move req: 0 \n Delete 1 sector from 2 targets";
+    this->numOfTargets = 2;
+    this->range = 2;
+    this->targetSprite = 0;
+}
+Swarm1::~Swarm1() {}
+void Swarm1::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    if (this->checkPrereqs(source)) {
+        // Do something, Taipu
+        sf::Vector2i origin = source->sectors[0]->coord;
+        for (int i=0; i<targets.size(); i++) {
+            sf::Vector2i targetCoord = targets[i];
+            DataBattlePiece* target = nullptr;
+
+            if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range && (targetCoord != origin)) {  // If in range
+                for (pair<string, DataBattlePiece*> p : db->defenders) {
+                    for (ProgramSector* s : p.second->sectors) {
+                        if (s->coord == targetCoord) {
+                            // We've found our target
+                            target = p.second;
+                            break;
+                        }
+                    }
+                    if (target != nullptr) {
+                        break;
+                    }
+                }
+                // Search friendlies (delete if you want to disable friendly fire)
+                if (target == nullptr) {
+                    for (DataBattlePiece* p : db->friendlies) {
+                        for (ProgramSector* s : p->sectors) {
+                            if (s->coord == targetCoord) {
+                                target = p;
+                                break;
+                            }
+                        }
+                        if (target != nullptr) {
+                            break;
+                        }
+                    }
+                }
+
+                // Take damage
+                if (target != nullptr) {
+                    target->takeDamage(1);
+                }
+            }
+        }
+    }
+}
+bool Swarm1::checkPrereqs(DataBattlePiece* p) {
+    if (p->currentMove == 0) {
+        return true;
+    }
+    return false;
+}
+
+// Zero
+Zero::Zero() {
+    this->actionName = "Zero";
+    this->description = "Zero \n Delete an open grid sector";
+    this->range = 1;
+    this->targetSprite = 1;
+}
+Zero::~Zero() {}
+void Zero::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        if (startsWith(db->lookAt(targetCoord), "tile")) { // If it's a tile
+            db->flipSector(targetCoord);
+        }
+    }
+}
+
+// One
+One::One() {
+    this->actionName = "One";
+    this->description = "One \n Create an open grid sector";
+    this->range = 1;
+    this->targetSprite = 1;
+}
+One::~One() {}
+void One::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        if (startsWith(db->lookAt(targetCoord), "empty")) { // If it's empty space
+            db->flipSector(targetCoord);
+        }
+    }
+}
 
 
 // Cut
@@ -359,8 +461,9 @@ Cut::Cut() {
     this->targetSprite = 0;
 }
 Cut::~Cut() {}
-void Cut::use(Netmap_Playable* db, DataBattlePiece* source, sf::Vector2i targetCoord) {
+void Cut::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
     //cout << "Using Cut\n";
+    sf::Vector2i targetCoord = targets[0];
     sf::Vector2i origin = source->sectors[0]->coord;
     DataBattlePiece* target;
 

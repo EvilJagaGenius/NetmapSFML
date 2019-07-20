@@ -3,6 +3,7 @@ maxSize:1
 speed:5
 maxSpeed:10
 action:Glitch
+action:Swarm1
 sprite:0:2
 color:132:252:0
 symbol:b
