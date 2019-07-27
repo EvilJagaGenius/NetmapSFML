@@ -1,6 +1,6 @@
 name:Hack
 maxSize:3
-speed:5
+speed:2
 maxSpeed:10
 action:Slice
 action:Slash

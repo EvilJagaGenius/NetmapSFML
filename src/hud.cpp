@@ -111,9 +111,23 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
 
                                     // Switching to other programs
                                     if (playable->phase == 'p') {
-                                        if (this->focusProgram != playable->currentProgram) {  // If we clicked on a different program
-                                            playable->currentProgram->noAction();
-                                            playable->switchPrograms(this);
+                                        if (this->focusProgram != playable->currentProgram && this->focusProgram->state == 'm') {  // If we clicked on a different program
+                                            if (playable->currentProgram->currentMove > 0) {  // If we already moved, force No Action
+                                                playable->currentProgram->noAction();
+                                            }
+                                            // Code copied from DataBattle::SwitchPrograms()
+                                            playable->currentProgramIndex = i;
+                                            playable->currentProgram = playable->friendlies[i];
+                                            delete playable->programStartingState;
+                                            playable->programStartingState = new Program(playable->currentProgram);
+                                            playable->programHead = playable->currentProgram->sectors[0]->coord;
+                                            playable->nButton = sf::Vector2<int>(playable->programHead.x, playable->programHead.y - 1);
+                                            playable->sButton = sf::Vector2<int>(playable->programHead.x, playable->programHead.y + 1);
+                                            playable->eButton = sf::Vector2<int>(playable->programHead.x + 1, playable->programHead.y);
+                                            playable->wButton = sf::Vector2<int>(playable->programHead.x - 1, playable->programHead.y);
+                                            playable->moveArea = getRadius(playable->currentProgram->speed, playable->programHead, false);
+                                            this->setFocus(playable->currentProgram);
+
                                         }
                                     }
                                 }
@@ -161,6 +175,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                                 }
                             }
                             Program* newProgram = new Program(p.first);
+                            newProgram->owner = 'p';  // Player owns the new program
                             newProgram->move(playable->uploads[playable->selectedUpload], true);
                             playable->friendlies.push_back(newProgram);  // Add to databattle
                             playable->friendliesLoaded++;
@@ -223,6 +238,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                 // Undo
                 actionButtonRect.top = 285;
                 if (actionButtonRect.contains(this->mousePos)) {
+                    cout << "Hitting undo button\n";
                     delete playable->friendlies[playable->currentProgramIndex];
                     playable->friendlies[playable->currentProgramIndex] = new Program(playable->programStartingState);
                     playable->currentProgram = playable->friendlies[playable->currentProgramIndex];

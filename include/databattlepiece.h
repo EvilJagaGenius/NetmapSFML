@@ -36,12 +36,17 @@ class DataBattlePiece
         ProgramAction* currentAction;
         int currentActionIndex;
         int targetCounter;
+        int invisibilityTimer;
+        bool visible;
 
+        char owner;  // Who's using the program.  Player, defenders, etc.  NTS: DataBattles with multiple factions would be cool (like you + Gemma vs. WhiteKnight)
+        char pieceType;  // Used to differentiate between programs/users/etc
         char state;
 
         // Functions
         DataBattlePiece();
         virtual ~DataBattlePiece();
+        virtual void deleteSectors();
         virtual void load();
         virtual void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
         virtual void addSector(sf::Vector2i coord, int pos);

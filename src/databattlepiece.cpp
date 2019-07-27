@@ -9,7 +9,7 @@ DataBattlePiece::~DataBattlePiece()
 {
     //dtor
 }
-
+void DataBattlePiece::deleteSectors() {}
 void DataBattlePiece::load() {}
 void DataBattlePiece::move(sf::Vector2i coord, bool firstTime) {}
 void DataBattlePiece::addSector(sf::Vector2i coord, int pos) {}

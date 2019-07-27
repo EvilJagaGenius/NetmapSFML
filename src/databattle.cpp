@@ -92,6 +92,7 @@ void DataBattle::load() {
                     vector<string> splitLine = splitString(line, ':');
                     Program* newProgram = new Program(splitLine[1]);
                     newProgram->move(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
+                    newProgram->owner = 'c';  // Computer owns the program
                     this->defenders.insert({{splitLine[4], newProgram}});
                 }
 
@@ -131,66 +132,65 @@ void DataBattle::render(sf::RenderWindow* window) {
     //cout << "Grid\n";
 
     // Draw defenders
+    this->programSprite.setColor(sf::Color::White);
     for (pair<string, DataBattlePiece*> element : defenders) {
         DataBattlePiece* p = element.second;
-        for (int i=0; i<(p->size); i++) {
-            ProgramSector* sector = p->sectors[i];
-            // Draw connecting lines
-            for (ProgramSector* s : sector->links) {
-                sf::Vector2i nextCoord = s->coord;
-                sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
-                sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
-                sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
-                sf::Vector2f topLeft;
-                if (centerA.x < centerB.x) {
-                    topLeft.x = centerA.x;
-                } else {
-                    topLeft.x = centerB.x;
+        if (p->visible) {
+            for (int i=0; i<(p->size); i++) {
+                ProgramSector* sector = p->sectors[i];
+                // Draw connecting lines
+                for (ProgramSector* s : sector->links) {
+                    sf::Vector2i nextCoord = s->coord;
+                    sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
+                    sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
+                    sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
+                    sf::Vector2f topLeft;
+                    if (centerA.x < centerB.x) {
+                        topLeft.x = centerA.x;
+                    } else {
+                        topLeft.x = centerB.x;
+                    }
+                    if (centerA.y < centerB.y) {
+                        topLeft.y = centerA.y;
+                    } else {
+                        topLeft.y = centerB.y;
+                    }
+                    connectingLine.setFillColor(p->color);
+                    connectingLine.setOutlineColor(p->color);
+                    connectingLine.setPosition(topLeft);
+                    window->draw(connectingLine);
                 }
-                if (centerA.y < centerB.y) {
-                    topLeft.y = centerA.y;
-                } else {
-                    topLeft.y = centerB.y;
-                }
-                connectingLine.setFillColor(p->color);
-                connectingLine.setOutlineColor(p->color);
-                connectingLine.setPosition(topLeft);
-                window->draw(connectingLine);
             }
-        }
-        for (int i=0; i<(p->size); i++) {
-            ProgramSector* sector = p->sectors[i];
-            if (i==0) {  // Blit head sprite
-                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                window->draw(this->programSprite);
-                //cout << "Head sprite\n";
-                if (p->state == 'd') { // If done
-                    // Draw the 'done' marker
-                    this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                    this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                    window->draw(this->gridSprite);
+            for (int i=0; i<(p->size); i++) {
+                ProgramSector* sector = p->sectors[i];
+                if (i==0) {  // Draw head sprite
+                    this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                    window->draw(this->programSprite);
+                    if (p->state == 'd') { // If done
+                        // Draw the 'done' marker
+                        this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                        this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                        window->draw(this->gridSprite);
+                    }
+                } else {  // Draw tail sprite
+                    this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
+                    window->draw(this->programSprite);
                 }
-            } else {  // Blit tail sprite
-                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                //cout << "Set tail sprite texture rect\n";
-                //cout << TILE_SIZE << '\n';
-                //cout << GAP_SIZE << '\n';
-                //cout << &sector << '\n';
-                //cout << sector->coord.x << '\n';
-                //cout << sector->coord.y << '\n';
-                this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                //cout << "Set tail sprite position\n";
-                window->draw(this->programSprite);
-                //cout << "Tail sprite\n";
             }
         }
     }
-    //cout << "Defenders\n";
 
     // Draw friendlies
+    this->programSprite.setColor(sf::Color::White);
     for (int i=0; i<this->friendlies.size(); i++) {
         DataBattlePiece* p = this->friendlies[i];
+        if (!p->visible) {
+            this->programSprite.setColor(sf::Color(128,128,128,128));  // Hopefully this turns things transparent
+        } else {
+            this->programSprite.setColor(sf::Color::White);  // And this fixes it
+        }
         for (int j=0; j<(p->size); j++) {
             ProgramSector* sector = p->sectors[j];
             for (ProgramSector* s : sector->links) {
@@ -217,7 +217,7 @@ void DataBattle::render(sf::RenderWindow* window) {
         }
         for (int j=0; j<(p->size); j++) {
             ProgramSector* sector = p->sectors[j];
-            if (j==0) {  // Blit head sprite
+            if (j==0) {  // Draw head sprite
                 this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(this->programSprite);
@@ -227,14 +227,13 @@ void DataBattle::render(sf::RenderWindow* window) {
                     this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
                     window->draw(this->gridSprite);
                 }
-            } else {  // Blit tail sprite
+            } else {  // Draw tail sprite
                 this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(this->programSprite);
             }
         }
     }
-    //cout << "Friendlies\n";
 
 
     // Draw upload zones
@@ -316,6 +315,7 @@ string DataBattle::play(sf::RenderWindow* window) {
     float lastTime = 0;
     float currentTime;
     float fps;
+    int frameTimer;
 
     bool clicked;
     sf::Vector2i tileCoord(-1, -1);
@@ -351,7 +351,14 @@ string DataBattle::play(sf::RenderWindow* window) {
 
             if (event.type == sf::Event::KeyPressed) {
                 cout << fps << '\n';
-                cout << "Victory status: " << this->checkForVictory() << '\n';
+                //cout << "Victory status: " << this->checkForVictory() << '\n';
+                cout << "Current program: " << this->currentProgram->name << '\n';
+                for (ProgramSector* s : this->currentProgram->sectors) {
+                    cout << "Sector: " << getByteCoord(s->coord) << '\n';
+                    for (ProgramSector* l : s->links) {
+                        cout << "Link: " << getByteCoord(l->coord) << '\n';
+                    }
+                }
             } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     clicked = true;
@@ -424,64 +431,74 @@ string DataBattle::play(sf::RenderWindow* window) {
 
         // Enemy turn
         else if (this->phase == 'e') {
-            programHead = this->currentProgram->sectors[0]->coord;
-            // Rudimentary AI here, copied from the Python.  If somebody could help me improve this that'd be nice
-            // Look for closest target
-            sf::Vector2i targetCoord = sf::Vector2<int>(-1, -1);
-            for (int i=0; i<this->friendlies.size(); i++) {
-                for (ProgramSector* s : this->friendlies[i]->sectors) {
-                    if (targetCoord.x == -1) {  // If we haven't set targetCoord yet
-                        targetCoord = s->coord;
-                    } else {
-                        int distanceToTarget = abs(targetCoord.x - programHead.x) + abs(targetCoord.y - programHead.y);
-                        int distanceToCandidate = abs(s->coord.x - programHead.x) + abs(s->coord.y - programHead.y);
-                        if (distanceToCandidate < distanceToTarget) {  // If that target is closer
-                            targetCoord = s->coord;  // Change targets
+            if (frameTimer >= 10) {
+                frameTimer = 0;
+                programHead = this->currentProgram->sectors[0]->coord;
+                // Rudimentary AI here, copied from the Python.  If somebody could help me improve this that'd be nice
+                // Look for closest target
+                sf::Vector2i targetCoord = sf::Vector2<int>(-1, -1);
+                for (int i=0; i<this->friendlies.size(); i++) {
+                    for (ProgramSector* s : this->friendlies[i]->sectors) {
+                        if (targetCoord.x == -1) {  // If we haven't set targetCoord yet
+                            targetCoord = s->coord;
+                        } else {
+                            int distanceToTarget = abs(targetCoord.x - programHead.x) + abs(targetCoord.y - programHead.y);
+                            int distanceToCandidate = abs(s->coord.x - programHead.x) + abs(s->coord.y - programHead.y);
+                            if (distanceToCandidate < distanceToTarget) {  // If that target is closer
+                                targetCoord = s->coord;  // Change targets
+                            }
                         }
                     }
                 }
-            }
-            int xDistance = targetCoord.x - programHead.x;
-            int yDistance = targetCoord.y - programHead.y;
+                int xDistance = targetCoord.x - programHead.x;
+                int yDistance = targetCoord.y - programHead.y;
 
-            if (this->currentProgram->state == 'm') {  // If moving
-                if ((yDistance < 0) && ((startsWith(this->lookAt(programHead.x, programHead.y-1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y-1), "defender " + this->currentDefenderIndex)))) {
-                    // North
-                    this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y-1), false);
-                } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
-                    // South
-                    this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y+1), false);
-                } else if ((xDistance > 0) && ((startsWith(this->lookAt(programHead.x+1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x+1, programHead.y), "defender " + this->currentDefenderIndex)))) {
-                    // East
-                    this->currentProgram->move(sf::Vector2<int>(programHead.x+1, programHead.y), false);
-                } else if ((xDistance < 0) && ((startsWith(this->lookAt(programHead.x-1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x-1, programHead.y), "defender " + this->currentDefenderIndex)))) {
-                    // West
-                    this->currentProgram->move(sf::Vector2<int>(programHead.x-1, programHead.y), false);
-                } else {  // If you can't move anywhere you'd like to go
-                    if ((xDistance == 0) || (yDistance == 0)) {  // If you're right against the target
-                        this->currentProgram->switchToAiming(0);  // Switch to aiming
+                if (this->currentProgram->state == 'm') {  // If moving
+                    if (this->currentProgram->currentMove >= this->currentProgram->speed) {  // If it's out of moves
+                        this->currentProgram->switchToAiming(0);
+                        this->targets.clear();
                         this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
-                    } else {
-                        this->currentProgram->noAction();  // Take no action
+                    } else if ((yDistance < 0) && ((startsWith(this->lookAt(programHead.x, programHead.y-1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y-1), "defender " + this->currentDefenderIndex)))) {
+                        // North
+                        this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y-1), false);
+                        this->programHead = this->currentProgram->sectors[0]->coord;
+                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+                    } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
+                        // South
+                        this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y+1), false);
+                        this->programHead = this->currentProgram->sectors[0]->coord;
+                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+                    } else if ((xDistance > 0) && ((startsWith(this->lookAt(programHead.x+1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x+1, programHead.y), "defender " + this->currentDefenderIndex)))) {
+                        // East
+                        this->currentProgram->move(sf::Vector2<int>(programHead.x+1, programHead.y), false);
+                        this->programHead = this->currentProgram->sectors[0]->coord;
+                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+                    } else if ((xDistance < 0) && ((startsWith(this->lookAt(programHead.x-1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x-1, programHead.y), "defender " + this->currentDefenderIndex)))) {
+                        // West
+                        this->currentProgram->move(sf::Vector2<int>(programHead.x-1, programHead.y), false);
+                        this->programHead = this->currentProgram->sectors[0]->coord;
+                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
+                    } else {  // If you can't move anywhere you'd like to go
+                        if ((xDistance == 0) || (yDistance == 0)) {  // If you're right against the target
+                            this->currentProgram->switchToAiming(0);  // Switch to aiming
+                            this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
+                        } else {
+                            this->currentProgram->noAction();  // Take no action
+                        }
                     }
-                }
-
-                if (this->currentProgram->currentMove >= this->currentProgram->speed) {  // If it's out of moves
-                    this->currentProgram->switchToAiming(0);
+                } else if (this->currentProgram->state == 'a') {  // If aiming
+                    // Attempt to attack the closest sector of a friendly program
+                    int actionIndex = 0;  // This value can be changed if the AI improves and defender Programs get multiple actions to choose from
                     this->targets.clear();
-                    this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
+                    this->targets.push_back(targetCoord);
+                    cout << "Attacking " << getByteCoord(targetCoord) << '\n';
+                    this->currentProgram->useAction(this, actionIndex, targets);
+
+                    // Switch to the next available defender; failing that, switch turns
+                    this->switchPrograms(hud);
                 }
-            } else if (this->currentProgram->state == 'a') {  // If aiming
-                // Attempt to attack the closest sector of a friendly program
-                int actionIndex = 0;  // This value can be changed if the AI improves and defender Programs get multiple actions to choose from
-                this->targets.push_back(targetCoord);
-                this->currentProgram->useAction(this, actionIndex, targets);
-
-                // Switch to the next available defender; failing that, switch turns
-                this->switchPrograms(hud);
             }
-
-
+            frameTimer++;
         }
 
         // Check to see if anybody won, and if so, end the DataBattle
@@ -510,7 +527,7 @@ string DataBattle::play(sf::RenderWindow* window) {
 
 void DataBattle::switchTurns(InputBox* hud) {
     // Right now, we're crashing inside this function when programs die.  Find out what's wrong.
-    //cout << "Switching turns\n";
+    cout << "Switching turns\n";
     // Check to see if any programs died during the last turn, and if so, delete them.
     bool programsDied = true;
     while (programsDied) {
@@ -586,8 +603,15 @@ void DataBattle::switchTurns(InputBox* hud) {
 }
 
 void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available program and switch to it
-    //cout << "Switching programs\n";
+    cout << "Switching programs\n";
     bool outOfPrograms = true;
+    if (this->currentProgram->invisibilityTimer > 0) {  // If the program's temporarily invisible
+        cout << "Decrementing invisibility\n";
+        this->currentProgram->invisibilityTimer--;  // Knock its invisibility down a notch
+        if (this->currentProgram->invisibilityTimer == 0) {  // If it's run out of invisibility
+            this->currentProgram->visible = true;
+        }
+    }
     if (this->phase == 'e') { // Enemy turn
         for (pair<string, DataBattlePiece*> p : this->defenders) {
             if (p.second->state != 'd' && p.second->state != 'x') {
@@ -603,8 +627,9 @@ void DataBattle::switchPrograms(InputBox* hud) {  // Find the next available pro
             if (this->friendlies[i]->state != 'd' && this->friendlies[i]->state != 'x') {
                 this->currentProgramIndex = i;
                 this->currentProgram = this->friendlies[i];
+                cout << "Copying program starting state\n";
                 delete this->programStartingState;  // Deallocating memory
-                this->programStartingState = new Program(currentProgram);  // Copy the program to use as an undo point
+                this->programStartingState = new Program(this->currentProgram);  // Copy the program to use as an undo point
                 this->programHead = this->currentProgram->sectors[0]->coord;
                 this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
                 this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);

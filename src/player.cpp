@@ -18,5 +18,6 @@ void Player::giveStartingPrograms() {
                           {"Slingshot", 10},
                           {"DataDr", 10},
                           {"BitMan", 10},
-                          {"Bug", 10}});
+                          {"Bug", 10},
+                          {"Watchman", 10}});
 }

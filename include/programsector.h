@@ -15,6 +15,7 @@ class ProgramSector
         sf::Vector2i coord;
         vector<ProgramSector*> links;
         int numLinks;
+        bool fortified;
 
         ProgramSector(sf::Vector2i coord);
         ProgramSector(sf::Vector2i coord, ProgramSector* lastSector);

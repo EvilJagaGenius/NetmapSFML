@@ -12,6 +12,7 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
+    window.setFramerateLimit(60);
 
     // Databattle testing
     HUD* testHUD = new HUD();

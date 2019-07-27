@@ -487,3 +487,231 @@ void Cut::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i>
         }
     }
 }
+
+// SpotLight
+
+// Byte
+Byte::Byte() {
+    this->actionName = "Byte";
+    this->description = "Byte \n Delete 2 sectors from target";
+    this->range = 1;
+    this->targetSprite = 0;
+}
+Byte::~Byte() {}
+void Byte::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target;
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Take damage
+        if (target != nullptr) {
+            target->takeDamage(2);
+        }
+    }
+}
+
+// PackRun
+
+// Phaser
+Phaser::Phaser() {
+    this->actionName = "Phaser";
+    this->description = "Phaser \n Range: 2 \n Delete 2 sectors from target";
+    this->range = 2;
+    this->targetSprite = 0;
+}
+Phaser::~Phaser() {}
+void Phaser::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target;
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Take damage
+        if (target != nullptr) {
+            target->takeDamage(2);
+        }
+    }
+}
+
+// BlindEye
+BlindEye::BlindEye() {
+    this->actionName = "BlindEye";
+    this->description = "BlindEye \n Range: 2 \n Cloak a target for 1 turn";
+    this->range = 2;
+    this->targetSprite = 2;
+}
+BlindEye::~BlindEye() {}
+void BlindEye::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target = nullptr;
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search defenders
+        for (pair<string, DataBattlePiece*> p : db->defenders) {
+            for (ProgramSector* s : p.second->sectors) {
+                if (s->coord == targetCoord) {
+                    // We've found our target
+                    target = p.second;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Turn target invisible
+        if (target != nullptr) {
+            cout << "Granting invisibility\n";
+            target->invisibilityTimer++;
+            target->visible = false;
+        }
+    }
+}
+
+// Blip
+Blip::Blip() {
+    this->actionName = "Blip";
+    this->description = "Blip \n Range: 5 \n Delete 1 sector from target";
+    this->range = 5;
+    this->targetSprite = 0;
+}
+Blip::~Blip() {}
+void Blip::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target;
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Take damage
+        if (target != nullptr) {
+            target->takeDamage(1);
+        }
+    }
+}
+
+// Thump
+Thump::Thump() {
+    this->actionName = "Thump";
+    this->description = "Thump \n Delete 3 sectors from target";
+    this->range = 1;
+    this->targetSprite = 0;
+}
+Thump::~Thump() {}
+void Thump::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target;
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            for (ProgramSector* s : p->sectors) {
+                if (s->coord == targetCoord) {
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Take damage
+        if (target != nullptr) {
+            target->takeDamage(3);
+        }
+    }
+}
+
+// Burn
+Burn::Burn() {
+    this->actionName = "Burn";
+    this->description = "Burn \n Delete 2 sectors from target";
+    this->range = 1;
+    this->targetSprite = 0;
+}
+Burn::~Burn() {}
+void Burn::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets) {
+    sf::Vector2i targetCoord = targets[0];
+    sf::Vector2i origin = source->sectors[0]->coord;
+    DataBattlePiece* target = nullptr;
+    cout << "targetCoord = " << getByteCoord(targetCoord) << '\n';
+
+    if (abs(targetCoord.x - origin.x) + abs(targetCoord.y - origin.y) <= this->range) {  // If in range
+        // Search friendlies
+        for (DataBattlePiece* p : db->friendlies) {
+            cout << "Searching friendly " << p->name << '\n';
+            for (ProgramSector* s : p->sectors) {
+                cout << "Searching sector " << getByteCoord(s->coord) << '\n';
+                if (s->coord == targetCoord) {
+                    cout << "Hit target coord\n";
+                    target = p;
+                    break;
+                }
+            }
+            if (target != nullptr) {
+                break;
+            }
+        }
+
+        // Take damage
+        if (target != nullptr) {
+            cout << "Dealing damage\n";
+            target->takeDamage(2);
+        }
+    }
+}

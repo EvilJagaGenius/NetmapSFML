@@ -9,9 +9,13 @@ Program::Program(string programType) {
     this->size = 0;
     this->state = 'm';
     this->targetCounter = 0;
+    this->owner = '0';
+    this->invisibilityTimer = 0;
+    this->visible = true;
 }
 
 Program::Program(Program* original) {  // Copy constructor
+    cout << "Using copy constructor\n";
     this->programType = original->programType;
     this->name = original->name;
     this->screenName = original->screenName;
@@ -39,6 +43,61 @@ Program::Program(Program* original) {  // Copy constructor
             ProgramSector::linkSectors(s, sectorToLink);
         }
     }
+
+    this->owner = original->owner;
+    this->invisibilityTimer = original->invisibilityTimer;
+    this->visible = original->visible;
+    this->actions = original->actions;
+    this->description = original->description;
+    this->size = original->size;
+    this->maxSize = original->maxSize;
+    this->speed = original->speed;
+    this->maxSpeed = original->speed;
+    this->currentMove = original->currentMove;
+    this->state = original->state;
+    this->targetCounter = original->targetCounter;
+}
+
+Program::Program(DataBattlePiece* original) {  // Alt copy constructor
+    cout << "Calling DataBattlePiece copy constructor\n";
+    this->programType = original->programType;
+    this->name = original->name;
+    this->screenName = original->screenName;
+    this->spriteCoord = original->spriteCoord;
+    this->color = original->color;
+
+    for (ProgramSector* s : original->sectors) {
+        this->sectors.push_back(new ProgramSector(s->coord));
+    }
+
+    for (int i=0; i<this->sectors.size(); i++) {
+        ProgramSector* s = this->sectors[i];
+        cout << "Sector: " << getByteCoord(s->coord) << '\n';
+        vector<sf::Vector2i> linkCoords;
+        vector<int> linkIndices;
+        for (ProgramSector* l : original->sectors[i]->links) {
+            cout << "Adding link coord: " << getByteCoord(l->coord) << '\n';
+            linkCoords.push_back(l->coord);
+            for (int j=0; j<this->sectors.size(); j++) {
+                if (this->sectors[j]->coord == l->coord) {
+                    cout << "Adding link index: " << j << '\n';
+                    linkIndices.push_back(j);
+                }
+            }
+        }
+        for (int index : linkIndices) {
+            cout << i << '\n';
+            cout << "Linking sectors\n";
+            ProgramSector* sectorToLink = this->sectors[index];
+            s->links.push_back(sectorToLink);
+            s->numLinks++;
+            //ProgramSector::linkSectors(s, sectorToLink);
+        }
+    }
+
+    this->owner = original->owner;
+    this->invisibilityTimer = original->invisibilityTimer;
+    this->visible = original->visible;
 
     this->actions = original->actions;
     this->description = original->description;
@@ -49,54 +108,17 @@ Program::Program(Program* original) {  // Copy constructor
     this->currentMove = original->currentMove;
     this->state = original->state;
     this->targetCounter = original->targetCounter;
-
-
-}
-
-Program::Program(DataBattlePiece* original) {  // Alt copy constructor
-    this->programType = original->programType;
-    this->name = original->name;
-    this->screenName = original->screenName;
-    this->spriteCoord = original->spriteCoord;
-    this->color = original->color;
-
-    for (ProgramSector* s : original->sectors) {
-        this->sectors.push_back(new ProgramSector(s->coord));
-    }
-
-    for (int i=0; i<this->sectors.size(); i++) {
-        ProgramSector* s = this->sectors[i];
-        vector<sf::Vector2i> linkCoords;
-        vector<int> linkIndices;
-        for (ProgramSector* l : s->links) {
-            linkCoords.push_back(l->coord);
-            for (int j=0; j<this->sectors.size(); j++) {
-                if (this->sectors[j]->coord == l->coord) {
-                    linkIndices.push_back(j);
-                }
-            }
-        }
-        for (int index : linkIndices) {
-            ProgramSector* sectorToLink = this->sectors[index];
-            ProgramSector::linkSectors(s, sectorToLink);
-        }
-    }
-
-    this->actions = original->actions;
-    this->description = original->description;
-    this->size = original->size;
-    this->maxSize = original->maxSize;
-    this->speed = original->speed;
-    this->maxSpeed = original->speed;
-    this->currentMove = original->currentMove;
-    this->state = original->state;
-
-
 }
 
 Program::~Program() {
     // Fill this in, deallocate any sectors.
     cout << "Program deconstructor called\n";
+    for (int i=0; i<this->sectors.size(); i++) {
+        delete this->sectors[i];
+    }
+}
+
+void Program::deleteSectors() {
     for (int i=0; i<this->sectors.size(); i++) {
         delete this->sectors[i];
     }
