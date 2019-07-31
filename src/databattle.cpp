@@ -43,7 +43,7 @@ void DataBattle::load() {
 
     while(getline(textFile, line)) {
         if (startsWith(line, "bkg:")) {  // Background
-            string bkgFilename = line.substr(4);
+            this->bkgFilename = line.substr(4);
             this->bkg = imgLoad("Data\\DataBattleBkgs\\" + bkgFilename);
             this->bkgSprite = sf::Sprite(this->bkg);
         }

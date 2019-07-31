@@ -29,6 +29,7 @@ class DataBattle: public Netmap_Playable
     public:
         // Variables
         string filename;
+        string bkgFilename;
         sf::Texture bkg;
         sf::Sprite bkgSprite;
         string musicFilename;
@@ -86,7 +87,6 @@ class DataBattle: public Netmap_Playable
     private:
 };
 
-const static sf::Font DEFAULT_FONT = fontLoad("Data\\Fonts\\Terminus.ttf");  // I needed someplace to put this
 const static sf::Texture GRID_SHEET = imgLoad("Data\\Sprites\\Grid.png");
 
 #endif // DATABATTLE_H

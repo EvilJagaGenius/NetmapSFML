@@ -5,6 +5,8 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
+#include "toolbox.h"
+
 using namespace std;
 
 class Netmap_Playable;
@@ -31,5 +33,7 @@ class InputBox
 
     private:
 };
+
+const static sf::Font DEFAULT_FONT = fontLoad("Data\\Fonts\\Terminus.ttf");  // I needed someplace to put this
 
 #endif // INPUTBOX_H

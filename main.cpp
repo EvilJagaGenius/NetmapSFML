@@ -7,6 +7,7 @@
 #include "toolbox.h"
 #include "programaction.h"
 #include "databattle.h"
+#include "databattleeditor.h"
 #include "hud.h"
 
 int main()
@@ -19,10 +20,12 @@ int main()
     Player* PLAYER = new Player;
     testHUD->setPlayer(PLAYER);
 
+    //Netmap_Playable* CURRENT_PLAYABLE = new DataBattleEditor("TestBattle");
     Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
     CURRENT_PLAYABLE->setHUD(testHUD);
     CURRENT_PLAYABLE->setPlayer(PLAYER);
     CURRENT_PLAYABLE->play(&window);
+
 
     /*
     Netmap_Playable* testBattle = new DataBattle("TestBattle");
