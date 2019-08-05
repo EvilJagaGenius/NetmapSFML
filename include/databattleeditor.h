@@ -2,6 +2,8 @@
 #define DATABATTLEEDITOR_H
 
 #include "databattle.h"
+#include "textinputbox.h"
+#include "toolbox.h"
 
 class DataBattleEditor: public Netmap_Playable
 {
@@ -10,6 +12,8 @@ class DataBattleEditor: public Netmap_Playable
         sf::Vector2i mousePos;
         sf::Sprite gridSprite;
         sf::Sprite programSprite;
+        InputBox* currentInputBox;
+        char inputBoxType;
 
         // General-purpose input button
         sf::Text textBox;

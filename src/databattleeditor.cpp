@@ -5,6 +5,12 @@ DataBattleEditor::DataBattleEditor(string dummy) {
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
     this->textBox = sf::Text("", DEFAULT_FONT, 12);
+    this->button = sf::Rect<int>(WY, 0, 100, 14);
+    this->buttonGraphic = sf::RectangleShape(sf::Vector2<float>(100, 14));
+    this->buttonGraphic.setFillColor(sf::Color::Transparent);
+    this->buttonGraphic.setOutlineColor(sf::Color::White);
+    this->buttonGraphic.setOutlineThickness(1);
+    this->currentInputBox = nullptr;
 }
 
 DataBattleEditor::~DataBattleEditor() {
@@ -14,6 +20,10 @@ DataBattleEditor::~DataBattleEditor() {
 }
 
 void DataBattleEditor::newDB(string filename) {
+    if (!endsWith(filename, ".txt")) {
+        filename += ".txt";
+    }
+
     // Create the file, fill it in
     ofstream newFile;
     newFile.open("Data\\DataBattles\\" + filename);
@@ -40,10 +50,18 @@ void DataBattleEditor::loadDB(string filename) {
     if (this->db != nullptr) {
         delete this->db;
     }
-    this->db = new DataBattle(filename);
+    if (endsWith(filename, ".txt")) {
+        this->db = new DataBattle(filename.substr(0, filename.size()-4));
+    } else {
+        this->db = new DataBattle(filename);
+    }
 }
 
 void DataBattleEditor::saveDB(string filename) {
+    if (!endsWith(filename, ".txt")) {
+        filename += ".txt";
+    }
+
     if (this->db != nullptr) {
         // Create the file.  I'm hoping this overwrites it, like in Python
         ofstream newFile;
@@ -93,17 +111,7 @@ void DataBattleEditor::saveDB(string filename) {
 }
 
 void DataBattleEditor::render(sf::RenderWindow* window) {
-    cout << "Rendering\n";
-    // Draw new/load buttons
-    this->textBox.setColor(sf::Color::White);
-    this->textBox.setPosition(WY, 0);
-    this->textBox.setString("New DataBattle");
-    window->draw(this->textBox);
-
-    this->textBox.setPosition(WY, 14);
-    this->textBox.setString("Load DataBattle");
-    window->draw(this->textBox);
-
+    //cout << "Rendering\n";
 
     if (this->db != nullptr) {
         // Copy code from DataBattle::render()
@@ -229,12 +237,38 @@ void DataBattleEditor::render(sf::RenderWindow* window) {
             window->draw(gridSprite);
         }
     }
+    // Draw new/load buttons
+    this->button.top = 0;
+    this->textBox.setColor(sf::Color::White);
+    this->textBox.setPosition(WY, 0);
+    this->textBox.setString("New DataBattle");
+    window->draw(this->textBox);
+    if (this->button.contains(this->mousePos)) {
+        //cout << "Drawing button graphic\n";
+        this->buttonGraphic.setPosition(this->button.left, this->button.top);
+        window->draw(this->buttonGraphic);
+    }
+
+    this->button.top = 14;
+    this->textBox.setPosition(WY, 14);
+    this->textBox.setString("Load DataBattle");
+    window->draw(this->textBox);
+    if (this->button.contains(this->mousePos)) {
+        this->buttonGraphic.setPosition(this->button.left, this->button.top);
+        window->draw(this->buttonGraphic);
+    }
+
+    // Last: Draw input boxes
+    if (this->currentInputBox != nullptr) {
+        this->currentInputBox->render(window, this);
+    }
 }
 
 string DataBattleEditor::play(sf::RenderWindow* window) {
     cout << "Called DataBattleEditor::play()\n";
     bool rightClicked = false;
     bool leftClicked = false;
+    this->currentInputBox = nullptr;
 
     // Main loop
     while (window->isOpen()) {
@@ -245,6 +279,12 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
 
         sf::Event event;
         while (window->pollEvent(event)) {
+            // Give input to the input boxes we have open
+            if (this->currentInputBox != nullptr) {
+                this->currentInputBox->setMousePos(this->mousePos);
+                this->currentInputBox->takeInput(event, this);
+            }
+
             if (event.type == sf::Event::Closed) {
                 window->close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -253,8 +293,47 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
                     rightClicked = true;
                 }
+            } else if (event.type == sf::Event::KeyPressed) {
+                if ((event.key.code == sf::Event::KeyEvent::code::S) && (event.key.control)) {  // Ctrl-S
+                    this->saveDB(this->db->filename);
+                }
             }
         }
+        if (leftClicked) {
+            // New DB
+            this->button.top = 0;
+            if (this->button.contains(this->mousePos)) {
+                if (this->currentInputBox != nullptr) {
+                    delete this->currentInputBox;
+                }
+                this->currentInputBox = new TextInputBox("Enter the name of the new DataBattle:");
+                this->inputBoxType = 'n'; // n for New DB
+            }
+
+            // Load DB
+            this->button.top = 14;
+            if (this->button.contains(this->mousePos)) {
+                if (this->currentInputBox != nullptr) {
+                    delete this->currentInputBox;
+                }
+                this->currentInputBox = new TextInputBox("Enter the name of the DataBattle to load:");
+                this->inputBoxType = 'l';
+            }
+        }
+
+        if (this->currentInputBox != nullptr) {
+            if (this->currentInputBox->done) {
+                if (this->inputBoxType == 'n') {  // If it was the New DB dialog:
+                    this->newDB(this->currentInputBox->getFocus());
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+                } else if (this->inputBoxType == 'l') {  // Load DB
+                    this->loadDB(this->currentInputBox->getFocus());
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+            }
+        }
+
         this->render(window);
         window->display();
     }

@@ -16,6 +16,7 @@ class DataBattlePiece;
 class InputBox
 {
     public:
+        bool done;
 
         InputBox();
         virtual ~InputBox();

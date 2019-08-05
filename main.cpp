@@ -20,8 +20,8 @@ int main()
     Player* PLAYER = new Player;
     testHUD->setPlayer(PLAYER);
 
-    //Netmap_Playable* CURRENT_PLAYABLE = new DataBattleEditor("TestBattle");
-    Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
+    Netmap_Playable* CURRENT_PLAYABLE = new DataBattleEditor("TestBattle");
+    //Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
     CURRENT_PLAYABLE->setHUD(testHUD);
     CURRENT_PLAYABLE->setPlayer(PLAYER);
     CURRENT_PLAYABLE->play(&window);

@@ -1,23 +1,20 @@
-#ifndef TEXTINPUTBOX_H
-#define TEXTINPUTBOX_H
+#ifndef CHOICEINPUTBOX_H
+#define CHOICEINPUTBOX_H
 
 #include "inputbox.h"
 
-class TextInputBox: public InputBox
+class ChoiceInputBox: public InputBox
 {
     public:
-        //bool done;
         sf::Vector2i mousePos;
         sf::Vector2i topLeft;
-        sf::Rect<int> rect;
-        string prompt;
-        string input;
+        vector<string> options;
+        vector<bool> usable;
 
-        sf::RectangleShape boxGraphic;
-        sf::Text textBox;
+        sf::RenderTexture* contentTexture;
 
-        TextInputBox(string prompt);
-        virtual ~TextInputBox();
+        ChoiceInputBox(vector<string> options, vector<bool> usable);
+        virtual ~ChoiceInputBox();
         void setMousePos(sf::Vector2i mousePos);
         void render(sf::RenderWindow* window, Netmap_Playable* playable);
         void takeInput(sf::Event event, Netmap_Playable* playable);
@@ -30,4 +27,4 @@ class TextInputBox: public InputBox
     private:
 };
 
-#endif // TEXTINPUTBOX_H
+#endif // CHOICEINPUTBOX_H

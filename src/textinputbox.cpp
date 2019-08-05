@@ -1,9 +1,9 @@
 #include "textinputbox.h"
 
-TextInputBox::TextInputBox() {
+TextInputBox::TextInputBox(string prompt) {
     this->done = false;
     this->topLeft = sf::Vector2i(400, 400);
-    this->rect = sf::Rect<int>(this->topLeft.x, this->topLeft.y, 400, 100);
+    this->rect = sf::Rect<int>(this->topLeft.x, this->topLeft.y, 400, 50);
     this->boxGraphic = sf::RectangleShape(sf::Vector2<float>(this->rect.width, this->rect.height));
     this->boxGraphic.setPosition(this->topLeft.x, this->topLeft.y);
     this->boxGraphic.setFillColor(sf::Color::Black);
@@ -11,7 +11,7 @@ TextInputBox::TextInputBox() {
     this->boxGraphic.setOutlineColor(sf::Color::White);
     this->textBox = sf::Text("", DEFAULT_FONT, 12);
 
-    this->prompt = "Testing text input boxes:";
+    this->prompt = prompt;
     this->input = "";
 }
 
@@ -37,9 +37,27 @@ void TextInputBox::render(sf::RenderWindow* window, Netmap_Playable* playable) {
 }
 
 void TextInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
-    // Do more things, Taipu
+    //cout << "Called TextInputBox::takeInput()\n";
+    if (event.type == sf::Event::TextEntered) {
+        int value = event.text.unicode;
+        char letter = event.text.unicode;
+        if (letter == 13) {  // 13 is Enter
+            this->done = true;
+        } else if (letter == 8) { // 8 is backspace
+            if (this->input.size() > 0) {
+                this->input.pop_back();
+            }
+        } else {
+            cout << "As int: " << value << '\n';
+            cout << "As char: " << letter << '\n';
+            this->input += letter;
+        }
+        // AAUGH
+    }
 }
 
 void TextInputBox::setFocus(string focus) {}  // I don't think we need this
 void TextInputBox::setSubFocus(int subFocus) {}  // Same here
-string TextInputBox::getFocus() {}
+string TextInputBox::getFocus() {
+    return this->input;
+}

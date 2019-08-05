@@ -8,9 +8,8 @@ bool startsWith(string str, string prefix) {
 bool endsWith(string str, string postfix) {
     if (str.length() >= postfix.length()) {
         return (0 == str.compare(str.length() - postfix.length(), postfix.length(), postfix));
-    } else {
-        return false;
     }
+    return false;
 }
 
 vector<string> splitString(string str, char delimiter) {

@@ -14,6 +14,7 @@ using namespace std;
 
 
 bool startsWith(string str, string prefix);
+bool endsWith(string str, string postfix);
 vector<string> splitString(string str, char delimiter);
 sf::Texture imgLoad(string filename);
 sf::Font fontLoad(string filename);
