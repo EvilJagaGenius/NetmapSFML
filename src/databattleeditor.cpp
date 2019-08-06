@@ -269,6 +269,7 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
     bool rightClicked = false;
     bool leftClicked = false;
     this->currentInputBox = nullptr;
+    sf::Vector2i tileCoord;
 
     // Main loop
     while (window->isOpen()) {
@@ -276,6 +277,12 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
         this->mousePos = sf::Mouse::getPosition(*window);
         leftClicked = false;
         rightClicked = false;
+        tileCoord = sf::Vector2<int>(-1, -1);
+        if (mousePos.x <= WY) {
+            if ((mousePos.x % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE) && (mousePos.y % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE)) {
+                tileCoord = sf::Vector2<int>(mousePos.x/(TILE_SIZE + GAP_SIZE), mousePos.y/(TILE_SIZE + GAP_SIZE));
+            }
+        }
 
         sf::Event event;
         while (window->pollEvent(event)) {
@@ -294,7 +301,7 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                     rightClicked = true;
                 }
             } else if (event.type == sf::Event::KeyPressed) {
-                if ((event.key.code == sf::Event::KeyEvent::code::S) && (event.key.control)) {  // Ctrl-S
+                if ((event.key.code == sf::Keyboard::S) && (event.key.control)) {  // Ctrl-S
                     this->saveDB(this->db->filename);
                 }
             }
@@ -319,6 +326,34 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                 this->currentInputBox = new TextInputBox("Enter the name of the DataBattle to load:");
                 this->inputBoxType = 'l';
             }
+
+            if (tileCoord.x != -1 && this->currentInputBox == nullptr) {  // If we're pointing to a tile on the grid (and there's no dialog box up)
+                //cout << "Valid tile\n";
+                if (startsWith(this->db->lookAt(tileCoord), "tile")) {  // If that spot's an empty tile
+                    this->db->grid[tileCoord.x][tileCoord.y] = 0;
+                } else if (startsWith(this->db->lookAt(tileCoord), "empty")) {  // If it's empty
+                    this->db->grid[tileCoord.x][tileCoord.y] = 1;
+                }
+                //cout << this->db->lookAt(tileCoord) << '\n';
+                //cout << this->db->grid[tileCoord.x][tileCoord.y] << '\n';
+            }
+        }
+
+        if (rightClicked) {
+            //cout << "Right-clicked\n";
+            if (tileCoord.x != -1) { // If we're on a valid tile
+                if (this->currentInputBox != nullptr) {
+                    delete this->currentInputBox;
+                }
+                vector<string> options = {"Close Box", "New Program"};
+                vector<bool> usable = {true, false};
+                if (this->db != nullptr && tileCoord.x != -1 && !startsWith(this->db->lookAt(tileCoord), "empty")) {
+                    usable[1] = true;
+                }
+
+                this->currentInputBox = new ChoiceInputBox(mousePos, options, usable, 5);
+                this->inputBoxType = 'c';
+            }
         }
 
         if (this->currentInputBox != nullptr) {
@@ -327,10 +362,30 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                     this->newDB(this->currentInputBox->getFocus());
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
                 } else if (this->inputBoxType == 'l') {  // Load DB
                     this->loadDB(this->currentInputBox->getFocus());
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
+                } else if (this->inputBoxType == 'c') { // Choice box
+                    int option = this->currentInputBox->getSubFocus();
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
+
+                    if (option == 1) {  // New Program
+                        // Bring up another choice box to select the program
+                        vector<string> options;
+                        vector<bool> usable;
+                        for (pair<string, Program*> element : PROGRAM_DB) {
+                            options.push_back(element.first);
+                            usable.push_back(true);
+                        }
+                        this->currentInputBox = new ChoiceInputBox(mousePos, options, usable, 10);
+                        this->inputBoxType = 'p';
+                    }
+                }
             }
         }
 

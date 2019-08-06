@@ -3,6 +3,7 @@
 
 #include "databattle.h"
 #include "textinputbox.h"
+#include "choiceinputbox.h"
 #include "toolbox.h"
 
 class DataBattleEditor: public Netmap_Playable

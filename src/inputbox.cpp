@@ -28,3 +28,6 @@ void InputBox::setSubFocus(int subFocus) {}
 string InputBox::getFocus() {
     return "";
 }
+int InputBox::getSubFocus() {
+    return -1;
+}

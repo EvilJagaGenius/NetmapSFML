@@ -29,6 +29,7 @@ class InputBox
         void virtual setFocus(DataBattlePiece* focus);
         void virtual setSubFocus(int subFocus);
         string virtual getFocus();
+        int virtual getSubFocus();
 
     protected:
 
