@@ -44,6 +44,7 @@ void DataBattleEditor::newDB(string filename) {
 
     // Once that's done:
     this->db = new DataBattle(filename);
+    this->programCounter = 0;
 }
 
 void DataBattleEditor::loadDB(string filename) {
@@ -55,6 +56,7 @@ void DataBattleEditor::loadDB(string filename) {
     } else {
         this->db = new DataBattle(filename);
     }
+    this->programCounter = this->db->defenders.size();
 }
 
 void DataBattleEditor::saveDB(string filename) {
@@ -264,12 +266,50 @@ void DataBattleEditor::render(sf::RenderWindow* window) {
     }
 }
 
+void DataBattleEditor::clearTile(sf::Vector2i coord) {
+    // Look through uploads
+    for (int i=0; i<this->db->uploads.size(); i++) {
+        if (this->db->uploads[i] == coord) {
+            this->db->uploads.erase(this->db->uploads.begin()+i);
+            break;
+        }
+    }
+    // Look through defenders
+    for (pair<string, DataBattlePiece*> element : this->db->defenders) {
+        DataBattlePiece* p = element.second;
+        for (ProgramSector* s : p->sectors) {
+            if (s->coord == coord) {
+                p->amputate(coord);
+                break;
+            }
+        }
+    }
+    // See if we killed anything by amputation
+    bool programsDied = true;
+    while (programsDied) {
+        programsDied = false;
+        for (pair<string, DataBattlePiece*> element : this->db->defenders) {
+            if (element.second->state == 'x') {
+                delete element.second;
+                this->db->defenders.erase(element.first);
+                programsDied = true;
+                break;
+            }
+        }
+    }
+    // Add more here when the time comes
+}
+
 string DataBattleEditor::play(sf::RenderWindow* window) {
     cout << "Called DataBattleEditor::play()\n";
     bool rightClicked = false;
     bool leftClicked = false;
     this->currentInputBox = nullptr;
     sf::Vector2i tileCoord;
+    sf::Vector2i selectedCoord;
+
+    DataBattlePiece* piece = nullptr;
+    int sectorIndex = -1;
 
     // Main loop
     while (window->isOpen()) {
@@ -342,16 +382,34 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
         if (rightClicked) {
             //cout << "Right-clicked\n";
             if (tileCoord.x != -1) { // If we're on a valid tile
+                selectedCoord = sf::Vector2<int>(tileCoord);
                 if (this->currentInputBox != nullptr) {
                     delete this->currentInputBox;
                 }
-                vector<string> options = {"Close Box", "New Program"};
-                vector<bool> usable = {true, false};
-                if (this->db != nullptr && tileCoord.x != -1 && !startsWith(this->db->lookAt(tileCoord), "empty")) {
-                    usable[1] = true;
+                vector<string> options = {"Close Box", "Clear Tile", "New Program", "Add Sector", "Add Upload"};
+                vector<bool> usable = {true, false, false, false, false};
+                if (this->db != nullptr && selectedCoord.x != -1) {
+                    if (!startsWith(this->db->lookAt(selectedCoord), "empty")) {  // Clear tile is usable
+                        usable[1] = true;
+                    }
+                    if (startsWith(this->db->lookAt(selectedCoord), "tile")) {  // New Program and Add Upload are usable
+                        usable[2] = true;
+                        usable[4] = true;
+                    }
+                    if (startsWith(this->db->lookAt(selectedCoord), "defender")) {  // Add sector is usable
+                        usable[3] = true;
+                        piece = this->db->defenders[splitString(this->db->lookAt(selectedCoord), ' ')[1]];
+                        for (int i=0; i<piece->size; i++) {
+                            ProgramSector* s = piece->sectors[i];
+                            if (s->coord == selectedCoord) {
+                                sectorIndex = i;
+                                break;
+                            }
+                        }
+                    }
                 }
 
-                this->currentInputBox = new ChoiceInputBox(mousePos, options, usable, 5);
+                this->currentInputBox = new ChoiceInputBox(mousePos, options, usable, 10);
                 this->inputBoxType = 'c';
             }
         }
@@ -374,7 +432,11 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                     this->currentInputBox = nullptr;
                     this->inputBoxType = '0';
 
-                    if (option == 1) {  // New Program
+                    if (option == 1) {  // Clear tile
+                        cout << "Clear tile\n";
+                        this->clearTile(selectedCoord);
+                        cout << "Done clearing tile\n";
+                    } else if (option == 2) {  // New Program
                         // Bring up another choice box to select the program
                         vector<string> options;
                         vector<bool> usable;
@@ -384,6 +446,41 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                         }
                         this->currentInputBox = new ChoiceInputBox(mousePos, options, usable, 10);
                         this->inputBoxType = 'p';
+                    } else if (option == 3) {  // Add sector
+                        this->currentInputBox = new SectorInputBox();
+                        this->inputBoxType = 's';
+                        cout << "Add sector\n";
+                    } else if (option == 4) {  // Add upload
+                        if (startsWith(this->db->lookAt(selectedCoord), "tile")) {
+                            this->db->uploads.push_back(selectedCoord);
+                        }
+                    }
+
+                } else if (this->inputBoxType == 'p') {  // New Program
+                    string programType = this->currentInputBox->getFocus();
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
+
+                    //cout << "Add " << programType << " at " << getByteCoord(selectedCoord) << '\n';
+                    // We have the data we need to create a new program.  Let's do it
+                    Program* newProgram = new Program(programType);
+                    newProgram->move(selectedCoord, true);
+                    newProgram->owner = 'c';
+                    this->db->defenders.insert({{"defender" + to_string(this->programCounter), newProgram}});
+                    this->programCounter++;
+                } else if (this->inputBoxType == 's') {  // Add sector
+                    // When we hit this point, tileCoord is where we want to create our new sector
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
+                    if (tileCoord.x != -1) {  // Check for valid coord
+                        if (startsWith(this->db->lookAt(tileCoord), "tile")) {
+                            //ProgramSector* newSector = new ProgramSector(tileCoord);
+                            piece->addSector(tileCoord, sectorIndex);
+                            piece = nullptr;
+                            sectorIndex = -1;
+                        }
                     }
                 }
             }

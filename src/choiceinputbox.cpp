@@ -47,6 +47,7 @@ void ChoiceInputBox::render(sf::RenderWindow* window, Netmap_Playable* playable)
         window->draw(this->textBox);
         if (buttonRect.contains(this->mousePos) && usable[optionIndex+i]) {
             this->subFocus = optionIndex + i;
+            this->focus = this->options[optionIndex + i];
             this->buttonGraphic.setPosition(this->buttonRect.left, this->buttonRect.top);
             window->draw(this->buttonGraphic);
         }
@@ -72,9 +73,9 @@ void ChoiceInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
 void ChoiceInputBox::setFocus(string focus) {}
 void ChoiceInputBox::setSubFocus(int subFocus) {}
 string ChoiceInputBox::getFocus() {
-    return "";
-    //return this->focus;
+    //return "";
+    return this->focus;
 }
 int ChoiceInputBox::getSubFocus() {
-     return this->subFocus;
+    return this->subFocus;
 }

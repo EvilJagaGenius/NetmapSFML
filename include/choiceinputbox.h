@@ -13,6 +13,7 @@ class ChoiceInputBox: public InputBox
         int optionIndex;
         int maxSize;
         int subFocus;
+        string focus;
 
         sf::Rect<int> buttonRect;
         sf::RectangleShape buttonGraphic;

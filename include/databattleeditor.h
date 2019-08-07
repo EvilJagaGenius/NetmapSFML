@@ -4,6 +4,7 @@
 #include "databattle.h"
 #include "textinputbox.h"
 #include "choiceinputbox.h"
+#include "sectorinputbox.h"
 #include "toolbox.h"
 
 class DataBattleEditor: public Netmap_Playable
@@ -15,6 +16,7 @@ class DataBattleEditor: public Netmap_Playable
         sf::Sprite programSprite;
         InputBox* currentInputBox;
         char inputBoxType;
+        int programCounter;
 
         // General-purpose input button
         sf::Text textBox;
@@ -27,6 +29,7 @@ class DataBattleEditor: public Netmap_Playable
         void loadDB(string filename);
         void saveDB(string filename);
         void render(sf::RenderWindow* window);
+        void clearTile(sf::Vector2i coord);
         string play(sf::RenderWindow* window);
 
     protected:

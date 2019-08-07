@@ -64,6 +64,7 @@
 		<Unit filename="include/program.h" />
 		<Unit filename="include/programaction.h" />
 		<Unit filename="include/programsector.h" />
+		<Unit filename="include/sectorinputbox.h" />
 		<Unit filename="include/textinputbox.h" />
 		<Unit filename="include/titlescreen.h" />
 		<Unit filename="include/toolbox.h" />
@@ -79,6 +80,7 @@
 		<Unit filename="src/program.cpp" />
 		<Unit filename="src/programaction.cpp" />
 		<Unit filename="src/programsector.cpp" />
+		<Unit filename="src/sectorinputbox.cpp" />
 		<Unit filename="src/textinputbox.cpp" />
 		<Unit filename="src/titlescreen.cpp" />
 		<Unit filename="src/toolbox.cpp" />
