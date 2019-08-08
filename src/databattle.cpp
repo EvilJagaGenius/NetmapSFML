@@ -21,6 +21,7 @@ DataBattle::DataBattle(string filename)
     }
 
     this->load();
+    this->disconnect = false;
 }
 
 DataBattle::~DataBattle() {
@@ -40,6 +41,8 @@ void DataBattle::load() {
     char loading = '0';  // 0 if we're not loading anything
 
     int gridY = 0;
+
+    this->destination = "";
 
     while(getline(textFile, line)) {
         if (startsWith(line, "bkg:")) {  // Background
@@ -510,8 +513,11 @@ string DataBattle::play(sf::RenderWindow* window) {
             } else {  // If the computer won
                 cout << "Databattle lost\n";
                 musicTrack.stop();
-                return "";
+                return this->destination;
             }
+        }
+        if (this->disconnect) {
+            return this->destination;
         }
 
         //cout << "Calling render()\n";

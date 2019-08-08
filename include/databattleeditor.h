@@ -24,6 +24,7 @@ class DataBattleEditor: public Netmap_Playable
         sf::RectangleShape buttonGraphic;
 
         DataBattleEditor(string dummy);
+        DataBattleEditor();
         virtual ~DataBattleEditor();
         void newDB(string filename);
         void loadDB(string filename);

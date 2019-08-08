@@ -58,6 +58,7 @@ class DataBattle: public Netmap_Playable
         vector<sf::Vector2i> moveArea;
         vector<sf::Vector2i> aimArea;
         vector<sf::Vector2i> targets;
+        bool disconnect;
 
         // Functions
         DataBattle();

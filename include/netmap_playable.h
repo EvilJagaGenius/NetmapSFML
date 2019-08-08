@@ -20,6 +20,7 @@ class Netmap_Playable
         char playableType;
         unordered_map<string, DataBattlePiece*> defenders;
         vector<DataBattlePiece*> friendlies;
+        string destination;
 
         Netmap_Playable();
         virtual ~Netmap_Playable();

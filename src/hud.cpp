@@ -263,6 +263,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
             // Disconnect
             programButtonRect.top = WY-16;
             if (programButtonRect.contains(this->mousePos)) {
+                playable->disconnect = true;
                 cout << "Disconnect\n";
             }
         }

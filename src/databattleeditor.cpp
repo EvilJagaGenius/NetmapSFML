@@ -1,6 +1,6 @@
 #include "databattleeditor.h"
 
-DataBattleEditor::DataBattleEditor(string dummy) {
+DataBattleEditor::DataBattleEditor(string filename) {
     this->db = nullptr;
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
@@ -11,6 +11,25 @@ DataBattleEditor::DataBattleEditor(string dummy) {
     this->buttonGraphic.setOutlineColor(sf::Color::White);
     this->buttonGraphic.setOutlineThickness(1);
     this->currentInputBox = nullptr;
+    this->destination = "title:";
+
+    if (filename.size() > 0) {  // If it's not an empty string
+        this->loadDB(filename);
+    }
+}
+
+DataBattleEditor::DataBattleEditor() {
+    this->db = nullptr;
+    this->gridSprite = sf::Sprite(GRID_SHEET);
+    this->programSprite = sf::Sprite(PROGRAM_SHEET);
+    this->textBox = sf::Text("", DEFAULT_FONT, 12);
+    this->button = sf::Rect<int>(WY, 0, 100, 14);
+    this->buttonGraphic = sf::RectangleShape(sf::Vector2<float>(100, 14));
+    this->buttonGraphic.setFillColor(sf::Color::Transparent);
+    this->buttonGraphic.setOutlineColor(sf::Color::White);
+    this->buttonGraphic.setOutlineThickness(1);
+    this->currentInputBox = nullptr;
+    this->destination = "title:";
 }
 
 DataBattleEditor::~DataBattleEditor() {
@@ -242,8 +261,8 @@ void DataBattleEditor::render(sf::RenderWindow* window) {
     // Draw new/load buttons
     this->button.top = 0;
     this->textBox.setColor(sf::Color::White);
-    this->textBox.setPosition(WY, 0);
-    this->textBox.setString("New DataBattle");
+    this->textBox.setPosition(WY, this->button.top);
+    this->textBox.setString("Exit Editor");
     window->draw(this->textBox);
     if (this->button.contains(this->mousePos)) {
         //cout << "Drawing button graphic\n";
@@ -252,12 +271,51 @@ void DataBattleEditor::render(sf::RenderWindow* window) {
     }
 
     this->button.top = 14;
-    this->textBox.setPosition(WY, 14);
+    this->textBox.setPosition(WY, this->button.top);
+    this->textBox.setString("New DataBattle");
+    window->draw(this->textBox);
+    if (this->button.contains(this->mousePos)) {
+        this->buttonGraphic.setPosition(this->button.left, this->button.top);
+        window->draw(this->buttonGraphic);
+    }
+
+    this->button.top = 28;
+    this->textBox.setPosition(WY, this->button.top);
     this->textBox.setString("Load DataBattle");
     window->draw(this->textBox);
     if (this->button.contains(this->mousePos)) {
         this->buttonGraphic.setPosition(this->button.left, this->button.top);
         window->draw(this->buttonGraphic);
+    }
+
+    // Save DB, Play DB
+    if (this->db != nullptr) {
+        this->button.top = 42;
+        this->textBox.setPosition(WY, this->button.top);
+        this->textBox.setString("Save DataBattle");
+        window->draw(this->textBox);
+        if (this->button.contains(this->mousePos)) {
+            this->buttonGraphic.setPosition(this->button.left, this->button.top);
+            window->draw(this->buttonGraphic);
+        }
+
+        this->button.top = 56;
+        this->textBox.setPosition(WY, this->button.top);
+        this->textBox.setString("Save as:");
+        window->draw(this->textBox);
+        if (this->button.contains(this->mousePos)) {
+            this->buttonGraphic.setPosition(this->button.left, this->button.top);
+            window->draw(this->buttonGraphic);
+        }
+
+        this->button.top = 70;
+        this->textBox.setPosition(WY, this->button.top);
+        this->textBox.setString("Play DataBattle");
+        window->draw(this->textBox);
+        if (this->button.contains(this->mousePos)) {
+            this->buttonGraphic.setPosition(this->button.left, this->button.top);
+            window->draw(this->buttonGraphic);
+        }
     }
 
     // Last: Draw input boxes
@@ -346,9 +404,16 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                 }
             }
         }
+        // See if we clicked any side-panel buttons
         if (leftClicked) {
-            // New DB
+            // Exit Editor
             this->button.top = 0;
+            if (this->button.contains(this->mousePos)) {
+                return this->destination;
+            }
+
+            // New DB
+            this->button.top = 14;
             if (this->button.contains(this->mousePos)) {
                 if (this->currentInputBox != nullptr) {
                     delete this->currentInputBox;
@@ -358,13 +423,37 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
             }
 
             // Load DB
-            this->button.top = 14;
+            this->button.top = 28;
             if (this->button.contains(this->mousePos)) {
                 if (this->currentInputBox != nullptr) {
                     delete this->currentInputBox;
                 }
                 this->currentInputBox = new TextInputBox("Enter the name of the DataBattle to load:");
                 this->inputBoxType = 'l';
+            }
+
+            if (this->db != nullptr) { // Save DB
+                this->button.top = 42;
+                if (this->button.contains(this->mousePos)) {
+                    this->saveDB(this->db->filename);
+                }
+
+                this->button.top = 56;  // Save as
+                if (this->button.contains(this->mousePos)) {
+                    if (this->currentInputBox != nullptr) {
+                        delete this->currentInputBox;
+                    }
+                    this->currentInputBox = new TextInputBox("Save DataBattle as:");
+                    this->inputBoxType = 'a';
+                }
+
+                this->button.top = 70;  // Play DB
+                if (this->button.contains(this->mousePos)) {
+                    cout << "Play DataBattle\n";
+                    // We could do this->db->play().  But that'd be running a playable inside another playable, and I'd rather *not* do that.
+                    // Add a loop in main.cpp to take care of switching playables.
+                    return ("dbFromEditor:" + this->db->filename);
+                }
             }
 
             if (tileCoord.x != -1 && this->currentInputBox == nullptr) {  // If we're pointing to a tile on the grid (and there's no dialog box up)
@@ -482,6 +571,11 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                             sectorIndex = -1;
                         }
                     }
+                } else if (this->inputBoxType == 'a') {  // Save as
+                    this->saveDB(this->currentInputBox->getFocus());
+                    delete this->currentInputBox;
+                    this->currentInputBox = nullptr;
+                    this->inputBoxType = '0';
                 }
             }
         }
