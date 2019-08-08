@@ -43,10 +43,13 @@ void TextInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
         char letter = event.text.unicode;
         if (letter == 13) {  // 13 is Enter
             this->done = true;
-        } else if (letter == 8) { // 8 is backspace
+        } else if (letter == 8) {  // 8 is backspace
             if (this->input.size() > 0) {
                 this->input.pop_back();
             }
+        } else if (letter == 27) {  // 27 is Escape
+            this->input = "";
+            this->done = true;
         } else {
             cout << "As int: " << value << '\n';
             cout << "As char: " << letter << '\n';

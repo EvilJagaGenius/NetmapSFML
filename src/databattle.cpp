@@ -35,6 +35,7 @@ DataBattle::~DataBattle() {
 }
 
 void DataBattle::load() {
+    cout << "Loading DB\n";
     ifstream textFile;
     textFile.open("Data\\DataBattles\\" + filename + ".txt");
     string line;
@@ -42,7 +43,7 @@ void DataBattle::load() {
 
     int gridY = 0;
 
-    this->destination = "";
+    this->destination = "title:";
 
     while(getline(textFile, line)) {
         if (startsWith(line, "bkg:")) {  // Background
@@ -51,6 +52,7 @@ void DataBattle::load() {
             this->bkgSprite = sf::Sprite(this->bkg);
         }
         if (startsWith(line, "cash:")) {  // Cash reward
+            cout << "Setting cash reward\n";
             this->cashReward = stoi(line.substr(5));
         }
         if (startsWith(line, "music:")) {  // Music
@@ -85,6 +87,7 @@ void DataBattle::load() {
                 loading = '0';
             } else {
                 if (startsWith(line, "addUpload")) {  // Upload zone
+                    cout << "Adding upload zone\n";
                     vector<string> splitLine = splitString(line, ':');
                     sf::Vector2<int> coord(stoi(splitLine[1]), stoi(splitLine[2]));
                     this->uploads.push_back(coord);
@@ -92,6 +95,7 @@ void DataBattle::load() {
 
                 if (startsWith(line, "addDefender")) {  // Enemy program
                     // 1:DataBattlePiece type, 2:x, 3:y, 4:Reference name
+                    cout << "Adding defender\n";
                     vector<string> splitLine = splitString(line, ':');
                     Program* newProgram = new Program(splitLine[1]);
                     newProgram->move(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
@@ -100,16 +104,19 @@ void DataBattle::load() {
                 }
 
                 if (startsWith(line, "addSector")) {
+                    cout << "Adding sector\n";
                     vector<string> splitLine = splitString(line, ':');
                     DataBattlePiece* targetProgram = this->defenders[splitLine[1]];
+                    cout << "Got target program\n";
                     int targetSector = stoi(splitLine[4]);
+                    cout << "Got target sector\n";
                     targetProgram->addSector(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), targetSector);
                 }
-
             }
         }
     }
     textFile.close();
+    cout << "Done loading DB\n";
 }
 
 void DataBattle::render(sf::RenderWindow* window) {
@@ -467,7 +474,7 @@ string DataBattle::play(sf::RenderWindow* window) {
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
                     } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
-                        // South
+                        // Souththis->saveDB(this->db->filename);
                         this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y+1), false);
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
@@ -528,7 +535,7 @@ string DataBattle::play(sf::RenderWindow* window) {
         //cout << "Finished main loop\n";
     }
 
-    return "";
+    return "quit:";
 }
 
 void DataBattle::switchTurns(InputBox* hud) {

@@ -108,16 +108,19 @@ void DataBattleEditor::saveDB(string filename) {
             sf::Vector2i programHead = p->sectors[0]->coord;
             newFile << "addDefender:" << p->programType << ':' <<  to_string(programHead.x) << ':' << to_string(programHead.y) << ':' << element.first << '\n';
             // Add sectors
-            for (int i=1; i<p->sectors.size(); i++) {
+            for (int i=1; i<p->sectors.size(); i++) {  // For every sector in the program
                 sf::Vector2i coord = p->sectors[i]->coord;
-                newFile << "addSector:" << element.first << ':' << to_string(coord.x) << ':' << to_string(coord.y) << ':';
-                // Find the sector it's connected to (Do something, Taipu)
+                //cout << "Coord i = " << getByteCoord(coord) << '\n';
+                // Find a sector it's connected to
                 bool foundConnection = false;
-                for (int j=0; j<p->sectors.size(); j++) {
-                    for (ProgramSector* l : p->sectors[i]->links) {
+                for (int j=0; j<p->sectors.size(); j++) {  // Loop through every sector in the body
+                    //sf::Vector2 coordj = p->sectors[j]->coord;
+                    //cout << "Coord j = " << getByteCoord(coordj) << '\n';
+                    for (ProgramSector* l : p->sectors[j]->links) {
                         if (l->coord == coord) {
+                            cout << "Saving added sector\n";
                             foundConnection = true;
-                            newFile << to_string(j) << '\n';
+                            newFile << "addSector:" << element.first << ':' << to_string(coord.x) << ':' << to_string(coord.y) << ':' << to_string(j) << '\n';
                             break;
                         }
                     }
@@ -450,8 +453,9 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                 this->button.top = 70;  // Play DB
                 if (this->button.contains(this->mousePos)) {
                     cout << "Play DataBattle\n";
-                    // We could do this->db->play().  But that'd be running a playable inside another playable, and I'd rather *not* do that.
+                    // We could do this->db->play().  But that'd be running a playable inside another playable, and I'd rather _not_ do that.
                     // Add a loop in main.cpp to take care of switching playables.
+                    this->saveDB(this->db->filename);  // This won't work right if we don't save our changes first... we could save into a temp file, maybe?
                     return ("dbFromEditor:" + this->db->filename);
                 }
             }
@@ -506,12 +510,18 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
         if (this->currentInputBox != nullptr) {
             if (this->currentInputBox->done) {
                 if (this->inputBoxType == 'n') {  // If it was the New DB dialog:
-                    this->newDB(this->currentInputBox->getFocus());
+                    string filename = this->currentInputBox->getFocus();
+                    if (filename.size() > 0) {
+                        this->newDB(filename);
+                    }
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
                     this->inputBoxType = '0';
                 } else if (this->inputBoxType == 'l') {  // Load DB
-                    this->loadDB(this->currentInputBox->getFocus());
+                    string filename = this->currentInputBox->getFocus();
+                    if (filename.size() > 0) {
+                        this->loadDB(filename);
+                    }
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
                     this->inputBoxType = '0';
@@ -572,7 +582,10 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                         }
                     }
                 } else if (this->inputBoxType == 'a') {  // Save as
-                    this->saveDB(this->currentInputBox->getFocus());
+                    string filename = this->currentInputBox->getFocus();
+                    if (filename.size() > 0) {
+                        this->saveDB(filename);
+                    }
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
                     this->inputBoxType = '0';
@@ -583,5 +596,5 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
         this->render(window);
         window->display();
     }
-    return "";
+    return "quit:";
 }
