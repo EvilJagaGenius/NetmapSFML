@@ -6,7 +6,7 @@ bool startsWith(string str, string prefix) {
 }
 
 bool endsWith(string str, string postfix) {
-    if (str.length() >= postfix.length()) {
+    if (str.size() >= postfix.size()) {
         return (0 == str.compare(str.length() - postfix.length(), postfix.length(), postfix));
     }
     return false;

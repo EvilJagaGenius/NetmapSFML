@@ -118,16 +118,18 @@ string TitleScreen::play(sf::RenderWindow* window) {
                 delete this->currentInputBox;
                 this->currentInputBox = nullptr;
                 // See if the DB exists (Code copied from Stack Overflow)
-                if (auto dir = opendir("Data\\DataBattles")) {
-                    while (auto f = readdir(dir)) {
-                        if (!f->d_name || f->d_name[0] == '.') {
-                            continue; // Skip everything that starts with a dot
-                        } else if (startsWith(f->d_name, filename) && endsWith(f->d_name, ".txt")) {
-                            cout << "Valid DB\n";
-                            return ("db:" + filename);
+                if (filename.size() > 0) {
+                    if (auto dir = opendir("Data\\DataBattles")) {
+                        while (auto f = readdir(dir)) {
+                            if (!f->d_name || f->d_name[0] == '.') {
+                                continue; // Skip everything that starts with a dot
+                            } else if (startsWith(f->d_name, filename) && endsWith(f->d_name, ".txt")) {
+                                cout << "Valid DB\n";
+                                return ("db:" + filename);
+                            }
                         }
+                        closedir(dir);
                     }
-                    closedir(dir);
                 }
             }
         }
