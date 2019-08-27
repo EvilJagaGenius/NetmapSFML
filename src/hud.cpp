@@ -176,7 +176,7 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             }
                             Program* newProgram = new Program(p.first);
                             newProgram->owner = 'p';  // Player owns the new program
-                            newProgram->move(playable->uploads[playable->selectedUpload], true);
+                            newProgram->move(playable, playable->uploads[playable->selectedUpload], true);
                             playable->friendlies.push_back(newProgram);  // Add to databattle
                             playable->friendliesLoaded++;
                             this->player->programs[p.first]--;  // Remove one from the inventory

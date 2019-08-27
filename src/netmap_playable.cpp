@@ -2,7 +2,11 @@
 
 Netmap_Playable::Netmap_Playable()
 {
-    //ctor
+    for (int i=0; i<16; i++) {
+        for (int j=0; j<16; j++) {
+            this->grid[i][j] = 0;
+        }
+    }
 }
 
 Netmap_Playable::~Netmap_Playable()

@@ -34,7 +34,7 @@ class DataBattle: public Netmap_Playable
         int selectedUpload;
         //unordered_map<string, Program*> defenders;
         //vector<Program*> friendlies;
-        int grid[16][16];
+        //int grid[16][16];
 
         // play()-specific variables here
         sf::Texture gridSheet;

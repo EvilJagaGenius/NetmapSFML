@@ -93,11 +93,17 @@ Program::Program(DataBattlePiece* original) {  // Alt copy constructor
             s->numLinks++;
             //ProgramSector::linkSectors(s, sectorToLink);
         }
+
+        // Copy status effects
+        for (pair<char, int> p : this->statuses) {
+            this->statuses[p.first] = original->statuses[p.first];
+        }
     }
 
     this->owner = original->owner;
-    this->invisibilityTimer = original->invisibilityTimer;
-    this->visible = original->visible;
+    this->controller = original->controller;
+    //this->invisibilityTimer = original->invisibilityTimer;
+    //this->visible = original->visible;
 
     this->actions = original->actions;
     this->description = original->description;
@@ -155,7 +161,7 @@ void Program::load() {
     }
 }
 
-void Program::move(sf::Vector2i coord, bool firstTime=false) {
+void Program::move(Netmap_Playable* level, sf::Vector2i coord, bool firstTime=false) {
     //cout << "Moving\n";
     if (firstTime) {
         sectors = *(new vector<ProgramSector*>);
@@ -200,6 +206,10 @@ void Program::move(sf::Vector2i coord, bool firstTime=false) {
                                 //cout << connectedSector->numLinks << '\n';
                                 break;
                             }
+                        }
+                        // If we have gridburn, blank out the sector
+                        if (this->statuses['b'] != 0) {
+                            level->grid[this->sectors[i]->coord.x][this->sectors[i]->coord.y] = 0;
                         }
                         // Delete the sector from the program
                         delete this->sectors[i];
@@ -366,19 +376,19 @@ void Program::grow(Netmap_Playable* level, int amtToGrow) {
             for (ProgramSector* s : this->sectors) {
                 // See if there's a sector we can grow off of.  Check if any of the contiguous sectors are free.
                 sf::Vector2i coord = s->coord;
-                if (startsWith(level->lookAt(sf::Vector2<int>(coord.x, coord.y-1)), "tile")) {  // North
+                if (level->grid[coord.x][coord.y-1] != 0) {  // North
                     coordToAttach = sf::Vector2<int>(coord.x, coord.y-1);
                     previousSector = s;
                     break;
-                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x, coord.y+1)), "tile")) {  // South
+                } else if (level->grid[coord.x][coord.y+1] != 0) {  // South
                     coordToAttach = sf::Vector2<int>(coord.x, coord.y+1);
                     previousSector = s;
                     break;
-                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x+1, coord.y)), "tile")) {  // East
+                } else if (level->grid[coord.x+1][coord.y] != 0) {  // East
                     coordToAttach = sf::Vector2<int>(coord.x+1, coord.y);
                     previousSector = s;
                     break;
-                } else if (startsWith(level->lookAt(sf::Vector2<int>(coord.x-1, coord.y)), "tile")) {  // West
+                } else if (level->grid[coord.x-1][coord.y-1] != 0) {  // West
                     coordToAttach = sf::Vector2<int>(coord.x-1, coord.y);
                     previousSector = s;
                     break;

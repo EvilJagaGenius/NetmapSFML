@@ -98,7 +98,7 @@ void DataBattle::load() {
                     cout << "Adding defender\n";
                     vector<string> splitLine = splitString(line, ':');
                     Program* newProgram = new Program(splitLine[1]);
-                    newProgram->move(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
+                    newProgram->move(this, sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
                     newProgram->owner = 'c';  // Computer owns the program
                     this->defenders.insert({{splitLine[4], newProgram}});
                 }
@@ -262,7 +262,7 @@ void DataBattle::render(sf::RenderWindow* window) {
         // Draw movement area, associated buttons
         if (this->currentProgram->state == 'm') {
             for (sf::Vector2i coord : this->moveArea) {
-                if (this->grid[coord.x][coord.y] != 0) {
+                if ((this->grid[coord.x][coord.y]) != 0 || (this->currentProgram->statuses['g'] != 0)) {
                     if (coord == this->nButton) {
                         this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                     } else if (coord == this->sButton) {
@@ -392,18 +392,18 @@ string DataBattle::play(sf::RenderWindow* window) {
                     this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
                     this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
 
-                    if (this->grid[tileCoord.x][tileCoord.y] != 0) {
+                    if ((this->grid[tileCoord.x][tileCoord.y] != 0) || (this->currentProgram->statuses['g'] != 0)) {  // If it's a tile (or we have gridwalk)
                         if (tileCoord == nButton) {
-                            this->currentProgram->move(nButton, false);
+                            this->currentProgram->move(this, nButton, false);
                             hud->setFocus(this->currentProgram);
                         } else if (tileCoord == sButton) {
-                            this->currentProgram->move(sButton, false);
+                            this->currentProgram->move(this, sButton, false);
                             hud->setFocus(this->currentProgram);
                         } else if (tileCoord == eButton) {
-                            this->currentProgram->move(eButton, false);
+                            this->currentProgram->move(this, eButton, false);
                             hud->setFocus(this->currentProgram);
                         } else if (tileCoord == wButton) {
-                            this->currentProgram->move(wButton, false);
+                            this->currentProgram->move(this, wButton, false);
                             hud->setFocus(this->currentProgram);
                         }
                     }
@@ -470,22 +470,22 @@ string DataBattle::play(sf::RenderWindow* window) {
                         this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
                     } else if ((yDistance < 0) && ((startsWith(this->lookAt(programHead.x, programHead.y-1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y-1), "defender " + this->currentDefenderIndex)))) {
                         // North
-                        this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y-1), false);
+                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x, programHead.y-1), false);
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
                     } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
-                        // Souththis->saveDB(this->db->filename);
-                        this->currentProgram->move(sf::Vector2<int>(programHead.x, programHead.y+1), false);
+                        // South
+                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x, programHead.y+1), false);
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
                     } else if ((xDistance > 0) && ((startsWith(this->lookAt(programHead.x+1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x+1, programHead.y), "defender " + this->currentDefenderIndex)))) {
                         // East
-                        this->currentProgram->move(sf::Vector2<int>(programHead.x+1, programHead.y), false);
+                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x+1, programHead.y), false);
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
                     } else if ((xDistance < 0) && ((startsWith(this->lookAt(programHead.x-1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x-1, programHead.y), "defender " + this->currentDefenderIndex)))) {
                         // West
-                        this->currentProgram->move(sf::Vector2<int>(programHead.x-1, programHead.y), false);
+                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x-1, programHead.y), false);
                         this->programHead = this->currentProgram->sectors[0]->coord;
                         this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
                     } else {  // If you can't move anywhere you'd like to go

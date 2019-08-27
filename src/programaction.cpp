@@ -603,7 +603,7 @@ void BlindEye::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vect
         // Turn target invisible
         if (target != nullptr) {
             cout << "Granting invisibility\n";
-            target->invisibilityTimer++;
+            target->statuses[i]++;  // Increment the invisibility counter
             target->visible = false;
         }
     }

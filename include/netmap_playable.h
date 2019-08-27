@@ -21,6 +21,7 @@ class Netmap_Playable
         unordered_map<string, DataBattlePiece*> defenders;
         vector<DataBattlePiece*> friendlies;
         string destination;
+        int grid[16][16];
 
         Netmap_Playable();
         virtual ~Netmap_Playable();

@@ -39,16 +39,27 @@ class DataBattlePiece
         int invisibilityTimer;
         bool visible;
 
-        char owner;  // Who's using the program.  Player, defenders, etc.  NTS: DataBattles with multiple factions would be cool (like you + Gemma vs. WhiteKnight)
+        int owner;  // Whose inventory this piece gets returned to upon deletion
+        int controller;  // Who is currently controlling the piece
         char pieceType;  // Used to differentiate between programs/users/etc
         char state;
+
+        // Experimental AI variables below
+        int targetPlayer;
+        int targetTeam;
+        DataBattlePiece* targetPiece;
+        sf::Vector2i targetCoord;
+        char orders;  // Attack, buff, heal, etc.
+        // End AI variables
+
+        unordered_map<char, int> statuses; // Stuff like invisibility, poison, etc. goes here
 
         // Functions
         DataBattlePiece();
         virtual ~DataBattlePiece();
         virtual void deleteSectors();
         virtual void load();
-        virtual void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
+        virtual void move(Netmap_Playable* level, sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
         virtual void addSector(sf::Vector2i coord, int pos);
         virtual void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
         virtual void switchToAiming(int actionIndex);

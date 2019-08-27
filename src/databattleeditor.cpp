@@ -564,7 +564,7 @@ string DataBattleEditor::play(sf::RenderWindow* window) {
                     //cout << "Add " << programType << " at " << getByteCoord(selectedCoord) << '\n';
                     // We have the data we need to create a new program.  Let's do it
                     Program* newProgram = new Program(programType);
-                    newProgram->move(selectedCoord, true);
+                    newProgram->move(this->db, selectedCoord, true);
                     newProgram->owner = 'c';
                     this->db->defenders.insert({{"defender" + to_string(this->programCounter), newProgram}});
                     this->programCounter++;
