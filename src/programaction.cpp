@@ -61,7 +61,7 @@ void Slice::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }
@@ -112,7 +112,7 @@ void Slash::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2
 
             // Take damage
             if (target != nullptr) {
-            target->takeDamage(3);
+            target->takeDamage(db, 3);
             }
         }
     }
@@ -169,7 +169,7 @@ void Stone::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(1);
+            target->takeDamage(db, 1);
         }
     }
 }
@@ -199,7 +199,7 @@ void Sling1::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector
         }
         // Loop through all the sectors we marked and amputate them
         for (sf::Vector2i coord : coordsToAmputate) {
-            source->amputate(coord);
+            source->amputate(db, coord);
         }
     }
 }
@@ -351,7 +351,7 @@ void Glitch::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }
@@ -403,7 +403,7 @@ void Swarm1::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector
 
                 // Take damage
                 if (target != nullptr) {
-                    target->takeDamage(1);
+                    target->takeDamage(db, 1);
                 }
             }
         }
@@ -483,7 +483,7 @@ void Cut::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i>
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }
@@ -519,7 +519,7 @@ void Byte::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }
@@ -555,7 +555,7 @@ void Phaser::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }
@@ -603,7 +603,7 @@ void BlindEye::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vect
         // Turn target invisible
         if (target != nullptr) {
             cout << "Granting invisibility\n";
-            target->statuses[i]++;  // Increment the invisibility counter
+            target->statuses['i']++;  // Increment the invisibility counter
             target->visible = false;
         }
     }
@@ -638,7 +638,7 @@ void Blip::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(1);
+            target->takeDamage(db, 1);
         }
     }
 }
@@ -672,7 +672,7 @@ void Thump::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2
 
         // Take damage
         if (target != nullptr) {
-            target->takeDamage(3);
+            target->takeDamage(db, 3);
         }
     }
 }
@@ -711,7 +711,7 @@ void Burn::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i
         // Take damage
         if (target != nullptr) {
             cout << "Dealing damage\n";
-            target->takeDamage(2);
+            target->takeDamage(db, 2);
         }
     }
 }

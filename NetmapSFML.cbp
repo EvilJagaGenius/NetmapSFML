@@ -21,6 +21,7 @@
 					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-system-d.a" />
+					<Add library="SFML_Libraries/lib/libthor-d.dll.a" />
 					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>
@@ -40,6 +41,7 @@
 					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window.a" />
 					<Add library="SFML_Libraries/lib/libsfml-system.a" />
+					<Add library="SFML_Libraries/lib/libthor.dll.a" />
 					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>

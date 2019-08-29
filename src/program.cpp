@@ -254,7 +254,7 @@ void Program::noAction() {
     this->currentActionIndex = -1;
 }
 
-void Program::takeDamage(int damage) {
+void Program::takeDamage(Netmap_Playable* level, int damage) {
     cout << "Program::takeDamage() called\n";
     for (int d=0; d<damage; d++) {  // For each point of damage
         if (this->size > 1) {
@@ -270,6 +270,10 @@ void Program::takeDamage(int damage) {
                             connectedSector->numLinks--;
                             break;
                         }
+                    }
+                    // If we have gridburn, blank out the sector
+                    if (this->statuses['b'] != 0) {
+                        level->grid[this->sectors[i]->coord.x][this->sectors[i]->coord.y] = 0;
                     }
                     // Delete the sector from the program
                     delete this->sectors[i];
@@ -289,7 +293,7 @@ void Program::takeDamage(int damage) {
     }
 }
 
-void Program::amputate(sf::Vector2i coord) {
+void Program::amputate(Netmap_Playable* level, sf::Vector2i coord) {
     cout << "Amputating\n";
     // Ooh, I need some help from a CS professor...
     // What do we need to do?
@@ -297,7 +301,7 @@ void Program::amputate(sf::Vector2i coord) {
     if (this->size > 0) {
         bool dead = false;
         if (coord == this->sectors[0]->coord) {
-            this->takeDamage(this->size);  // Kill self
+            this->takeDamage(level, this->size);  // Kill self
             dead = true;
         }
         if (!dead) {

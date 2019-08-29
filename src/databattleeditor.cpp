@@ -340,7 +340,7 @@ void DataBattleEditor::clearTile(sf::Vector2i coord) {
         DataBattlePiece* p = element.second;
         for (ProgramSector* s : p->sectors) {
             if (s->coord == coord) {
-                p->amputate(coord);
+                p->amputate(this->db, coord);
                 break;
             }
         }
