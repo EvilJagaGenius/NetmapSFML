@@ -35,6 +35,32 @@ sf::Font fontLoad(string filename) {
     return newFont;
 }
 
+Animation animationLoad(string filename) {
+    // Do something, Taipu
+    Animation animation;
+    ifstream textfile;
+    textfile.open(filename);
+    string line;
+    vector<string> splitLine;
+    bool firstLine = true;
+    int frameX = 0;
+    int frameY = 0;
+
+    while (getline(textfile, line)) {
+        splitLine = splitString(line, ':');
+        if (firstLine) {  // First line is the x:y size of each frame
+            frameX = stoi(splitLine[0]);
+            frameY = stoi(splitLine[1]);
+            firstLine = false;
+        } else {
+            animation.addFrame(stof(splitLine[0]), sf::Rect<int>(stoi(splitLine[1])*frameX, stoi(splitLine[2])*frameY, frameX, frameY));
+        }
+    }
+    textfile.close();
+
+    return animation;
+}
+
 void renderText(sf::RenderTexture* targetTexture,
                 string text,
                 sf::Rect<int> boundaryRect,

@@ -9,6 +9,8 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
+#include "animation.h"
+
 using namespace std;
 
 const static int TILE_SIZE = 32;
@@ -22,6 +24,7 @@ bool endsWith(string str, string postfix);
 vector<string> splitString(string str, char delimiter);
 sf::Texture imgLoad(string filename);
 sf::Font fontLoad(string filename);
+Animation animationLoad(string filename);
 void renderText(sf::RenderTexture* targetTexture,
                        string text,
                        sf::Rect<int> boundaryRect,

@@ -305,7 +305,7 @@ void DataBattle::setPlayer(Player* player) {
 
 string DataBattle::play(sf::RenderWindow* window) {
     cout << "Called DataBattle::play()\n";
-    sf::Texture viewSurf;
+    //sf::Texture viewSurf;
     //this->gridSheet.loadFromFile("Data\\Sprites\\Grid.png");
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
