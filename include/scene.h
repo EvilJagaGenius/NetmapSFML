@@ -11,6 +11,8 @@
 
 #include "toolbox.h"
 #include "netmap_playable.h"
+#include "scenelayer.h"
+#include "inputbox.h"
 
 using namespace std;
 
@@ -18,10 +20,11 @@ class Scene: public Netmap_Playable
 {
     public:
         string filename;
-        InputBox hud;
+        InputBox* hud;
         Player* player;
-        sf::Vector2 mousePos;
+        sf::Vector2i mousePos;
 
+        vector<SceneLayer> layers;
 
         Scene(string filename);
         virtual ~Scene();

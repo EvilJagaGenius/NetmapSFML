@@ -1,7 +1,7 @@
 #include "animation.h"
 
 Animation::Animation() {
-    // Don't think we need to do anything here
+    this->totalTime = 0;
 }
 
 Animation::~Animation() {
@@ -11,13 +11,14 @@ Animation::~Animation() {
 void Animation::addFrame(float duration, sf::Rect<int> textureRect) {
     this->increments.push_back(duration);
     this->rects.push_back(textureRect);
+    this->totalTime += duration;
 }
 
 void Animation::animate(sf::Sprite sprite, float progress) {
     int currentIndex = 0;
     float currentProgress = 0.0;
 
-    while ((currentProgress + this->increments[currentIndex] < progress) && (currentIndex < size(this->increments))) {
+    while ((currentProgress + this->increments[currentIndex] < progress) && (currentIndex < this->increments.size())) {
         currentProgress += this->increments[currentIndex];
         currentIndex++;
     }

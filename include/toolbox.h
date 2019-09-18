@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <SFML/Graphics.hpp>
+//#include <Thor/Animations.hpp>
 
 #include "animation.h"
 
@@ -25,6 +26,7 @@ vector<string> splitString(string str, char delimiter);
 sf::Texture imgLoad(string filename);
 sf::Font fontLoad(string filename);
 Animation animationLoad(string filename);
+//thor::FrameAnimation animationLoad(string filename);
 void renderText(sf::RenderTexture* targetTexture,
                        string text,
                        sf::Rect<int> boundaryRect,

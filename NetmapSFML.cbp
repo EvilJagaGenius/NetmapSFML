@@ -13,10 +13,13 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="SFML_Libraries/include/Aurora" />
+					<Add directory="SFML_Libraries/include/Thor" />
 					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
+					<Add library="SFML_Libraries/lib/libthor-d.dll.a" />
 					<Add library="SFML_Libraries/lib/libsfml-audio-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
@@ -31,11 +34,14 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="SFML_Libraries/include/Aurora" />
+					<Add directory="SFML_Libraries/include/Thor" />
 					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="SFML_Libraries/lib/libthor.dll.a" />
 					<Add library="SFML_Libraries/lib/libsfml-audio.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window.a" />
@@ -54,6 +60,7 @@
 			<Add directory="SFML_Libraries/lib" />
 		</Linker>
 		<Unit filename="include/animation.h" />
+		<Unit filename="include/animator.h" />
 		<Unit filename="include/choiceinputbox.h" />
 		<Unit filename="include/databattle.h" />
 		<Unit filename="include/databattleeditor.h" />
@@ -66,12 +73,15 @@
 		<Unit filename="include/programaction.h" />
 		<Unit filename="include/programsector.h" />
 		<Unit filename="include/scene.h" />
+		<Unit filename="include/sceneentity.h" />
+		<Unit filename="include/scenelayer.h" />
 		<Unit filename="include/sectorinputbox.h" />
 		<Unit filename="include/textinputbox.h" />
 		<Unit filename="include/titlescreen.h" />
 		<Unit filename="include/toolbox.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/animation.cpp" />
+		<Unit filename="src/animator.cpp" />
 		<Unit filename="src/choiceinputbox.cpp" />
 		<Unit filename="src/databattle.cpp" />
 		<Unit filename="src/databattleeditor.cpp" />
@@ -84,6 +94,8 @@
 		<Unit filename="src/programaction.cpp" />
 		<Unit filename="src/programsector.cpp" />
 		<Unit filename="src/scene.cpp" />
+		<Unit filename="src/sceneentity.cpp" />
+		<Unit filename="src/scenelayer.cpp" />
 		<Unit filename="src/sectorinputbox.cpp" />
 		<Unit filename="src/textinputbox.cpp" />
 		<Unit filename="src/titlescreen.cpp" />

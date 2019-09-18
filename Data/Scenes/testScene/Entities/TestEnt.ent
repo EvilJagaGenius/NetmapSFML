@@ -1,0 +1,4 @@
+type:hotspot
+sheet:TestAnim1.png
+add_anim:test:TestAnim1.anim
+coord:0:0

@@ -36,8 +36,10 @@ sf::Font fontLoad(string filename) {
 }
 
 Animation animationLoad(string filename) {
+//thor::FrameAnimation animationLoad(string filename) {
     // Do something, Taipu
     Animation animation;
+    //thor::FrameAnimation animation;
     ifstream textfile;
     textfile.open(filename);
     string line;

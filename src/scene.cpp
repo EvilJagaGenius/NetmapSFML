@@ -2,7 +2,7 @@
 
 Scene::Scene(string filename) {
     this->filename = filename;
-    this->playableType = 's'
+    this->playableType = 's';
 
     this->load();
 }
@@ -14,21 +14,23 @@ Scene::~Scene() {
 void Scene::load() {
     // Do something, Taipu
     // You wrote a system for doing this in Python.  Copy it over.
+    // Actually, on second thought, the Python system... can be improved.  I think we can do without the Layer class we had before.
 }
 
-void setHUD(InputBox* hud) {
+void Scene::setHUD(InputBox* hud) {
     this->hud = hud;
 }
 
-void setPlayer(Player* player) {
+void Scene::setPlayer(Player* player) {
     this->player = player;
 }
 
-void render(sf::RenderWindow* window) {
+void Scene::render(sf::RenderWindow* window) {
     // Do something, Taipu
 }
 
-string play(sf::RenderWindow* window) {
+string Scene::play(sf::RenderWindow* window) {
+    bool clicked;
 
     // Main loop
     while (window->isOpen()) {
