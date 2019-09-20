@@ -10,6 +10,7 @@
 #include "databattleeditor.h"
 #include "titlescreen.h"
 #include "hud.h"
+#include "scene.h"
 
 int main()
 {
@@ -20,7 +21,8 @@ int main()
     Player* PLAYER = new Player;
     testHUD->setPlayer(PLAYER);
 
-    Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
+    //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
+    Netmap_Playable* CURRENT_PLAYABLE = new Scene("testScene");  // Testing out scenes
     string nextPlayable;
     //Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
     while (true) {

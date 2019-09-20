@@ -1,8 +1,9 @@
 #include "sceneentity.h"
 
-SceneEntity::SceneEntity()
-{
-    //ctor
+SceneEntity::SceneEntity(string sceneName, string filename) {
+    this->sceneName = sceneName;
+    this->filename = filename;
+    this->loadEntity();
 }
 
 SceneEntity::~SceneEntity()
@@ -23,7 +24,7 @@ void SceneEntity::loadEntity() {
         }
         if (startsWith(line, "sheet:")) {
             // Create the sprite
-            this->sheet = imgLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + this->filename);
+            this->sheet = imgLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + splitLine[1]);
             this->sprite.setTexture(this->sheet);
         }
         if (startsWith(line, "anim:")) {

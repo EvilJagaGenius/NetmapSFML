@@ -19,7 +19,7 @@ class SceneEntity
         sf::Sprite sprite;
         sf::Vector2i coord;
 
-        SceneEntity();
+        SceneEntity(string sceneName, string filename);
         virtual ~SceneEntity();
         void loadEntity();
         // Maybe add frameTick()?

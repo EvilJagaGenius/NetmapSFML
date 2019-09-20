@@ -23,8 +23,9 @@ class Scene: public Netmap_Playable
         InputBox* hud;
         Player* player;
         sf::Vector2i mousePos;
+        sf::Vector2i dimensions;
 
-        vector<SceneLayer> layers;
+        vector<SceneLayer*> layers;
 
         Scene(string filename);
         virtual ~Scene();

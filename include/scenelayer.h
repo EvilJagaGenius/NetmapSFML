@@ -9,13 +9,15 @@ class SceneLayer
 {
     public:
         string sceneName;
+        string bkgFilename;
         int scrollRateX;
         int scrollRateY;
-        sf::Rect<int> rect;
+        //sf::Rect<int> rect;  // What do we use this for?
         vector<SceneEntity> entities;
-        sf::Sprite bkg;  // I think this works?
+        sf::Texture bkgTexture;
+        sf::Sprite bkgSprite;  // I think this works?
 
-        SceneLayer();
+        SceneLayer(string bkgFilename);
         virtual ~SceneLayer();
         void render(sf::RenderWindow* window);
         // Maybe add a frameTick() method?

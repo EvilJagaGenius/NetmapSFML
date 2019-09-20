@@ -1,0 +1,5 @@
+dimensions:1000:480
+add_layer:Layer0.png:1:0
+add_layer:Layer1.png:0:0
+add_layer:Layer2.png:-1:0
+add_entity:TestEnt.ent:2
