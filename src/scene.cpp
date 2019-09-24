@@ -3,6 +3,9 @@
 Scene::Scene(string filename) {
     this->filename = filename;
     this->playableType = 's';
+    this->cameraRect = sf::Rect<int>(0, 0, WX, WY);
+    this->scrollLeftRect = sf::Rect<int>(0, 0, 200, WY);
+    this->scrollRightRect = sf::Rect<int>(WX-200, 0, 200, WY);
 
     this->load();
 }
@@ -72,6 +75,9 @@ void Scene::render(sf::RenderWindow* window) {
 
 string Scene::play(sf::RenderWindow* window) {
     cout << "Called Scene::play()\n";
+    this->cameraRect.left = (this->dimensions.x / 2);
+    this->cameraRect.top = (this->dimensions.y /2);
+
     bool clicked;
 
     // Main loop
@@ -87,9 +93,37 @@ string Scene::play(sf::RenderWindow* window) {
             }
         }
 
+        // Here goes with scrolling, moment of truth
+        if (this->scrollLeftRect.contains(this->mousePos)) {
+            cout << "Scrolling left\n";
+            this->scroll(sf::Vector2<int>(-1, 0));
+        }
+        if (this->scrollRightRect.contains(this->mousePos)) {
+            cout << "Scrolling right\n";
+            this->scroll(sf::Vector2<int>(1, 0));
+        }
+
         this->render(window);
         window->display();
     }
 
     return "quit:";
+}
+
+void Scene::scroll(sf::Vector2i deltaV) {
+    /*
+    if ((this->cameraRect.left + deltaV.x) > 0 && (this->cameraRect.left + this->cameraRect.width + deltaV.x) < this->dimensions.x) {
+        for (SceneLayer* layer : this->layers) {
+            layer->rect.left += (layer->scrollRateX * deltaV.x);
+        }
+    }
+    if ((this->cameraRect.top + deltaV.y) > 0 && (this->cameraRect.top + this->cameraRect.height + deltaV.y) < this->dimensions.y) {
+        for (SceneLayer* layer : this->layers) {
+            layer->rect.top += (layer->scrollRateY * deltaV.y);
+        }
+    }
+    */
+    for(SceneLayer* layer : this->layers) {
+        layer->scroll(deltaV);
+    }
 }

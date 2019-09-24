@@ -12,7 +12,7 @@ class SceneLayer
         string bkgFilename;
         int scrollRateX;
         int scrollRateY;
-        //sf::Rect<int> rect;  // What do we use this for?
+        sf::Rect<int> textureRect;  // What do we use this for?
         vector<SceneEntity> entities;
         sf::Texture bkgTexture;
         sf::Sprite bkgSprite;  // I think this works?
@@ -20,6 +20,7 @@ class SceneLayer
         SceneLayer(string bkgFilename);
         virtual ~SceneLayer();
         void render(sf::RenderWindow* window);
+        void scroll(sf::Vector2i deltaV);
         // Maybe add a frameTick() method?
 
     protected:

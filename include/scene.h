@@ -24,6 +24,9 @@ class Scene: public Netmap_Playable
         Player* player;
         sf::Vector2i mousePos;
         sf::Vector2i dimensions;
+        sf::Rect<int> cameraRect;
+        sf::Rect<int> scrollLeftRect;
+        sf::Rect<int> scrollRightRect;
 
         vector<SceneLayer*> layers;
 
@@ -34,6 +37,7 @@ class Scene: public Netmap_Playable
         string play(sf::RenderWindow* window);
         void setHUD(InputBox* hud);
         void setPlayer(Player* player);
+        void scroll(sf::Vector2i deltaV);
 
     protected:
 
