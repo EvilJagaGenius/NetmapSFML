@@ -11,6 +11,7 @@
 #include "titlescreen.h"
 #include "hud.h"
 #include "scene.h"
+#include "npc.h"
 
 int main()
 {
@@ -51,6 +52,17 @@ int main()
         }
     }
     cout << "Loop exited\n";
+
+    // We need to clean things up before we exit the program
+    delete PLAYER;
+    delete testHUD;
+    for (pair<string, Program*> p : PROGRAM_DB) {
+        delete p.second;
+    }
+    for (pair<string, ProgramAction*> p : ACTION_DB) {
+        delete p.second;
+    }
+    cout << "Cleanup complete\n";
 
     return 0;
 }

@@ -12,6 +12,7 @@ class SceneLayer
         string bkgFilename;
         int scrollRateX;
         int scrollRateY;
+        sf::Vector2i textureDimensions;  // Unsigned so we can use the getSize() method
         sf::Rect<int> textureRect;  // What do we use this for?
         vector<SceneEntity> entities;
         sf::Texture bkgTexture;

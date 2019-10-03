@@ -5,7 +5,11 @@ SceneLayer::SceneLayer(string bkgFilename) {
     this->bkgFilename = bkgFilename;
     this->bkgTexture = imgLoad(bkgFilename);
     this->bkgSprite = sf::Sprite(bkgTexture);
+    this->textureDimensions = sf::Vector2<int>(this->bkgTexture.getSize().x, this->bkgTexture.getSize().y);
+
     this->textureRect = sf::Rect<int>(0, 0, WX, WY);
+    this->textureRect.left = ((this->textureDimensions.x / 2) - (WX / 2));
+    this->textureRect.top = ((this->textureDimensions.y / 2) - (WY / 2));
     this->bkgSprite.setTextureRect(this->textureRect);
 }
 

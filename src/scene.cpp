@@ -36,6 +36,8 @@ void Scene::load() {
             // Get dimensions
             this->dimensions.x = stoi(splitLine[1]);
             this->dimensions.y = stoi(splitLine[2]);
+            cout << "X dimensions: " << this->dimensions.x << '\n';
+            cout << "Y dimensions: " << this->dimensions.y << '\n';
         }
         if (startsWith(line, "add_layer:")) {
             SceneLayer* newLayer = new SceneLayer("Data\\Scenes\\" + this->filename + "\\Graphics\\" + splitLine[1]);
@@ -75,8 +77,9 @@ void Scene::render(sf::RenderWindow* window) {
 
 string Scene::play(sf::RenderWindow* window) {
     cout << "Called Scene::play()\n";
-    this->cameraRect.left = (this->dimensions.x / 2);
-    this->cameraRect.top = (this->dimensions.y /2);
+    // Center the camera rect
+    this->cameraRect.left = ((this->dimensions.x / 2) - (WX / 2));
+    this->cameraRect.top = ((this->dimensions.y /2) - (WY - 2));
 
     bool clicked;
 
@@ -95,13 +98,14 @@ string Scene::play(sf::RenderWindow* window) {
 
         // Here goes with scrolling, moment of truth
         if (this->scrollLeftRect.contains(this->mousePos)) {
-            cout << "Scrolling left\n";
+            //cout << "Scrolling left\n";
             this->scroll(sf::Vector2<int>(-1, 0));
         }
         if (this->scrollRightRect.contains(this->mousePos)) {
-            cout << "Scrolling right\n";
+            //cout << "Scrolling right\n";
             this->scroll(sf::Vector2<int>(1, 0));
         }
+        // Sweet, now we just need code to deal with entities
 
         this->render(window);
         window->display();
@@ -111,19 +115,17 @@ string Scene::play(sf::RenderWindow* window) {
 }
 
 void Scene::scroll(sf::Vector2i deltaV) {
-    /*
-    if ((this->cameraRect.left + deltaV.x) > 0 && (this->cameraRect.left + this->cameraRect.width + deltaV.x) < this->dimensions.x) {
-        for (SceneLayer* layer : this->layers) {
-            layer->rect.left += (layer->scrollRateX * deltaV.x);
-        }
+    if ((this->cameraRect.left + deltaV.x) < 0 || (this->cameraRect.left + this->cameraRect.width + deltaV.x) > this->dimensions.x) {  // If we don't have room to move horizontally
+        //cout << "Setting deltaX to 0\n";
+        deltaV.x = 0;  // Set the horizontal movement to 0
     }
-    if ((this->cameraRect.top + deltaV.y) > 0 && (this->cameraRect.top + this->cameraRect.height + deltaV.y) < this->dimensions.y) {
-        for (SceneLayer* layer : this->layers) {
-            layer->rect.top += (layer->scrollRateY * deltaV.y);
-        }
+    if ((this->cameraRect.top + deltaV.y) < 0 || (this->cameraRect.top + this->cameraRect.height + deltaV.y) > this->dimensions.y) {  // If we don't have room to move vertically
+        //cout << "Setting deltaY to 0\n";
+        deltaV.y = 0;  // Set the vertical movement to 0
     }
-    */
-    for(SceneLayer* layer : this->layers) {
+    for (SceneLayer* layer : this->layers) {
         layer->scroll(deltaV);
     }
+    this->cameraRect.left += deltaV.x;
+    this->cameraRect.top += deltaV.y;
 }
