@@ -1,6 +1,7 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include <iostream>
 #include <vector>
 #include <SFML/Graphics.hpp>
 
@@ -13,13 +14,13 @@ class Animation
     public:
         vector<float> increments;
         vector<sf::Rect<int>> rects;
-        float totalTime;
+        double totalTime;
 
         Animation();
         virtual ~Animation();
 
-        void addFrame(float duration, sf::Rect<int> textureRect);
-        void animate(sf::Sprite sprite, float progress);
+        void addFrame(double duration, sf::Rect<int> textureRect);
+        void animate(sf::Sprite* sprite, float progress);
 
     protected:
 

@@ -31,6 +31,6 @@ void Animator::update(float progress) {
     }
 }
 
-void Animator::animate(sf::Sprite sprite, float progress) {
+void Animator::animate(sf::Sprite* sprite, float progress) {
     currentAnim.animate(sprite, progress);
 }

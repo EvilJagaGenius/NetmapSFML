@@ -29,7 +29,7 @@ class Animator
         void update(sf::Time dt);  // Use this to keep track of a sprite's progress through the animation
         void update(float progress);
         //void update(float progress);
-        void animate(sf::Sprite target, float progress);  // Why do we have the progress parameter if we're supposed to be keeping track of that..?
+        void animate(sf::Sprite* target, float progress);  // Why do we have the progress parameter if we're supposed to be keeping track of that..?
 
     protected:
 

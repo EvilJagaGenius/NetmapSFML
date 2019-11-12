@@ -23,7 +23,8 @@ int main()
     testHUD->setPlayer(PLAYER);
 
     //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
-    Netmap_Playable* CURRENT_PLAYABLE = new Scene("testScene");  // Testing out scenes
+    //Netmap_Playable* CURRENT_PLAYABLE = new Scene("testScene");  // Testing out scenes
+    Netmap_Playable* CURRENT_PLAYABLE = new NPC("TestNPC");
     string nextPlayable;
     //Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
     while (true) {

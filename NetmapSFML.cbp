@@ -69,6 +69,7 @@
 		<Unit filename="include/inputbox.h" />
 		<Unit filename="include/netmap_playable.h" />
 		<Unit filename="include/npc.h" />
+		<Unit filename="include/npcanim.h" />
 		<Unit filename="include/player.h" />
 		<Unit filename="include/program.h" />
 		<Unit filename="include/programaction.h" />
@@ -91,6 +92,7 @@
 		<Unit filename="src/inputbox.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
 		<Unit filename="src/npc.cpp" />
+		<Unit filename="src/npcanim.cpp" />
 		<Unit filename="src/player.cpp" />
 		<Unit filename="src/program.cpp" />
 		<Unit filename="src/programaction.cpp" />

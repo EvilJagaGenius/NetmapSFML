@@ -8,13 +8,13 @@ Animation::~Animation() {
     //dtor
 }
 
-void Animation::addFrame(float duration, sf::Rect<int> textureRect) {
+void Animation::addFrame(double duration, sf::Rect<int> textureRect) {
     this->increments.push_back(duration);
     this->rects.push_back(textureRect);
     this->totalTime += duration;
 }
 
-void Animation::animate(sf::Sprite sprite, float progress) {
+void Animation::animate(sf::Sprite* sprite, float progress) {
     int currentIndex = 0;
     float currentProgress = 0.0;
 
@@ -22,5 +22,8 @@ void Animation::animate(sf::Sprite sprite, float progress) {
         currentProgress += this->increments[currentIndex];
         currentIndex++;
     }
-    sprite.setTextureRect(this->rects[currentIndex]);
+    sprite->setTextureRect(this->rects[currentIndex]);
+    //cout << currentIndex << '\n';
+    sf::IntRect textureRect = sprite->getTextureRect();
+    //cout << "Rect dimensions: " << textureRect.width << ", " << textureRect.height << '\n';
 }
