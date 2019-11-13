@@ -46,9 +46,9 @@ void Scene::load() {
             this->layers.push_back(newLayer);
         }
         if (startsWith(line, "add_entity:")) {
-            SceneEntity newEntity = SceneEntity(this->filename, splitLine[1]);
+            SceneEntity* newEntity = new SceneEntity(this->filename, splitLine[1]);
             int layerNum = stoi(splitLine[2]);
-            this->layers[layerNum]->entities.push_back(newEntity);
+            this->layers[layerNum]->addEntity(newEntity);
         }
     }
     cout << "Finished loading scene\n";
@@ -85,6 +85,7 @@ string Scene::play(sf::RenderWindow* window) {
 
     // Main loop
     while (window->isOpen()) {
+        //cout << "In main loop\n";
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
@@ -93,6 +94,11 @@ string Scene::play(sf::RenderWindow* window) {
         while (window->pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window->close();
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    clicked = true;
+                }
             }
         }
 
@@ -105,7 +111,22 @@ string Scene::play(sf::RenderWindow* window) {
             //cout << "Scrolling right\n";
             this->scroll(sf::Vector2<int>(1, 0));
         }
-        // Sweet, now we just need code to deal with entities
+        // Sweet, now we just need code to deal with entities, fill that in next
+        // We already know where the entity is in relation to the mouse: its sprite coordinate.
+        // We just need to check against that.
+        for (SceneLayer* layer : this->layers) {
+            layer->frameTick();
+            if (clicked) {
+                for (SceneEntity* ent : layer->entities) {
+                    sf::FloatRect rect = ent->sprite.getGlobalBounds();
+                    if (rect.contains(this->mousePos.x, this->mousePos.y)) {
+                        if (startsWith(ent->type, "hotspot")) {
+                            return ent->target;
+                        }
+                    }
+                }
+            }
+        }
 
         this->render(window);
         window->display();

@@ -15,7 +15,6 @@ NPC::NPC(string filename) {
     this->letterX = 0;
     this->letterY = 0;
 
-
     this->load();
 }
 
@@ -113,6 +112,7 @@ void NPC::load() {
         // Done with loading conversations
         // We need stuff to load graphics, animations
     }
+    this->destination = "quit:";
 }
 
 void NPC::render(sf::RenderWindow* window) {
@@ -135,6 +135,7 @@ void NPC::render(sf::RenderWindow* window) {
 string NPC::play(sf::RenderWindow* window) {
     cout << "Calling NPC::play()\n\n";
 
+    /*
     // Display the text map in its entirety
     for (pair<string, vector<string>> p : this->text) {
         cout << p.first << '\n';
@@ -142,6 +143,9 @@ string NPC::play(sf::RenderWindow* window) {
             cout << '\t' << s << '\n';
         }
     }
+    */
+
+    this->resetAnimationStuff();
 
     this->topic = this->startTopic;
     this->part = this->startPart;
@@ -176,6 +180,10 @@ string NPC::play(sf::RenderWindow* window) {
             }
         }
 
+        if (this->endConversation) {
+            return this->destination;
+        }
+
         this->tick();
         this->render(window);
         window->display();
@@ -197,6 +205,20 @@ void NPC::advance() {
     }
 }
 
+void NPC::advanceWord() {
+    if (!this->stopAnimating) {
+        if (this->currentWordIndex >= currentSplitText.size() - 1) {  // If we're on the last word
+            this->stopAnimating = true;
+            //this->advance();
+        } else {  // Otherwise
+            this->currentWordIndex++;
+            this->currentLetterIndex = 0;
+            this->currentWord = this->currentSplitText[this->currentWordIndex];
+            this->currentLetter = this->currentWord[this->currentLetterIndex];
+        }
+    }
+}
+
 void NPC::resetAnimationStuff() {
     this->stopAnimating = false;
     this->currentSplitText = splitString(this->currentText, ' ');
@@ -209,29 +231,36 @@ void NPC::resetAnimationStuff() {
 }
 
 void NPC::checkForFlags() {
-    while (startsWith(this->currentText, "!") && !this->paused) {
+    while (startsWith(this->currentWord, "!") && !this->stopAnimating && !this->paused) {
         // Do something, Taipu
-        if (startsWith(this->currentText, "!XX:")) {  // Exit
+        if (startsWith(this->currentWord, "!XX:")) {  // Exit
             this->endConversation = true;
-            break;
-        } else if (startsWith(this->currentText, "!GT")) {  // Goto
-            vector<string> splitFlag = splitString(this->currentText, ':');
+            this->advanceWord();
+        } else if (startsWith(this->currentWord, "!GT")) {  // Goto
+            vector<string> splitFlag = splitString(this->currentWord, ':');
             this->goTo(splitFlag[0], stoi(splitFlag[1]));
-        } else if (startsWith(this->currentText, "!CA")) {  // Change animation
-            vector<string> splitFlag = splitString(this->currentText, ':');
+        } else if (startsWith(this->currentWord, "!CA")) {  // Change animation
+            vector<string> splitFlag = splitString(this->currentWord, ':');
             this->characters[splitFlag[1]]->changeAnimation(splitFlag[2]);
-            break;
-        } else if (startsWith(this->currentText, "!CI")) {  // Change image
+            this->advanceWord();
+        } else if (startsWith(this->currentWord, "!CI")) {  // Change image
             cout << "Changing image\n";
-            vector<string> splitFlag = splitString(this->currentText, ':');
+            vector<string> splitFlag = splitString(this->currentWord, ':');
             this->currentImage.setTexture(this->images[splitFlag[1]]);
             // Center the image
             sf::FloatRect dimensions = this->currentImage.getLocalBounds();
             this->currentImage.setPosition((WX - (int)dimensions.width) / 2, (WY - (int)dimensions.height) / 2);
-            break;
+            this->advanceWord();
+        } else if (startsWith(this->currentWord, "!PS:")) {  // Pause
+            this->paused = true;
+            this->pauseCounter = 0;
+            this->pauseDuration = stod(splitString(this->currentWord, ':')[1]);
+            this->advanceWord();
+        } else if (startsWith(this->currentWord, "!SK:")) {  // Skip
+            this->advance();
         } else {  // A flag we haven't implemented yet
-            cout << "Unimplemented flag: " << this->currentText << '\n';
-            break;  // Ignore it and move on
+            cout << "Unimplemented flag: " << this->currentWord << '\n';
+            this->advanceWord();
         }
     }
 }
@@ -316,6 +345,7 @@ void NPC::tick() {
                         this->currentWord = this->currentSplitText[this->currentWordIndex];
                     }
 
+                    /*
                     //cout << "Checking skip and pause flags\n";
                     if (startsWith(this->currentWord, "!SK:")) {  // Skip flag
                         this->advance();
@@ -333,6 +363,8 @@ void NPC::tick() {
                         this->currentLetter = this->currentWord[this->currentLetterIndex];
                         return;
                     }
+                    */
+                    this->checkForFlags();
 
                     //cout << "Checking for newlines\n";
                     if (startsWith(this->currentWord, "\n")) {  // I'm not sure if this is actually going to work
@@ -352,6 +384,7 @@ void NPC::tick() {
             this->pauseCounter += 1;  // Change this to work with a delta-time system
             if (this->pauseCounter >= this->pauseDuration) {
                 this->paused = false;
+                this->checkForFlags();
             }
         }
     } else if (this->stopAnimating) {  // Stop animations when text is done scrolling.

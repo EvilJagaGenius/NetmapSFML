@@ -4,6 +4,8 @@ SceneEntity::SceneEntity(string sceneName, string filename) {
     this->sceneName = sceneName;
     this->filename = filename;
     this->loadEntity();
+
+    this->animator.playAnimation("idle", true);
 }
 
 SceneEntity::~SceneEntity()
@@ -20,21 +22,33 @@ void SceneEntity::loadEntity() {
     while(getline(textFile, line)) {
         vector<string> splitLine = splitString(line, ':');
         if (startsWith(line, "type:")) {
-            // ...I'm not sure what to do with this information yet
+            this->type = splitLine[1];
+        }
+        if (startsWith(line, "target:")) {
+            this->target = splitLine[1] + ":" + splitLine[2];
         }
         if (startsWith(line, "sheet:")) {
             // Create the sprite
             this->sheet = imgLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + splitLine[1]);
             this->sprite.setTexture(this->sheet);
         }
-        if (startsWith(line, "anim:")) {
+        if (startsWith(line, "add_anim:")) {
             // We need some way to manage animations
             // Consider cloning the Thor Animator class
             // GEE, IT'D BE REALLY NICE IF THAT LIBRARY ACTUALLY WORKED, WOULDN'T IT?!
+            string animName = splitLine[1];
+            Animation newAnim = animationLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + splitLine[2]);
+            this->animator.addAnimation(animName, newAnim);
         }
         if (startsWith(line, "coord:")) {
             this->coord.x = stoi(splitLine[1]);
             this->coord.y = stoi(splitLine[2]);
         }
     }
+}
+
+void SceneEntity::frameTick() {
+    //cout << "Called SceneEntity::frameTick()\n";
+    this->animator.update(1.0 / 60.0);  // Change to delta-time!
+    this->animator.animate(&this->sprite);
 }

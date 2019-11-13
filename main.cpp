@@ -23,9 +23,10 @@ int main()
     testHUD->setPlayer(PLAYER);
 
     //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
-    //Netmap_Playable* CURRENT_PLAYABLE = new Scene("testScene");  // Testing out scenes
-    Netmap_Playable* CURRENT_PLAYABLE = new NPC("TestNPC");
+    Netmap_Playable* CURRENT_PLAYABLE = new Scene("testScene");  // Testing out scenes
+    //Netmap_Playable* CURRENT_PLAYABLE = new NPC("TestNPC");
     string nextPlayable;
+    string lastPlayable = "scene:testScene";
     //Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
     while (true) {
         CURRENT_PLAYABLE->setHUD(testHUD);
@@ -50,7 +51,16 @@ int main()
         } else if (startsWith(nextPlayable, "title:")) {
             cout << "Returning to title\n";
             CURRENT_PLAYABLE = new TitleScreen();
+        } else if (startsWith(nextPlayable, "scene:")) {
+            cout << "Launching scene\n";
+            CURRENT_PLAYABLE = new Scene(splitString(nextPlayable, ':')[1]);
+        } else if (startsWith(nextPlayable, "npc:")) {
+            cout << "Launching NPC\n";
+            vector<string> splitPlayable = splitString(nextPlayable, ':');
+            CURRENT_PLAYABLE = new NPC(splitPlayable[1]);
+            CURRENT_PLAYABLE->destination = lastPlayable;
         }
+        lastPlayable = nextPlayable;
     }
     cout << "Loop exited\n";
 

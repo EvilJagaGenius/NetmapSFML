@@ -74,6 +74,7 @@ class NPC: public Netmap_Playable
         void render(sf::RenderWindow* window);
         string play(sf::RenderWindow* window);
         void advance();
+        void advanceWord();
         void resetAnimationStuff();
         void checkForFlags();
         void clearSurface();

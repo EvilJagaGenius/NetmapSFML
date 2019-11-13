@@ -30,6 +30,7 @@ class Animator
         void update(float progress);
         //void update(float progress);
         void animate(sf::Sprite* target, float progress);  // Why do we have the progress parameter if we're supposed to be keeping track of that..?
+        void animate(sf::Sprite* target);
 
     protected:
 

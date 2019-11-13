@@ -1,6 +1,6 @@
 !addImage:talk:Talk.png
 LOAD_CONVERSATION
-open~Opening bit|!CI:talk|Hi!  I'm a test NPC.|Testing the skip flag. !SK:|This is !PS:30 a pause flag.|!XX:
+open~Opening bit|!CI:talk !SK:|Hi!  I'm a test NPC.|Testing the skip flag. !SK:|This is !PS:30 a pause flag.|!XX:
 cleo~Guardian Angel (Cleopatra's Theme)|!CA:testNPC:talk|Fear not the nightfall, light will arise with the dawn|!CA:testNPC:talk|Lay your cares at your side, and listen for song in the silence|!CA:testNPC:talk|There's a guardian angel that watches over me|!CA:testNPC:talk|And I know that one watches over you|!CA:testNPC:talk|So now you know, don't let it go|!CA:testNPC:talk|I wish that I could understand it all|!CA:testNPC:talk|My greatest hope: to hear it one more time|!CA:testNPC:talk|The melody of the angel's lullaby|!GT:open/8
 exit~Exit Conversation|See ya!|!XX:
 END_CONVERSATION

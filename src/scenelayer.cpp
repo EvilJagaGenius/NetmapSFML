@@ -15,16 +15,39 @@ SceneLayer::SceneLayer(string bkgFilename) {
 
 SceneLayer::~SceneLayer() {
     //delete this->bkgTexture;
+    for (SceneEntity* e : this->entities) {
+        delete e;
+    }
 }
 
 void SceneLayer::render(sf::RenderWindow* window) {
     //cout << "Called SceneLayer::render()\n";
     window->draw(this->bkgSprite);
-    // Nothing else for the moment, but fill in as you add more
+
+    for (SceneEntity* e : this->entities) {
+        window->draw(e->sprite);
+    }
 }
 
 void SceneLayer::scroll(sf::Vector2i deltaV) {
     // Do something, Taipu
     this->textureRect.left += (deltaV.x * this->scrollRateX);
+    this->textureRect.top += (deltaV.y * this->scrollRateY);
     this->bkgSprite.setTextureRect(this->textureRect);
+
+    for (SceneEntity* e : this->entities) {
+        e->sprite.setPosition(e->coord.x - this->textureRect.left, e->coord.y - this->textureRect.top);
+    }
+}
+
+void SceneLayer::addEntity(SceneEntity* newEntity) {
+    this->entities.push_back(newEntity);
+    newEntity->sprite.setPosition(newEntity->coord.x - this->textureRect.left, newEntity->coord.y - this->textureRect.top);
+}
+
+void SceneLayer::frameTick() {
+    //cout << "Called SceneLayer::frameTick()\n";
+    for (SceneEntity* e : this->entities) {
+        e->frameTick();
+    }
 }
