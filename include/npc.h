@@ -6,7 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "netmap_playable.h"
-#include "inputbox.h"  // We might need this
+#include "choiceinputbox.h" // We might need this
 #include "NPCAnim.h"
 
 // An NPC is a box to hold a conversation
@@ -29,6 +29,7 @@ class NPC: public Netmap_Playable
         int startPart;
         string currentText;
         vector<string> currentSplitText;
+        sf::Vector2i mousePos;
 
         bool paused;
         double pauseCounter;
@@ -50,13 +51,18 @@ class NPC: public Netmap_Playable
         int letterX;
         int letterY;
         sf::Vector2i letterSize;
+        sf::Vector2i wordSize;
 
         bool endConversation;
 
         sf::RenderTexture textSurface;
         sf::Sprite textSprite;
         sf::Text letterSurface;
+        sf::Text wordSurface;
         sf::Sprite currentImage;
+
+        InputBox* dialogBox;
+        vector<string> choices;
 
         // We need something to display all the animatable... bits on screen.
         // Say Gemma and Winter are having a conversation.  We could have animatable bits for both Gemma and Winter, with their own spritesheets.

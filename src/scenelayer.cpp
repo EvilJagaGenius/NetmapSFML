@@ -25,7 +25,9 @@ void SceneLayer::render(sf::RenderWindow* window) {
     window->draw(this->bkgSprite);
 
     for (SceneEntity* e : this->entities) {
-        window->draw(e->sprite);
+        if (!e->dummyGraphics) {
+            window->draw(e->sprite);
+        }
     }
 }
 
@@ -46,7 +48,6 @@ void SceneLayer::addEntity(SceneEntity* newEntity) {
 }
 
 void SceneLayer::frameTick() {
-    //cout << "Called SceneLayer::frameTick()\n";
     for (SceneEntity* e : this->entities) {
         e->frameTick();
     }

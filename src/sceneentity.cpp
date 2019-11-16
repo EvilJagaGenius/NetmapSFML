@@ -29,8 +29,15 @@ void SceneEntity::loadEntity() {
         }
         if (startsWith(line, "sheet:")) {
             // Create the sprite
-            this->sheet = imgLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + splitLine[1]);
-            this->sprite.setTexture(this->sheet);
+            if (!startsWith(splitLine[1], "dummy")) {
+                this->sheet = imgLoad("Data\\Scenes\\" + this->sceneName + "\\Graphics\\" + splitLine[1]);
+                this->sprite.setTexture(this->sheet);
+                this->dummyGraphics = false;
+            } else {
+                this->dummyGraphics = true;
+                this->sprite.setTextureRect(sf::Rect<int>(0, 0, stoi(splitLine[2]), stoi(splitLine[3])));
+                this->sprite.setColor(sf::Color::Transparent);
+            }
         }
         if (startsWith(line, "add_anim:")) {
             // We need some way to manage animations
@@ -48,7 +55,8 @@ void SceneEntity::loadEntity() {
 }
 
 void SceneEntity::frameTick() {
-    //cout << "Called SceneEntity::frameTick()\n";
-    this->animator.update(1.0 / 60.0);  // Change to delta-time!
-    this->animator.animate(&this->sprite);
+    if (!this->dummyGraphics) {
+        this->animator.update(1.0 / 60.0);  // Change to delta-time!
+        this->animator.animate(&this->sprite);
+    }
 }

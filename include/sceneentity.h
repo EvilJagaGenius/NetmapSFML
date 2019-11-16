@@ -21,6 +21,7 @@ class SceneEntity
         sf::Sprite sprite;
         sf::Vector2i coord;
         Animator animator;
+        bool dummyGraphics;
 
         double animTimer;
         double loopTime;

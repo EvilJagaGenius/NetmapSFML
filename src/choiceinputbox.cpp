@@ -55,7 +55,7 @@ void ChoiceInputBox::render(sf::RenderWindow* window, Netmap_Playable* playable)
 }
 
 void ChoiceInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
-    if (event.type == sf::Event::MouseButtonPressed) {
+    if (event.type == sf::Event::MouseButtonPressed  && this->subFocus != -1) {
         this->done = true;
     } else if (event.type == sf::Event::MouseWheelScrolled) {
         if (event.mouseWheelScroll.delta > 0) {  // If we scrolled up

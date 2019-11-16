@@ -1,6 +1,8 @@
 #include "npc.h"
 
 NPC::NPC(string filename) {
+    cout << "Constructing NPC\n";
+
     this->endConversation = false;
 
     this->filename = filename;
@@ -11,11 +13,18 @@ NPC::NPC(string filename) {
     this->pauseCounter = 0;
     this->font = DEFAULT_FONT;
     this->textColor = sf::Color::White;
+    this->fontHeight = 12;
 
     this->letterX = 0;
     this->letterY = 0;
 
+    this->textSurface.create(1024, 100);
+
+    this->dialogBox = nullptr;
+
     this->load();
+
+    cout << "Done constructing NPC\n";
 }
 
 NPC::~NPC() {
@@ -26,6 +35,8 @@ NPC::~NPC() {
 }
 
 void NPC::load() {
+    cout << "Loading NPC\n";
+
     ifstream textFile;
     textFile.open("Data\\NPCs\\" + this->filename + "\\" + this->filename + ".txt");
     string line;
@@ -38,6 +49,8 @@ void NPC::load() {
     sf::Vector2i frameDimensions;
     sf::Vector2i frameCoord;
     sf::Rect<int> frameRect;
+
+    this->textSurface.clear(sf::Color::Transparent);
 
     while (getline(textFile, line)) {
 
@@ -104,30 +117,36 @@ void NPC::load() {
                 // Load a topic into the conversation
                 splitLine = splitString(line, '~');  // Split on the ~ first to get the topic name
                 string newTopic = splitLine[0];
-                splitLine = splitString(line, '|');  // Now split on the |
-                splitLine.erase(splitLine.begin());  // Remove the topic marker so it doesn't show up in the conversation text
-                this->text.insert({{newTopic, splitLine}});
+                vector<string> splitText = splitString(splitLine[1], '|');  // Now split on the |
+                //splitLine.erase(splitLine.begin());  // Remove the topic marker so it doesn't show up in the conversation text
+                this->text.insert({{newTopic, splitText}});
             }
         }
         // Done with loading conversations
         // We need stuff to load graphics, animations
     }
     this->destination = "quit:";
+
+    cout << "Done loading NPC\n";
 }
 
 void NPC::render(sf::RenderWindow* window) {
 
     //window->draw(this->bkgSprite);
-    this->textSprite = sf::Sprite(this->textSurface.getTexture());
-    this->textSprite.setPosition(0, 0);
-    window->draw(this->textSprite);
-
     window->draw(this->currentImage);
 
     for (pair<string, NPCAnim*> p : this->characters) {
         //p.second.load();
         p.second->tick();
         window->draw(p.second->sprite);
+    }
+
+    this->textSprite = sf::Sprite(this->textSurface.getTexture());
+    this->textSprite.setPosition(0, 0);
+    window->draw(this->textSprite);
+
+    if (this->dialogBox != nullptr) {
+        this->dialogBox->render(window, this);
     }
 
 }
@@ -157,31 +176,63 @@ string NPC::play(sf::RenderWindow* window) {
     this->currentLetterIndex = 0;
     this->currentLetter = this->currentWord[this->currentLetterIndex];
 
-    this->textSurface.create(500, 500);
-    this->letterSurface = sf::Text(" ", DEFAULT_FONT, 12);
+    this->letterSurface = sf::Text(" ", DEFAULT_FONT, fontHeight);
     this->letterSurface.setColor(textColor);
+    this->wordSurface = sf::Text(" ", DEFAULT_FONT, fontHeight);
+
 
     this->spaceLength = this->letterSurface.getLocalBounds().width;
     this->letterX = this->spaceLength;
 
     this->checkForFlags();
 
+    this->clearSurface();
+    this->xLimit = 1024;
+    this->yLimit = 576;
+
+    bool clicked;
+
+    cout << "Done with loop preparations\n";
     while (window->isOpen()) {
+        //cout << "In main loop\n";
+        clicked = false;
         window->clear();
+
+        this->mousePos = sf::Mouse::getPosition(*window);
+        if (this->dialogBox != nullptr) {
+            this->dialogBox->setMousePos(this->mousePos);
+        }
 
         sf::Event event;
         while (window->pollEvent(event)) {
+            if (this->dialogBox != nullptr) {
+                this->dialogBox->takeInput(event, this);
+            }
             if (event.type == sf::Event::Closed) {
                 window->close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->advance();
+                    clicked = true;
                 }
             }
         }
 
         if (this->endConversation) {
             return this->destination;
+        }
+
+        if (clicked) {
+            if (this->dialogBox == nullptr) {
+                // We need some way to quickly loop through the rest of the text so we don't miss flags.
+                this->advance();
+            } else {
+                if (this->dialogBox->done) {
+                    string topic = this->choices[this->dialogBox->getSubFocus()];
+                    this->goTo(topic, 1);
+                    delete this->dialogBox;
+                    this->dialogBox = nullptr;
+                }
+            }
         }
 
         this->tick();
@@ -238,7 +289,7 @@ void NPC::checkForFlags() {
             this->advanceWord();
         } else if (startsWith(this->currentWord, "!GT")) {  // Goto
             vector<string> splitFlag = splitString(this->currentWord, ':');
-            this->goTo(splitFlag[0], stoi(splitFlag[1]));
+            this->goTo(splitFlag[1], stoi(splitFlag[2]));
         } else if (startsWith(this->currentWord, "!CA")) {  // Change animation
             vector<string> splitFlag = splitString(this->currentWord, ':');
             this->characters[splitFlag[1]]->changeAnimation(splitFlag[2]);
@@ -258,6 +309,21 @@ void NPC::checkForFlags() {
             this->advanceWord();
         } else if (startsWith(this->currentWord, "!SK:")) {  // Skip
             this->advance();
+        } else if (startsWith(this->currentWord, "!CB:")) {  // Choice box
+            // Do something, Taipu
+            cout << "Created choice box\n";
+            vector<string> splitFlag = splitString(this->currentWord, ':');
+            vector<string> choiceTitles;
+            vector<bool> usables;
+            this->choices.clear();
+            for (int i=1; i<splitFlag.size(); i++) {
+                this->choices.push_back(splitFlag[i]);
+                choiceTitles.push_back(this->text[splitFlag[i]][0]);
+                usables.push_back(true);
+            }
+            this->dialogBox = new ChoiceInputBox(sf::Vector2<int>(0, 200), choiceTitles, usables, choiceTitles.size());  // Fill this in
+            this->stopAnimating = true;
+            break;
         } else {  // A flag we haven't implemented yet
             cout << "Unimplemented flag: " << this->currentWord << '\n';
             this->advanceWord();
@@ -266,7 +332,7 @@ void NPC::checkForFlags() {
 }
 
 void NPC::clearSurface() {
-    this->textSurface.clear();  // We might have to get more elaborate later but I think this works
+    this->textSurface.clear(sf::Color::Transparent);  // We might have to get more elaborate later but I think this works
 }
 
 void NPC::goTo(string topic, int part) {
@@ -319,9 +385,7 @@ void NPC::tick() {
             //cout << "Letter drawn: " << this->currentLetter << ", (" << this->letterX << ", " << this->letterY << ")\n";
 
             if (this->currentLetterIndex >= this->currentWord.size()) {  // If we're on the last letter
-                //cout << "On last letter\n";
                 if (this->currentWordIndex >= currentSplitText.size() - 1) {  // If we're on the last word
-                    //cout << "On last word\n";
                     this->stopAnimating = true;
                     return;
                 } else {  // If we're not on the last word
@@ -329,10 +393,8 @@ void NPC::tick() {
                     //cout << "Going to next word\n";
                     if (currentLetter == '.' || currentLetter == '!' || currentLetter == '?') {  // If it ends with a punctuation mark
                         this->letterX += (this->spaceLength * 2);  // Add double space
-                        //this->letterX += 20;
                     } else {
                         this->letterX += this->spaceLength;  // Add single space
-                        //this->letterX += 10;
                     }
 
                     this->currentLetterIndex = 0;
@@ -344,26 +406,15 @@ void NPC::tick() {
                         this->currentWordIndex += 1;
                         this->currentWord = this->currentSplitText[this->currentWordIndex];
                     }
+                    this->wordSurface.setString(this->currentWord);
+                    sf::FloatRect r = this->wordSurface.getLocalBounds();
+                    this->wordSize = sf::Vector2<int>(r.width, r.height);
 
-                    /*
-                    //cout << "Checking skip and pause flags\n";
-                    if (startsWith(this->currentWord, "!SK:")) {  // Skip flag
-                        this->advance();
-                        return;
-                    } else if (startsWith(this->currentWord, "!PS:")) {  // Pause flag
-                        // Start pausing
-                        this->paused = true;
-                        this->pauseCounter = 0;
-                        this->pauseDuration = stod(splitString(this->currentWord, ':')[1]);
-
-                        // Advance to next word and letter
-                        this->currentWordIndex += 1;
-                        this->currentWord = this->currentSplitText[this->currentWordIndex];
-                        this->currentLetterIndex = 0;
-                        this->currentLetter = this->currentWord[this->currentLetterIndex];
-                        return;
+                    if ((this->letterX + this->wordSize.x) > this->xLimit) {
+                        this->letterY += this->fontHeight + 2;
+                        this->letterX = spaceLength;
                     }
-                    */
+
                     this->checkForFlags();
 
                     //cout << "Checking for newlines\n";
