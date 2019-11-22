@@ -310,7 +310,6 @@ void NPC::checkForFlags() {
         } else if (startsWith(this->currentWord, "!SK:")) {  // Skip
             this->advance();
         } else if (startsWith(this->currentWord, "!CB:")) {  // Choice box
-            // Do something, Taipu
             cout << "Created choice box\n";
             vector<string> splitFlag = splitString(this->currentWord, ':');
             vector<string> choiceTitles;
@@ -324,6 +323,9 @@ void NPC::checkForFlags() {
             this->dialogBox = new ChoiceInputBox(sf::Vector2<int>(0, 200), choiceTitles, usables, choiceTitles.size());  // Fill this in
             this->stopAnimating = true;
             break;
+        } else if (startsWith(this->currentWord, "!CD:")) {  // Change destination
+            vector<string> splitFlag = splitString(this->currentWord);
+            this->destination = splitFlag[1] + ":" + splitFlag[2];
         } else {  // A flag we haven't implemented yet
             cout << "Unimplemented flag: " << this->currentWord << '\n';
             this->advanceWord();

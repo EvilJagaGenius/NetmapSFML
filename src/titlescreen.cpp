@@ -93,7 +93,7 @@ string TitleScreen::play(sf::RenderWindow* window) {
             // Start Game
             button.top = 0;
             if (button.contains(mousePos)) {
-                return "db:testBattle";
+                return "scene:RNA_1";
             }
             // Play DB
             button.top = 14;

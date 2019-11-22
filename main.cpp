@@ -22,8 +22,8 @@ int main()
     Player* PLAYER = new Player;
     testHUD->setPlayer(PLAYER);
 
-    //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
-    Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes
+    Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
+    //Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes
     //Netmap_Playable* CURRENT_PLAYABLE = new NPC("RNA_Gemma_1");
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
