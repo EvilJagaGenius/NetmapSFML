@@ -58,10 +58,8 @@
 		<Unit filename="include/animator.h" />
 		<Unit filename="include/choiceinputbox.h" />
 		<Unit filename="include/databattle.h" />
-		<Unit filename="include/databattleeditor.h" />
 		<Unit filename="include/databattlepiece.h" />
 		<Unit filename="include/databattleplayer.h" />
-		<Unit filename="include/hud.h" />
 		<Unit filename="include/inputbox.h" />
 		<Unit filename="include/netmap_playable.h" />
 		<Unit filename="include/npc.h" />
@@ -83,10 +81,8 @@
 		<Unit filename="src/animator.cpp" />
 		<Unit filename="src/choiceinputbox.cpp" />
 		<Unit filename="src/databattle.cpp" />
-		<Unit filename="src/databattleeditor.cpp" />
 		<Unit filename="src/databattlepiece.cpp" />
 		<Unit filename="src/databattleplayer.cpp" />
-		<Unit filename="src/hud.cpp" />
 		<Unit filename="src/inputbox.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
 		<Unit filename="src/npc.cpp" />

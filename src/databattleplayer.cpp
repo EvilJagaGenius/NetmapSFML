@@ -1,8 +1,11 @@
 #include "databattleplayer.h"
 
-DataBattlePlayer::DataBattlePlayer()
-{
+DataBattlePlayer::DataBattlePlayer() {
     //ctor
+}
+
+DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
+    this->setDB(db);
 }
 
 DataBattlePlayer::~DataBattlePlayer()
@@ -10,17 +13,16 @@ DataBattlePlayer::~DataBattlePlayer()
     //dtor
 }
 
-void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
+void DataBattlePlayer::render(sf::RenderWindow* window) {
     // Draw the background
     window->draw(this->bkgSprite);
     sf::Vector2<int> cursorTile(-1, -1);
-    //cout << "Background\n";
 
     // Draw the grid
     for (int x=0; x<16; x++) {
         for (int y=0; y<16; y++) {
             sf::Rect<int> tileRect(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE, TILE_SIZE, TILE_SIZE);
-            this->gridSprite.setTextureRect(sf::Rect<int>(0, this->grid[x][y]*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->gridSprite.setTextureRect(sf::Rect<int>(0, this->db->grid[x][y]*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             this->gridSprite.setPosition(sf::Vector2<float>(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE));
             window->draw(this->gridSprite);
 
@@ -147,11 +149,11 @@ void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
             }
             window->draw(this->gridSprite);
         }
-    } else {*/
+    } else {
     // Draw movement area, associated buttons
     if (db->currentProgram->state == 'm') {
         for (sf::Vector2i coord : this->moveArea) {
-            if ((this->grid[coord.x][coord.y]) != 0 || (this->currentProgram->statuses['g'] != 0)) {
+            if ((this->grid[coord.x][coord.y]) != 0 || (this->db->currentProgram->statuses['g'] != 0)) {  // We shouldn't be running this check here, the DB should
                 if (coord == this->nButton) {
                     this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 } else if (coord == this->sButton) {
@@ -169,30 +171,35 @@ void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
         }
     } else if (db->currentProgram->state == 'a') {  // Draw aiming area
         for (sf::Vector2i coord : this->aimArea) {
-            this->gridSprite.setTextureRect(sf::Rect<int>(this->currentProgram->currentAction->targetSprite*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->gridSprite.setTextureRect(sf::Rect<int>(this->db->currentProgram->currentAction->targetSprite*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
             window->draw(this->gridSprite);
         }
-    }
+    }*/
 
     // Draw pieces
-    for (DataBattlePiece* piece : db->pieces) {
+    for (int i=0; i<this->db->pieces.size(); i++) {
+        //cout << "Looping through pieces\n";
+        DataBattlePiece* piece = this->db->pieces[i];
         sf::Sprite spriteToDraw;
+        spriteToDraw = this->gridSprite;
         if (piece->pieceType == 'u') {  // Upload zone
             spriteToDraw = this->gridSprite;
         } else {  // Anything else
             spriteToDraw = this->programSprite;
         }
 
-        if (!piece->visible) {
-            // If we own the piece
+        /*if (!piece->visible) {
+            // If we control the piece
                 this->programSprite.setColor(sf::Color(128,128,128,128));  // Hopefully this turns things transparent
             // Else
                 //this->programSprite.setColor(sf::Color::Transparent);
         } else {
             this->programSprite.setColor(sf::Color::White);  // And this fixes it
-        }
+        }*/
+        /*// Draw connecting lines
         for (int j=0; j<(piece->size); j++) {
+            //cout << "Looping through sectors\n";
             ProgramSector* sector = piece->sectors[j];
             for (ProgramSector* s : sector->links) {
                 sf::Vector2i nextCoord = s->coord;
@@ -215,13 +222,15 @@ void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
                 connectingLine.setPosition(topLeft);
                 window->draw(connectingLine);
             }
-        }
+        }*/
+        // Draw sector sprites
         for (int j=0; j<(piece->size); j++) {
-            ProgramSector* sector = p->sectors[j];
+            ProgramSector* sector = piece->sectors[j];
             if (j==0) {  // Draw head sprite
+                //cout << "Drawing head sprite\n";
                 spriteToDraw.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
-                window->draw(this->programSprite);
+                window->draw(spriteToDraw);
                 if (piece->state == 'd') { // If done
                     // Draw the 'done' marker
                     this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
@@ -231,7 +240,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
             } else {  // Draw tail sprite
                 spriteToDraw.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, (piece->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
-                window->draw(this->programSprite);
+                window->draw(spriteToDraw);
             }
         }
     }
@@ -244,12 +253,10 @@ void DataBattlePlayer::render(sf::RenderWindow* window, DataBattle* db) {
     }
 }
 
-string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
-    cout << "Called DataBattle::play()\n";
+string DataBattlePlayer::play(sf::RenderWindow* window) {
+    cout << "Called DataBattlePlayer::play()\n";
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
-    this->phase = 'u'; // Upload
-    this->selectedUpload = -1;
 
     // Music
     if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
@@ -270,7 +277,6 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
     sf::Vector2i tileCoord(-1, -1);
 
     while (window->isOpen()) {
-        //cout << "In main loop\n";
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
@@ -290,19 +296,16 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
         fps = 1.0 / (currentTime - lastTime);
         lastTime = currentTime;
 
-        hud->setMousePos(mousePos);
-
         sf::Event event;
         while (window->pollEvent(event)) {
-            hud->takeInput(event, this);
             if (event.type == sf::Event::Closed)
                 window->close();
 
             if (event.type == sf::Event::KeyPressed) {
                 cout << fps << '\n';
                 //cout << "Victory status: " << this->checkForVictory() << '\n';
-                cout << "Current program: " << this->currentProgram->name << '\n';
-                for (ProgramSector* s : this->currentProgram->sectors) {
+                cout << "Current program: " << this->db->currentProgram->name << '\n';
+                for (ProgramSector* s : this->db->currentProgram->sectors) {
                     cout << "Sector: " << getByteCoord(s->coord) << '\n';
                     for (ProgramSector* l : s->links) {
                         cout << "Link: " << getByteCoord(l->coord) << '\n';
@@ -315,7 +318,7 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
             }
         }
 
-        // Player's turn
+        /*// Player's turn
         if (this->phase == 'p'  && this->currentProgram != nullptr) {
             this->programHead = this->currentProgram->sectors[0]->coord;
 
@@ -358,7 +361,7 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
                         /*this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
                         this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
                         this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
-                        this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);*/
+                        this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
                     } else {
                         this->targets.clear();
                         this->currentProgram->switchToAiming(0);
@@ -457,10 +460,11 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
                 }
             }
             frameTimer++;
-        }
+        }*/
 
         // Check to see if anybody won, and if so, end the DataBattle
-        if ((this->phase != 'u') && (this->checkForVictory() != '0')) {
+        // Wait, this check shouldn't be in here
+        /*if ((this->db->currentPlayerIndex != -1) && (this->checkForVictory() != '0')) {
             if (this->checkForVictory() == 'p') {  // If the player won
                 cout << "Databattle won\n";
                 musicTrack.stop();
@@ -473,15 +477,18 @@ string DataBattle::play(sf::RenderWindow* window, DataBattle* db) {
         }
         if (this->disconnect) {
             return this->destination;
-        }
+        }*/
 
         //cout << "Calling render()\n";
         this->render(window);
-        //cout << "Render finished\nCalling hud->render()\n";
-        hud->render(window, this);
         window->display();
         //cout << "Finished main loop\n";
     }
 
     return "quit:";
+}
+
+void DataBattlePlayer::setDB(DataBattle* db) {
+    this->db = db;
+    this->musicFilename = this->db->musicFilename;
 }

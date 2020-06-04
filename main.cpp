@@ -7,10 +7,12 @@
 
 #include "toolbox.h"
 #include "programaction.h"
+#include "netmap_playable.h"
 #include "databattle.h"
-#include "databattleeditor.h"
+#include "databattleplayer.h"
+//#include "databattleeditor.h"  // Needs reworked before adding it back in
 #include "titlescreen.h"
-#include "hud.h"
+//#include "hud.h"  // This might need reworked too
 #include "scene.h"
 #include "npc.h"
 
@@ -19,17 +21,19 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
     window.setFramerateLimit(60);
 
-    HUD* testHUD = new HUD();
     Player* PLAYER = new Player;
-    testHUD->setPlayer(PLAYER);
 
-    Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
+    //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
     //Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes
     //Netmap_Playable* CURRENT_PLAYABLE = new NPC("RNA_Gemma_1");
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
-    //Netmap_Playable* CURRENT_PLAYABLE = new DataBattle("TestBattle");
-    while (true) {
+    DataBattle* testDB = new DataBattle("TestBattle");
+    //cout << testDB->pieces.size() << '\n';
+    Netmap_Playable* CURRENT_PLAYABLE = new DataBattlePlayer(testDB);
+    CURRENT_PLAYABLE->play(&window);
+    delete testDB;  // Clean up memory
+    /*while (true) {
         CURRENT_PLAYABLE->setHUD(testHUD);
         CURRENT_PLAYABLE->setPlayer(PLAYER);
         nextPlayable = CURRENT_PLAYABLE->play(&window);
@@ -66,12 +70,11 @@ int main()
             int portNum = stoi(splitPlayable[2]);
         }
         lastPlayable = nextPlayable;
-    }
+    }*/
     cout << "Loop exited\n";
 
     // We need to clean things up before we exit the program
     delete PLAYER;
-    delete testHUD;
     for (pair<string, Program*> p : PROGRAM_DB) {
         delete p.second;
     }

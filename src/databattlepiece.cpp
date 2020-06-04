@@ -40,7 +40,8 @@ void DataBattlePiece::tickStatuses() {  // This requires a dedicated function
         if (p.second > 0) {
             if (p.first == 'p') {  // Poison
                 // Deal one damage to self
-                this->takeDamage(1);  // I know there's supposed to be a Netmap_Playable there.  We should fix this
+                //this->takeDamage(1);  // I know there's supposed to be a Netmap_Playable there.  We should fix this
+                cout << "Poison damage\n";
                 // We need some way to pass this information to the databattle
             }
             cout << "Decrementing status " << p.first << '\n';

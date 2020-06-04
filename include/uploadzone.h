@@ -3,10 +3,11 @@
 
 #include "databattlepiece.h"
 
-class UploadZone : DataBattlePiece
+class UploadZone : public DataBattlePiece
 {
     public:
         UploadZone();
+        UploadZone(int x, int y, int owner);
         virtual ~UploadZone();
 
     protected:

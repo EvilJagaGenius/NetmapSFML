@@ -12,6 +12,7 @@
 #include "netmap_playable.h"
 #include "toolbox.h"
 #include "program.h"
+#include "uploadzone.h"
 #include "inputbox.h"
 #include "player.h"
 
@@ -29,16 +30,16 @@ class DataBattle
         string filename;
         string bkgFilename;
         string musicFilename;
+        string destination;
         int grid[16][16];
-        char phase;
         int currentPlayerIndex;
         vector<Player*> players;
         int currentProgramIndex;
         DataBattlePiece* currentProgram;
         DataBattlePiece* programStartingState;
+        int nextProgramIndex;
         DataBattlePiece* nextProgram;
         sf::Vector2i programHead;
-
         vector<DataBattlePiece*> pieces;
 
         // Functions

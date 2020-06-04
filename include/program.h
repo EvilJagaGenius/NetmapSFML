@@ -41,6 +41,7 @@ class Program: public DataBattlePiece
         //ProgramAction* currentAction;
 
         //char state;
+        string programType;
 
         // Functions
         Program(string programType);
@@ -49,7 +50,7 @@ class Program: public DataBattlePiece
         virtual ~Program();
         void deleteSectors();
         void load();
-        void move(Netmap_Playable* level, sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
+        void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
         void addSector(sf::Vector2i coord, int pos);
         void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
         void switchToAiming(int actionIndex);

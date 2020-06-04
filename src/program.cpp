@@ -2,6 +2,7 @@
 
 Program::Program(string programType) {
     this->name = programType;
+    this->pieceType = 'p';
     this->programType = programType;
     this->color = sf::Color::White;
     this->load();
@@ -60,7 +61,7 @@ Program::Program(Program* original) {  // Copy constructor
 
 Program::Program(DataBattlePiece* original) {  // Alt copy constructor
     cout << "Calling DataBattlePiece copy constructor\n";
-    this->programType = original->programType;
+    this->pieceType = original->pieceType;
     this->name = original->name;
     this->screenName = original->screenName;
     this->spriteCoord = original->spriteCoord;
@@ -161,10 +162,10 @@ void Program::load() {
     }
 }
 
-void Program::move(Netmap_Playable* level, sf::Vector2i coord, bool firstTime=false) {
+void Program::move(sf::Vector2i coord, bool firstTime=false) {
     //cout << "Moving\n";
     if (firstTime) {
-        sectors = *(new vector<ProgramSector*>);
+        sectors.clear();
         sectors.push_back(new ProgramSector(coord));
         this->size = 1;
     } else {
@@ -208,9 +209,10 @@ void Program::move(Netmap_Playable* level, sf::Vector2i coord, bool firstTime=fa
                             }
                         }
                         // If we have gridburn, blank out the sector
-                        if (this->statuses['b'] != 0) {
+                        /*if (this->statuses['b'] != 0) {
                             level->grid[this->sectors[i]->coord.x][this->sectors[i]->coord.y] = 0;
-                        }
+                        }*/
+                        // The DataBattle should be running checks and authentication for this
                         // Delete the sector from the program
                         delete this->sectors[i];
                         this->sectors.erase(this->sectors.begin() + i);
