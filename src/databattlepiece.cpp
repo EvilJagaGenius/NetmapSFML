@@ -34,3 +34,17 @@ void DataBattlePiece::grow(Netmap_Playable* level, int amtToGrow) {
     cout << "Called DataBattlePiece::grow()\n";
 }
 void DataBattlePiece::prepForTurn() {}
+void DataBattlePiece::tickStatuses() {  // This requires a dedicated function
+    // The behavior for status effects should stay the same no matter what program type, so I hope this works
+    for (pair<char, int> p : this->statuses) {
+        if (p.second > 0) {
+            if (p.first == 'p') {  // Poison
+                // Deal one damage to self
+                this->takeDamage(1);  // I know there's supposed to be a Netmap_Playable there.  We should fix this
+                // We need some way to pass this information to the databattle
+            }
+            cout << "Decrementing status " << p.first << '\n';
+            p.second--;
+        }
+    }
+}

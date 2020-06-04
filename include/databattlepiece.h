@@ -19,7 +19,6 @@ class DataBattlePiece
 {
     public:
         // Variables
-        string programType;
         string name;
         string screenName;
         string description;
@@ -39,7 +38,7 @@ class DataBattlePiece
         int invisibilityTimer;
         bool visible;
 
-        int owner;  // Whose inventory this piece gets returned to upon deletion
+        int owner;  // Who owns the piece.  IDs upload zones, and who to return to upon deletion
         int controller;  // Who is currently controlling the piece
         char pieceType;  // Used to differentiate between programs/users/etc
         char state;
@@ -68,6 +67,7 @@ class DataBattlePiece
         virtual void amputate(Netmap_Playable* level, sf::Vector2i coord);
         virtual void grow(Netmap_Playable* level, int amtToGrow);
         virtual void prepForTurn();
+        virtual void tickStatuses();
 
     protected:
 

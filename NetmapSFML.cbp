@@ -13,13 +13,10 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="SFML_Libraries/include/Aurora" />
-					<Add directory="SFML_Libraries/include/Thor" />
 					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add library="SFML_Libraries/lib/libthor-d.dll.a" />
 					<Add library="SFML_Libraries/lib/libsfml-audio-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
@@ -34,14 +31,12 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="SFML_Libraries/include/Aurora" />
-					<Add directory="SFML_Libraries/include/Thor" />
 					<Add directory="SFML_Libraries/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="SFML_Libraries/lib/libthor.dll.a" />
+					<Add library="SFML_Libraries/lib/libsfml-network.a" />
 					<Add library="SFML_Libraries/lib/libsfml-audio.a" />
 					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
 					<Add library="SFML_Libraries/lib/libsfml-window.a" />
@@ -65,6 +60,7 @@
 		<Unit filename="include/databattle.h" />
 		<Unit filename="include/databattleeditor.h" />
 		<Unit filename="include/databattlepiece.h" />
+		<Unit filename="include/databattleplayer.h" />
 		<Unit filename="include/hud.h" />
 		<Unit filename="include/inputbox.h" />
 		<Unit filename="include/netmap_playable.h" />
@@ -81,6 +77,7 @@
 		<Unit filename="include/textinputbox.h" />
 		<Unit filename="include/titlescreen.h" />
 		<Unit filename="include/toolbox.h" />
+		<Unit filename="include/uploadzone.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/animation.cpp" />
 		<Unit filename="src/animator.cpp" />
@@ -88,6 +85,7 @@
 		<Unit filename="src/databattle.cpp" />
 		<Unit filename="src/databattleeditor.cpp" />
 		<Unit filename="src/databattlepiece.cpp" />
+		<Unit filename="src/databattleplayer.cpp" />
 		<Unit filename="src/hud.cpp" />
 		<Unit filename="src/inputbox.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
@@ -104,10 +102,7 @@
 		<Unit filename="src/textinputbox.cpp" />
 		<Unit filename="src/titlescreen.cpp" />
 		<Unit filename="src/toolbox.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Unit filename="src/uploadzone.cpp" />
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

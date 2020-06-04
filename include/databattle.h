@@ -15,67 +15,46 @@
 #include "inputbox.h"
 #include "player.h"
 
+// What is a databattle?
+// It's... a game manager, in a sense.  That's what this should be.
+// What should be handling player input and rendering?  I think we should create a new DataBattlePlayable class to interface between the game manager and the player.
+
 using namespace std;
 
-class DataBattle: public Netmap_Playable
+class DataBattle
 {
     // Following my style, make everything public until needed otherwise
     public:
         // Variables
         string filename;
         string bkgFilename;
-        sf::Texture bkg;
-        sf::Sprite bkgSprite;
         string musicFilename;
-        sf::Music musicTrack;
-        int cashReward;
-        vector<sf::Vector2i> cashPickups;  // A list of coordinates
-        vector<sf::Vector2i> uploads;
-        int selectedUpload;
-        //unordered_map<string, Program*> defenders;
-        //vector<Program*> friendlies;
-        //int grid[16][16];
-
-        // play()-specific variables here
-        sf::Texture gridSheet;
-        sf::Sprite gridSprite;
-        sf::Sprite programSprite;
-        sf::Vector2<int> mousePos;
+        int grid[16][16];
         char phase;
-        string lookingAt;
-        InputBox* hud;
-        Player* player;
-        int friendliesLoaded;
+        int currentPlayerIndex;
+        vector<Player*> players;
         int currentProgramIndex;
         DataBattlePiece* currentProgram;
-        DataBattlePiece* programStartingState; // Write a copy constructor for Program
-        string currentDefenderIndex;
+        DataBattlePiece* programStartingState;
+        DataBattlePiece* nextProgram;
         sf::Vector2i programHead;
-        sf::Vector2i nButton;
-        sf::Vector2i sButton;
-        sf::Vector2i eButton;
-        sf::Vector2i wButton;
-        vector<sf::Vector2i> moveArea;
-        vector<sf::Vector2i> aimArea;
-        vector<sf::Vector2i> targets;
-        bool disconnect;
+
+        vector<DataBattlePiece*> pieces;
 
         // Functions
         DataBattle();
         DataBattle(string filename);
         virtual ~DataBattle();
         void load();
-        void render(sf::RenderWindow* window);
-        void setHUD(InputBox* hud);
-        void setPlayer(Player* player);
-        string play(sf::RenderWindow* window);
-        void switchTurns(InputBox* hud);
-        void switchPrograms(InputBox* hud);
+        void addPlayer(Player* player);
+        void switchTurns();
+        void switchPrograms();
         string takeCommand(string command);
         string lookAt(sf::Vector2i coord);
         string lookAt(int x, int y);
-        char checkForVictory();
+        int checkForVictory();
         void flipSector(sf::Vector2i coord);
+        void tick();
 
     protected:
 

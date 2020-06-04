@@ -3,6 +3,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Network.hpp>
 
 #include "toolbox.h"
 #include "programaction.h"
@@ -59,6 +60,10 @@ int main()
             vector<string> splitPlayable = splitString(nextPlayable, ':');
             CURRENT_PLAYABLE = new NPC(splitPlayable[1]);
             CURRENT_PLAYABLE->destination = lastPlayable;
+        } else if (startsWith(nextPlayable, "netgame:")) {
+            vector<string> splitPlayable = splitString(nextPlayable, ':');
+            string ipAddress = splitPlayable[1];
+            int portNum = stoi(splitPlayable[2]);
         }
         lastPlayable = nextPlayable;
     }

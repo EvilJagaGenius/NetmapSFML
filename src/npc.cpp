@@ -324,7 +324,7 @@ void NPC::checkForFlags() {
             this->stopAnimating = true;
             break;
         } else if (startsWith(this->currentWord, "!CD:")) {  // Change destination
-            vector<string> splitFlag = splitString(this->currentWord);
+            vector<string> splitFlag = splitString(this->currentWord, ':');
             this->destination = splitFlag[1] + ":" + splitFlag[2];
         } else {  // A flag we haven't implemented yet
             cout << "Unimplemented flag: " << this->currentWord << '\n';
