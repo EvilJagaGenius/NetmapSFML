@@ -29,8 +29,9 @@ int main()
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
     DataBattle* testDB = new DataBattle("TestBattle");
-    //cout << testDB->pieces.size() << '\n';
+    testDB->addPlayer(PLAYER);
     Netmap_Playable* CURRENT_PLAYABLE = new DataBattlePlayer(testDB);
+    // There should probably be a better way to connect players and DB Players.
     CURRENT_PLAYABLE->play(&window);
     delete testDB;  // Clean up memory
     /*while (true) {

@@ -3,6 +3,7 @@
 
 #include "netmap_playable.h"
 #include "databattle.h"
+#include "inputbox.h"
 
 class DataBattlePlayer : public Netmap_Playable
 {
@@ -15,8 +16,12 @@ class DataBattlePlayer : public Netmap_Playable
         sf::Music musicTrack;
         sf::Vector2i mousePos;
         sf::Vector2i nButton, sButton, eButton, wButton;
+        sf::RenderTexture hudPanel;
+        sf::Text hudText;
+        sf::RectangleShape hudButton;
         vector<sf::Vector2i> moveArea;
         vector<sf::Vector2i> aimArea;
+        int localPlayerIndex;
 
         DataBattlePlayer();
         DataBattlePlayer(DataBattle* db);

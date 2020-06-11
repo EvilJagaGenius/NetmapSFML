@@ -106,6 +106,9 @@ void DataBattle::load() {
     cout << "Done loading DB\n";
 }
 
+void DataBattle::addPlayer(Player* player) {
+    this->players.push_back(player);
+}
 
 
 void DataBattle::switchTurns() {
@@ -162,23 +165,125 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
 }
 
 string DataBattle::takeCommand(string command) {
-    /*if (startsWith(command, "upload")) {
-        vector<string> splitCommand = splitString(command, ' ');
-        string programName = splitCommand[1];
-        // See if there's a friendly program there
-        for (int i=0; i < this->friendlies.size(); i++) {
-            for (ProgramSector* s : this->friendlies[i]->sectors) {
-                if (s->coord == this->uploads[stoi(splitCommand[2])]) {
-                    return "conflict";
+    if (startsWith(command, "upload")) {
+        vector<string> splitCommand = splitString(command, ':');
+        // 1: Byte coord, 2: Player, 3: Program type, 4: Name
+        sf::Vector2i coord = readByteCoord(splitCommand[1]);
+        // Do some checking on the coord
+
+        int playerIndex = stoi(splitCommand[2]);
+        string programType = splitCommand[3];
+        Player* player = players[playerIndex];
+
+        for (pair<string, int> p : player->programs) {
+            if (programType == p.first) {  // If the player has that program in their inventory
+                if (player->programs[programType] > 0) {  // If they have at least 1
+                    player->programs[programType]--;  // Remove 1 from their inventory
                 }
             }
         }
+
+        // Add the program
+        Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
+        newProgram->move(coord, true);
+        newProgram->owner = playerIndex;
+        newProgram->controller = playerIndex;
+        if (splitCommand[4] == "NULL") {  // We can add more checks to piece names
+            newProgram->name = "piece" + to_string(this->pieces.size());
+        }
+        this->pieces.push_back(newProgram);
+
+        return "ok";
     }
-    if (startsWith(command, "look")) {
-        vector<string> splitCommand = splitString(command, ' ');
-        sf::Vector2<int> coord = sf::Vector2<int>(stoi(splitCommand[1]), stoi(splitCommand[2]));
-        return this->lookAt(coord);
-    }*/
+    if (startsWith(command, "move")) {
+        // Do something, Taipu
+        // 1: Piece name, 2: direction
+        vector<string> splitCommand = splitString(command, ':');
+        string pieceName = splitCommand[1];
+        char direction = splitCommand[2][0];
+        // Find our source piece
+        DataBattlePiece* sourcePiece = nullptr;
+        for (DataBattlePiece* piece : this->pieces) {
+            if (piece->name == splitCommand[1]) {
+                sourcePiece = piece;
+                break;
+            }
+        }
+        // See if that direction is a valid move
+        sf::Vector2i coordToCheck = sf::Vector2<int>(sourcePiece->sectors[0]->coord);  // Copy the head coord
+        bool valid = false;
+        if (direction == 'n') {
+            coordToCheck += sf::Vector2<int>(0, -1);
+        } else if (direction == 's') {
+            coordToCheck += sf::Vector2<int>(0, 1);
+        } else if (direction == 'e') {
+            coordToCheck += sf::Vector2<int>(1, 0);
+        } else if (direction == 'w') {
+            coordToCheck += sf::Vector2<int>(-1, 0);
+        }
+        // See if there's a piece occupying that coord
+        DataBattlePiece* occupyingPiece = nullptr;
+        for (DataBattlePiece* piece : this->pieces) {
+            if ((piece->sectors[0]->coord.x == coordToCheck.x) && (piece->sectors[0]->coord.y == coordToCheck.y)) {
+                occupyingPiece = piece;
+                break;
+            }
+        }
+        if (occupyingPiece != nullptr) {  // If something is occupying that coord
+            return "no";  // Fail
+            // Implement different stuff for credit pickups, flags, etc.
+        }
+        // If we're here, there's nothing occupying the coord we want to move on.
+        if (this->grid[coordToCheck.x][coordToCheck.y]) {  // If the grid square is not empty
+            sourcePiece->move(coordToCheck, false);
+            // Add code for gridwalk, negawalk, gridburn
+        }
+
+        return "ok";
+    }
+    if (startsWith(command, "action")) {
+        // 1: Piece name, 2: Action index, >2: Target coords
+        vector<string> splitCommand = splitString(command, ':');
+        string pieceName = splitCommand[1];
+        int actionIndex = stoi(splitCommand[2]);
+        // Do something, Taipu
+        // Find our source piece
+        DataBattlePiece* sourcePiece = nullptr;
+        for (DataBattlePiece* piece : this->pieces) {
+            if (piece->name == pieceName) {
+                sourcePiece = piece;
+                break;
+            }
+        }
+        ProgramAction* action = sourcePiece->actions[actionIndex];
+        int maxTargets = action->numOfTargets;
+        int i=0;
+        // I think it'll be easy to set up a loop to find valid targets.  How do we do something to them?
+        while ((i < maxTargets) && (i < splitCommand.size() - 3)) {
+            string targetByteCoord = splitCommand[i+3];
+            sf::Vector2i targetCoord = readByteCoord(targetByteCoord);
+            DataBattlePiece* targetPiece = nullptr;
+            for (DataBattlePiece* piece : this->pieces) {
+                // See if the target coord is part of that piece's sectors
+                for (ProgramSector* sector : piece->sectors) {
+                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
+                        targetPiece = piece;
+                        break;
+                    }
+                }
+                if (targetPiece != nullptr) {  // If we found our target
+                    break;
+                }
+            }
+            // Now we need to do something to targetPiece.  Damage, buff/debuff, warp, etc
+            // We SHOULD make these command strings as well, so we can pass them across a networked game
+            cout << "Hit target\n";
+
+            i++;
+        }
+
+        return "ok";
+    }
 
     return "Not implemented";
 }

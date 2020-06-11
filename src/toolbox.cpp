@@ -74,7 +74,7 @@ void renderText(sf::RenderTexture* targetTexture,
     vector<string> words = splitString(text, ' ');
     // Have newlines as their own word
 
-    sf::Text textBox(' ', font, fontSize);
+    sf::Text textBox("", font, fontSize);
     int spaceLength = textBox.getLocalBounds().width;
     int wordLength;
 
@@ -139,4 +139,23 @@ string getByteCoord(sf::Vector2i coord) {
         result.push_back('0' + coord.y);
     }
     return result;
+}
+
+sf::Vector2i readByteCoord(string byteCoord) {
+    sf::Vector2i coord = sf::Vector2<int>(-1, -1);
+    char xChar = byteCoord[0];
+    char yChar = byteCoord[1];
+    if ((xChar - '0' >= 0) && (xChar - '0' <= 9)) {  // This should execute if xChar is numeric
+        coord.x = xChar - '0';
+    } else if ((xChar - 'A' >= 0) && (xChar - 'A') <= 5) {  // This should execute if it's a hex digit
+        coord.x = xChar - 'A';
+    }  // Otherwise, it's invalid input
+
+    if ((yChar - '0' >= 0) && (yChar - '0' <= 9)) {
+        coord.y = yChar - '0';
+    } else if ((yChar - 'A' >= 0) && (yChar - 'A') <= 5) {
+        coord.y = yChar - 'A';
+    }
+
+    return coord;
 }

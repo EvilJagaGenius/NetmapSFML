@@ -1,10 +1,28 @@
 #include "databattleplayer.h"
 
 DataBattlePlayer::DataBattlePlayer() {
-    //ctor
+    this->hudPanel.create(WY, WY);
+
+    this->hudText = sf::Text("", DEFAULT_FONT, 14);
+    this->hudText.setColor(sf::Color::White);
+    this->hudText.setCharacterSize(14);
+
+    this->hudButton.setFillColor(sf::Color::Transparent);
+    this->hudButton.setOutlineColor(sf::Color::White);
+    this->hudButton.setOutlineThickness(2);
 }
 
 DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
+    this->hudPanel.create(WY, WY);
+
+    this->hudText = sf::Text("", DEFAULT_FONT, 14);
+    this->hudText.setColor(sf::Color::White);
+    this->hudText.setCharacterSize(14);
+
+    this->hudButton.setFillColor(sf::Color::Transparent);
+    this->hudButton.setOutlineColor(sf::Color::White);
+    this->hudButton.setOutlineThickness(2);
+
     this->setDB(db);
 }
 
@@ -16,6 +34,7 @@ DataBattlePlayer::~DataBattlePlayer()
 void DataBattlePlayer::render(sf::RenderWindow* window) {
     // Draw the background
     window->draw(this->bkgSprite);
+    //window->clear(sf::Color::White);
     sf::Vector2<int> cursorTile(-1, -1);
 
     // Draw the grid
@@ -251,7 +270,35 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         this->gridSprite.setPosition(sf::Vector2<float>(cursorTile.x*TILE_SIZE + cursorTile.x*GAP_SIZE, cursorTile.y*TILE_SIZE + cursorTile.y*GAP_SIZE));
         window->draw(gridSprite);
     }
+
+    // Draw the HUD panel
+    sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
+
+    this->hudPanel.clear(sf::Color::Transparent);
+    Player* localPlayer = this->db->players[localPlayerIndex];
+    int i = 0;
+    for (pair<string, int> p : localPlayer->programs) {
+        //cout << p.first << '\n';
+        this->hudText.setString(p.first);
+        this->hudText.setPosition(0, i*14);
+        this->hudText.setColor(sf::Color::White);
+        //window->draw(this->hudText);
+        this->hudPanel.draw(this->hudText);
+        //renderText(&this->hudPanel, p.first, sf::Rect<int>(0,0,100,100), this->hudFont, 14, sf::Color::Black);
+
+        //this->hudPanel.draw(rect);
+        //window->draw(rect);
+        i++;
+    }
+    this->hudPanel.display();
+    sf::Sprite sprite(this->hudPanel.getTexture());
+    sprite.setPosition(WY, 0);
+    //this->hudSprite.setTexture(this->hudPanel.getTexture());
+    //this->hudSprite.setTextureRect(sf::Rect<int>(100, 100, 100, 100));
+    window->draw(sprite);
 }
+
+
 
 string DataBattlePlayer::play(sf::RenderWindow* window) {
     cout << "Called DataBattlePlayer::play()\n";

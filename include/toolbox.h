@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <ctype.h>
 #include <SFML/Graphics.hpp>
 //#include <Thor/Animations.hpp>
 
@@ -34,6 +35,7 @@ void renderText(sf::RenderTexture* targetTexture,
                        int fontSize,
                        sf::Color color);
 string getByteCoord(sf::Vector2i coord);
+sf::Vector2i readByteCoord(string byteCoord);
 vector<sf::Vector2i> getRadius(int radius, sf::Vector2i origin, bool includeOrigin=false);
 
 
