@@ -42,6 +42,7 @@ class DataBattle
         sf::Vector2i programHead;
         vector<DataBattlePiece*> pieces;
 
+
         // Functions
         DataBattle();
         DataBattle(string filename);
@@ -50,7 +51,7 @@ class DataBattle
         void addPlayer(Player* player);
         void switchTurns();
         void switchPrograms();
-        string takeCommand(string command);
+        string takeCommand(string command, int playerIndex);
         string lookAt(sf::Vector2i coord);
         string lookAt(int x, int y);
         int checkForVictory();

@@ -19,9 +19,12 @@ class DataBattlePlayer : public Netmap_Playable
         sf::RenderTexture hudPanel;
         sf::Text hudText;
         sf::RectangleShape hudButton;
+        //sf::IntRect hudButtonRect;
         vector<sf::Vector2i> moveArea;
         vector<sf::Vector2i> aimArea;
         int localPlayerIndex;
+        DataBattlePiece* selectedUpload;  // Maybe just change this to a general focus
+        unordered_map<string, string> uploadMap;
 
         DataBattlePlayer();
         DataBattlePlayer(DataBattle* db);

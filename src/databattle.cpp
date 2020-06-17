@@ -8,6 +8,7 @@ DataBattle::DataBattle(string filename) {
     this->filename = filename;
     this->programStartingState = nullptr;
     this->pieces.clear();
+    this->currentPlayerIndex = -1;
 
     for (int i=0; i<16; i++) {
         for (int j=0; j<16; j++) {
@@ -164,15 +165,15 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
     }
 }
 
-string DataBattle::takeCommand(string command) {
+string DataBattle::takeCommand(string command, int playerIndex) {
     if (startsWith(command, "upload")) {
         vector<string> splitCommand = splitString(command, ':');
-        // 1: Byte coord, 2: Player, 3: Program type, 4: Name
+        // 1: Byte coord, 2: Program type, 3: Name
         sf::Vector2i coord = readByteCoord(splitCommand[1]);
         // Do some checking on the coord
 
-        int playerIndex = stoi(splitCommand[2]);
-        string programType = splitCommand[3];
+        //int playerIndex = stoi(splitCommand[]);
+        string programType = splitCommand[2];
         Player* player = players[playerIndex];
 
         for (pair<string, int> p : player->programs) {
@@ -188,14 +189,13 @@ string DataBattle::takeCommand(string command) {
         newProgram->move(coord, true);
         newProgram->owner = playerIndex;
         newProgram->controller = playerIndex;
-        if (splitCommand[4] == "NULL") {  // We can add more checks to piece names
+        if (splitCommand[3] == "NULL") {  // We can add more checks to piece names
             newProgram->name = "piece" + to_string(this->pieces.size());
         }
         this->pieces.push_back(newProgram);
 
         return "ok";
-    }
-    if (startsWith(command, "move")) {
+    } else if (startsWith(command, "move")) {
         // Do something, Taipu
         // 1: Piece name, 2: direction
         vector<string> splitCommand = splitString(command, ':');
@@ -240,8 +240,7 @@ string DataBattle::takeCommand(string command) {
         }
 
         return "ok";
-    }
-    if (startsWith(command, "action")) {
+    } else if (startsWith(command, "action")) {
         // 1: Piece name, 2: Action index, >2: Target coords
         vector<string> splitCommand = splitString(command, ':');
         string pieceName = splitCommand[1];
@@ -283,6 +282,24 @@ string DataBattle::takeCommand(string command) {
         }
 
         return "ok";
+    } else if (startsWith(command, "DBI")) {
+        if (this->currentPlayerIndex == -1) {
+            this->players[playerIndex]->readyup();
+            // Check to see if all players are ready; if so, start
+            bool allReady = true;
+            for (Player* player : this->players) {
+                if (!player.ready) {
+                    allReady = false;
+                    break;
+                }
+            }
+            if (allReady) {
+                // Start
+                this->switchTurns();
+                return "Starting"
+            }
+            return "ok";
+        }
     }
 
     return "Not implemented";

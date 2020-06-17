@@ -16,11 +16,13 @@ class Player
         // Variables
         unordered_map<string, int> programs;
         int credits;
+        bool ready;
 
         // Functions
         Player();
         virtual ~Player();
         void giveStartingPrograms();
+        void readyup();
 
     protected:
 

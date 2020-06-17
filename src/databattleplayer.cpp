@@ -3,9 +3,9 @@
 DataBattlePlayer::DataBattlePlayer() {
     this->hudPanel.create(WY, WY);
 
-    this->hudText = sf::Text("", DEFAULT_FONT, 14);
+    this->hudText = sf::Text("", DEFAULT_FONT, 12);
     this->hudText.setColor(sf::Color::White);
-    this->hudText.setCharacterSize(14);
+    //this->hudText.setCharacterSize(14);
 
     this->hudButton.setFillColor(sf::Color::Transparent);
     this->hudButton.setOutlineColor(sf::Color::White);
@@ -15,9 +15,9 @@ DataBattlePlayer::DataBattlePlayer() {
 DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
     this->hudPanel.create(WY, WY);
 
-    this->hudText = sf::Text("", DEFAULT_FONT, 14);
+    this->hudText = sf::Text("", DEFAULT_FONT, 12);
     this->hudText.setColor(sf::Color::White);
-    this->hudText.setCharacterSize(14);
+    //this->hudText.setCharacterSize(14);
 
     this->hudButton.setFillColor(sf::Color::Transparent);
     this->hudButton.setOutlineColor(sf::Color::White);
@@ -322,6 +322,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
     bool clicked;
     sf::Vector2i tileCoord(-1, -1);
+    sf::IntRect hudButtonRect = sf::Rect<int>(WY, 0, 100, 14);
 
     while (window->isOpen()) {
         window->clear();
@@ -364,6 +365,73 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                 }
             }
         }
+
+        if (this->db->currentPlayerIndex == -1) {  // Upload phase
+            // Do something, Taipu
+            if (clicked) {
+                if ((tileCoord.x != -1) && (tileCoord.y != -1)) {  // See if we clicked on a tile
+                    cout << "Valid coord\n";
+                    // See if there's an upload zone there, set it as our selected upload
+                    this->selectedUpload = nullptr;
+                    for (DataBattlePiece* piece : this->db->pieces) {
+                        if (piece->pieceType == 'u') {
+                            if ((piece->sectors[0]->coord.x == tileCoord.x) && (piece->sectors[0]->coord.y == tileCoord.y)) {
+                                this->selectedUpload = piece;
+                                cout << "Clicked an upload zone\n";
+                                break;
+                            }
+                        }
+                    }
+                } else if (mousePos.x >= WY) {  // We clicked in the HUD bar
+                    // See if we clicked on one of our programs in the HUD bar
+                    DataBattlePiece* selectedProgram = nullptr;
+                    int i=0;
+                    for (pair<string, int> p : this->db->players[localPlayerIndex]->programs) {
+                        hudButtonRect.top = i*14;
+                        if (hudButtonRect.contains(this->mousePos)) {
+                            cout << "Clicked " << p.first << '\n';
+                            if (selectedUpload != nullptr) {
+                                // Do something, Taipu
+                                // Put that program in uploadMap, so we upload it on hitting DBI
+                                foundUpload = false;
+                                for (pair<string, string> p2 : this->uploadMap) {
+                                    if (p2.first == getByteCoord(selectedUpload->sectors[0]->coord)) {
+                                        foundUpload = true;
+                                        p2.second = p.first;
+                                        break;
+                                    }
+                                }
+                                if (!foundUpload) {
+                                    this->uploadMap.emplace(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
+                                }
+                                // Note: add code to render() to render pieces in the upload map
+                            }
+                            break;
+                        }
+                        i++;
+                    }
+
+                    // We need a DBI button
+                    /*
+                    // If pressed DBI:
+                    // Send our upload commands
+                    for (pair<string, string> p : this->uploadMap) {
+                        this->db->takeCommand(p.first + ":" + p.second + ":NULL", this->localPlayerIndex);
+                    }
+                    // Send ready signal
+                    this->db->takeCommand("DBI", this->localPlayerIndex);
+                    */
+                }
+            }
+        }
+
+        if (this->db->currentPlayerIndex == this->localPlayerIndex) {  // If it's our turn
+            // Do something, Taipu
+            if (clicked) {
+                cout << "Player clicked\n";
+            }
+        }
+
 
         /*// Player's turn
         if (this->phase == 'p'  && this->currentProgram != nullptr) {

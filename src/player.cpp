@@ -21,3 +21,7 @@ void Player::giveStartingPrograms() {
                           {"Bug", 10},
                           {"Watchman", 10}});
 }
+
+void Player::readyup() {
+    this->ready = true;
+}
