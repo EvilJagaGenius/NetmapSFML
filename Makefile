@@ -9,7 +9,7 @@ OUT	= NetmapSFML
 endif
 
 CC	 = g++
-FLAGS	 = -I./include -g -c -Wall
+FLAGS	 = -I./include -I./sfml/include -g -c -Wall -std=c++11
 LFLAGS	 = 
 
 all: $(OBJS)
