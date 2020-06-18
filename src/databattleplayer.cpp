@@ -393,7 +393,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                             if (selectedUpload != nullptr) {
                                 // Do something, Taipu
                                 // Put that program in uploadMap, so we upload it on hitting DBI
-                                foundUpload = false;
+                                bool foundUpload = false;
                                 for (pair<string, string> p2 : this->uploadMap) {
                                     if (p2.first == getByteCoord(selectedUpload->sectors[0]->coord)) {
                                         foundUpload = true;
