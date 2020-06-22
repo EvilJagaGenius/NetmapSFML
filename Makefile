@@ -7,20 +7,36 @@ SRC	 = src
 
 ifeq ($(OS),Windows_NT)
 OUT	= $(BIN)/NetmapSFML.exe
+OUT_DEBUG	 = $(BIN)/NetmapSFML_Debug.exe
 else
 OUT	= $(BIN)/NetmapSFML
+OUT_DEBUG	 = $(BIN)/NetmapSFML_Debug
 endif
 
-CC	 = C:/TDM-GCC-32/bin/g++
-FLAGS	 = -I./include -I./sfml/include -g -c -Wall -std=c++11
-LFLAGS	 = 
-LIBS	 = -L./sfml/lib -lsfml-system -lsfml-audio -lsfml-graphics -lsfml-network -lsfml-window
-#LIBS	 = -L./sfml/lib -lsfml-system-s -lsfml-audio-s -lsfml-graphics-s -lsfml-network-s -lsfml-window-s -lopengl32 -lfreetype -logg -lvorbis -lvorbisenc -lvorbisfile -lwinmm -lgdi32 -lws2_32
-#-I./sfml/include -L./sfml/lib -L./sfml/extlibs/libs-mingw/x86
+CC	 = g++
+FLAGS	 = -g -c -Wall -std=c++11 -DSFML_STATIC -Iinclude -Isfml/include
+WIN32_EXAMPLE_FLAGS	 = -g -c -Wall -std=c++11 -DSFML_STATIC -Isfml/include
+LFLAGS	 = -DSFML_STATIC -std=c++11
+LIBS_INCLUDE	 = -Lsfml/lib -Lsfml/extlibs/libs-mingw/x86
+LIBS	 = -lsfml-audio-s -lsfml-graphics-s -lsfml-window-s -lsfml-network-s -lsfml-system-s -lwinmm -lopengl32 -lgdi32 -lfreetype -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lws2_32
+LIBS_DEBUG	 = -lsfml-audio-s-d -lsfml-graphics-s-d -lsfml-window-s-d -lsfml-network-s-d -lsfml-system-s-d -lwinmm -lopengl32 -lgdi32 -lfreetype -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lws2_32
+WIN32_EXAMPLE_LIBS	 = -Lsfml/lib -Lsfml/extlibs/libs-mingw/x86 -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lwinmm -lgdi32 -lfreetype 
 
+# Release version (default): 
 all: $(OBJS)
-	$(CC) -std=c++11 $(OBJS) -o $(OUT) $(LIBS) $(LFLAGS)
-# -DSFML_STATIC
+	$(CC) $(LFLAGS) $(OBJS) -o $(OUT) $(LIBS_INCLUDE) $(LIBS)
+
+#Debug version: 
+Debug: $(OBJS)
+	$(CC) $(LFLAGS) $(OBJS) -o $(OUT_DEBUG) $(LIBS_INCLUDE) $(LIBS)
+
+#An example program: 
+Win32: Win32.o
+	$(CC) $(LFLAGS) Win32.o -o sfml/examples/win32/Win32.exe $(LIBS_INCLUDE) $(LIBS)  
+
+Win32.o: sfml/examples/win32/Win32.cpp
+	$(CC) $(WIN32_EXAMPLE_FLAGS) sfml/examples/win32/Win32.cpp
+
 
 animation.o: $(SRC)/animation.cpp
 	$(CC) $(FLAGS) $(SRC)/animation.cpp 
