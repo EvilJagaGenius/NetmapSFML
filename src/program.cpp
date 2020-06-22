@@ -149,7 +149,7 @@ void Program::load() {
         } else if (startsWith(line, "maxSpeed")) {
             this->maxSpeed = stoi(splitLine[1]);
         } else if (startsWith(line, "action")) {
-            this->actions.push_back(ACTION_DB[splitLine[1]]);
+			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
         } else if (startsWith(line, "maxSize")) {

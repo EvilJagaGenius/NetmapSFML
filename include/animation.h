@@ -13,7 +13,7 @@ class Animation
 {
     public:
         vector<float> increments;
-        vector<sf::Rect<int>> rects;
+        vector<sf::Rect<int> > rects;
         double totalTime;
 
         Animation();

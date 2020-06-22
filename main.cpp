@@ -18,6 +18,8 @@
 
 int main()
 {
+	cout << "Start.\n";
+	
     sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
     window.setFramerateLimit(60);
 

@@ -288,7 +288,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             // Check to see if all players are ready; if so, start
             bool allReady = true;
             for (Player* player : this->players) {
-                if (!player.ready) {
+                if (!player->ready) {
                     allReady = false;
                     break;
                 }
@@ -296,7 +296,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             if (allReady) {
                 // Start
                 this->switchTurns();
-                return "Starting"
+                return "Starting";
             }
             return "ok";
         }
