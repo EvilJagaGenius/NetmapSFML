@@ -5,3 +5,4 @@ cmake -G"MinGW Makefiles" -S./ -DBUILD_SHARED_LIBS=FALSE -DSFML_USE_STATIC_STD_L
 mingw32-make
 cd ..
 mingw32-make
+copy /Y .\sfml\extlibs\bin\x86\openal32.dll .\

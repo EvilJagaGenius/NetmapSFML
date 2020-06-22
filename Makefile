@@ -28,7 +28,7 @@ all: $(OBJS)
 
 #Debug version: 
 Debug: $(OBJS)
-	$(CC) $(LFLAGS) $(OBJS) -o $(OUT_DEBUG) $(LIBS_INCLUDE) $(LIBS)
+	$(CC) $(LFLAGS) $(OBJS) -o $(OUT_DEBUG) $(LIBS_INCLUDE) $(LIBS_DEBUG)
 
 #An example program: 
 Win32: Win32.o
