@@ -129,12 +129,12 @@ vector<sf::Vector2i> getRadius(int radius, sf::Vector2i origin, bool includeOrig
 string getByteCoord(sf::Vector2i coord) {
     string result = "";
     if (coord.x > 9) {
-        result.push_back('A' + 10 - coord.x);
+        result.push_back('A' + coord.x - 10);
     } else {
         result.push_back('0' + coord.x);
     }
     if (coord.y > 9) {
-        result.push_back('A' + 10 - coord.y);
+        result.push_back('A' + coord.y - 10);
     } else {
         result.push_back('0' + coord.y);
     }
@@ -148,13 +148,13 @@ sf::Vector2i readByteCoord(string byteCoord) {
     if ((xChar - '0' >= 0) && (xChar - '0' <= 9)) {  // This should execute if xChar is numeric
         coord.x = xChar - '0';
     } else if ((xChar - 'A' >= 0) && (xChar - 'A') <= 5) {  // This should execute if it's a hex digit
-        coord.x = xChar - 'A';
+        coord.x = 10 + xChar - 'A';
     }  // Otherwise, it's invalid input
 
     if ((yChar - '0' >= 0) && (yChar - '0' <= 9)) {
         coord.y = yChar - '0';
     } else if ((yChar - 'A' >= 0) && (yChar - 'A') <= 5) {
-        coord.y = yChar - 'A';
+        coord.y = 10 + yChar - 'A';
     }
 
     return coord;

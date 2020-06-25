@@ -17,6 +17,7 @@ Program::Program(string programType) {
 
 Program::Program(Program* original) {  // Copy constructor
     cout << "Using copy constructor\n";
+    this->pieceType = original->pieceType;
     this->programType = original->programType;
     this->name = original->name;
     this->screenName = original->screenName;

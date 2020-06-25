@@ -41,6 +41,7 @@ class DataBattle
         DataBattlePiece* nextProgram;
         sf::Vector2i programHead;
         vector<DataBattlePiece*> pieces;
+        int pieceCounter;
 
 
         // Functions
@@ -51,6 +52,7 @@ class DataBattle
         void addPlayer(Player* player);
         void switchTurns();
         void switchPrograms();
+        void addPiece(DataBattlePiece* newPiece);
         string takeCommand(string command, int playerIndex);
         string lookAt(sf::Vector2i coord);
         string lookAt(int x, int y);

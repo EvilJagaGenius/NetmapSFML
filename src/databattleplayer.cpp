@@ -196,6 +196,20 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         }
     }*/
 
+    // Upload phase: draw pieces in uploadMap
+    if (this->db->currentPlayerIndex == -1) {
+        for (pair<string, string> p : this->uploadMap) {
+            //cout << "Drawing " << p.first << ' ' << p.second << '\n';
+            // Do something, Taipu
+            sf::Vector2i tileCoord = readByteCoord(p.first);
+            DataBattlePiece* piece = PROGRAM_DB[p.second];
+            // Draw the head sprite for that piece at that tile
+            this->programSprite.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->programSprite.setPosition(tileCoord.x * (TILE_SIZE + GAP_SIZE), tileCoord.y * (TILE_SIZE + GAP_SIZE));
+            window->draw(this->programSprite);
+        }
+    }
+
     // Draw pieces
     for (int i=0; i<this->db->pieces.size(); i++) {
         //cout << "Looping through pieces\n";
@@ -272,7 +286,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     }
 
     // Draw the HUD panel
-    sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
+    //sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
 
     this->hudPanel.clear(sf::Color::Transparent);
     Player* localPlayer = this->db->players[localPlayerIndex];
@@ -290,6 +304,10 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         //window->draw(rect);
         i++;
     }
+    this->hudText.setString("DATABATTLE INITIALIZE");
+    this->hudText.setPosition(0, WY-14);
+    this->hudPanel.draw(this->hudText);
+
     this->hudPanel.display();
     sf::Sprite sprite(this->hudPanel.getTexture());
     sprite.setPosition(WY, 0);
@@ -324,19 +342,27 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     sf::Vector2i tileCoord(-1, -1);
     sf::IntRect hudButtonRect = sf::Rect<int>(WY, 0, 100, 14);
 
+    bool pressedUp, pressedDown, pressedLeft, pressedRight, pressedN;
+
     while (window->isOpen()) {
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
 
+        pressedUp = false;
+        pressedDown = false;
+        pressedLeft = false;
+        pressedRight = false;
+        pressedN = false;
+
         if (mousePos.x <= WY) {
             if ((mousePos.x % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE) && (mousePos.y % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE)) {  // If on a valid coord
                 tileCoord.x = mousePos.x / (TILE_SIZE + GAP_SIZE);
                 tileCoord.y = mousePos.y / (TILE_SIZE + GAP_SIZE);
-            } else {
-                tileCoord.x = -1;
-                tileCoord.y = -1;
             }
+        } else {
+            tileCoord.x = -1;
+            tileCoord.y = -1;
         }
 
         // FPS measurements
@@ -350,14 +376,26 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                 window->close();
 
             if (event.type == sf::Event::KeyPressed) {
-                cout << fps << '\n';
-                //cout << "Victory status: " << this->checkForVictory() << '\n';
-                cout << "Current program: " << this->db->currentProgram->name << '\n';
-                for (ProgramSector* s : this->db->currentProgram->sectors) {
-                    cout << "Sector: " << getByteCoord(s->coord) << '\n';
-                    for (ProgramSector* l : s->links) {
-                        cout << "Link: " << getByteCoord(l->coord) << '\n';
+                if (event.key.code == sf::Keyboard::I) {
+                    cout << fps << '\n';
+                    //cout << "Victory status: " << this->checkForVictory() << '\n';
+                    cout << "Current program: " << this->db->currentProgram->name << '\n';
+                    for (ProgramSector* s : this->db->currentProgram->sectors) {
+                        cout << "Sector: " << getByteCoord(s->coord) << '\n';
+                        for (ProgramSector* l : s->links) {
+                            cout << "Link: " << getByteCoord(l->coord) << '\n';
+                        }
                     }
+                } else if (event.key.code == sf::Keyboard::Up) {
+                    pressedUp = true;
+                } else if (event.key.code == sf::Keyboard::Down) {
+                    pressedDown = true;
+                } else if (event.key.code == sf::Keyboard::Left) {
+                    pressedLeft = true;
+                } else if (event.key.code == sf::Keyboard::Right) {
+                    pressedRight = true;
+                } else if (event.key.code == sf::Keyboard::N) {  // No action
+                    pressedN = true;
                 }
             } else if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
@@ -370,7 +408,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             // Do something, Taipu
             if (clicked) {
                 if ((tileCoord.x != -1) && (tileCoord.y != -1)) {  // See if we clicked on a tile
-                    cout << "Valid coord\n";
+                    cout << "Valid coord: " << getByteCoord(tileCoord) << '\n';
                     // See if there's an upload zone there, set it as our selected upload
                     this->selectedUpload = nullptr;
                     for (DataBattlePiece* piece : this->db->pieces) {
@@ -391,17 +429,25 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                         if (hudButtonRect.contains(this->mousePos)) {
                             cout << "Clicked " << p.first << '\n';
                             if (selectedUpload != nullptr) {
+                                cout << "Adding piece to upload map\n";
                                 // Do something, Taipu
-                                // Put that program in uploadMap, so we upload it on hitting DBI
+                                // Put that piece in uploadMap, so we upload it on hitting DBI
                                 bool foundUpload = false;
+                                // See if we already have a piece ready to upload at that coord
                                 for (pair<string, string> p2 : this->uploadMap) {
-                                    if (p2.first == getByteCoord(selectedUpload->sectors[0]->coord)) {
+                                    if (p2.first == getByteCoord(selectedUpload->sectors[0]->coord)) {  // If so
+                                        cout << "Replacing piece\n";
+                                        // Replace it
                                         foundUpload = true;
-                                        p2.second = p.first;
+                                        //this->uploadMap[p2.first] = "Hack";
+                                        this->uploadMap[p2.first] = p.first;
+                                        cout << this->uploadMap[p2.first] << '\n';
                                         break;
                                     }
                                 }
-                                if (!foundUpload) {
+                                if (!foundUpload) {  // Otherwise
+                                    cout << "Creating spot in upload map\n";
+                                    // Create an entry for that spot in uploadMap
                                     this->uploadMap.emplace(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
                                 }
                                 // Note: add code to render() to render pieces in the upload map
@@ -409,18 +455,18 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                             break;
                         }
                         i++;
-                    }
 
-                    // We need a DBI button
-                    /*
-                    // If pressed DBI:
-                    // Send our upload commands
-                    for (pair<string, string> p : this->uploadMap) {
-                        this->db->takeCommand(p.first + ":" + p.second + ":NULL", this->localPlayerIndex);
                     }
-                    // Send ready signal
-                    this->db->takeCommand("DBI", this->localPlayerIndex);
-                    */
+                    // DataBattle Initialize
+                    if (mousePos.y >= WY - 14) {  // If clicked DBI
+                        cout << "Clicked DBI\n";
+                        // Send our upload commands
+                        for (pair<string, string> p : this->uploadMap) {
+                            this->db->takeCommand("upload:" + p.first + ":" + p.second + ":NULL", this->localPlayerIndex);
+                        }
+                        // Send ready signal
+                        this->db->takeCommand("DBI", this->localPlayerIndex);
+                    }
                 }
             }
         }
@@ -429,6 +475,17 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             // Do something, Taipu
             if (clicked) {
                 cout << "Player clicked\n";
+            }
+            if (pressedUp) {
+                this->db->takeCommand("move:" + this->db->currentProgram->name + ":n", this->localPlayerIndex);
+            } else if (pressedDown) {
+                this->db->takeCommand("move:" + this->db->currentProgram->name + ":s", this->localPlayerIndex);
+            } else if (pressedLeft) {
+                this->db->takeCommand("move:" + this->db->currentProgram->name + ":w", this->localPlayerIndex);
+            } else if (pressedRight) {
+                this->db->takeCommand("move:" + this->db->currentProgram->name + ":e", this->localPlayerIndex);
+            } else if (pressedN) {
+                this->db->takeCommand("noaction", this->localPlayerIndex);
             }
         }
 

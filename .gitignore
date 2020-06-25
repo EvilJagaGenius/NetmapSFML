@@ -2,6 +2,8 @@ bin/Release
 obj
 NetmapSFML.layout
 NetmapSFML.depend
+NetmapSFML.exe
+*.dll
 SFML_Libraries
 bin/Debug/*.dll
 Data/Music

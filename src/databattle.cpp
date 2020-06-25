@@ -5,6 +5,7 @@ DataBattle::DataBattle() {
 }
 
 DataBattle::DataBattle(string filename) {
+    this->pieceCounter = 0;
     this->filename = filename;
     this->programStartingState = nullptr;
     this->pieces.clear();
@@ -76,7 +77,7 @@ void DataBattle::load() {
                     cout << "Adding upload zone\n";
                     vector<string> splitLine = splitString(line, ':');
                     UploadZone* newUpload = new UploadZone(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3]));
-                    this->pieces.push_back(newUpload);
+                    this->addPiece(newUpload);
                 }
 
                 if (startsWith(line, "addProgram")) {
@@ -87,7 +88,7 @@ void DataBattle::load() {
                     newProgram->move(sf::Vector2<int>(stoi(splitLine[2]), stoi(splitLine[3])), true);
                     newProgram->owner = stoi(splitLine[4]);
                     newProgram->name = splitLine[5];
-                    this->pieces.push_back(newProgram);
+                    this->addPiece(newProgram);
                 }
 
                 // We need a better way to search for pieces before reimplementing this
@@ -115,12 +116,47 @@ void DataBattle::addPlayer(Player* player) {
 void DataBattle::switchTurns() {
     // If necessary, insert code to delete dead pieces
     // We should add a victory check before going into the loop
+    cout << "Switching turns\n";
+
+    if (this->currentPlayerIndex == -1) {  // If we're starting from the upload phase
+        // Delete all upload zones
+        cout << "Deleting upload zones\n";
+
+        bool killedAllUploads = false;
+        DataBattlePiece* uploadZone = nullptr;
+        int uploadIndex = -1;
+        while (killedAllUploads == false) {
+            killedAllUploads = true;
+            uploadZone = nullptr;
+            uploadIndex = -1;
+            for (int i=0; i<this->pieces.size(); i++) {
+                if (this->pieces[i]->pieceType == 'u') {
+                    uploadZone = this->pieces[i];
+                    uploadIndex = i;
+                    killedAllUploads = false;
+                    break;
+                }
+            }
+            if (uploadZone != nullptr) {
+                this->pieces.erase(this->pieces.begin() + uploadIndex);  // Remove from pieces
+                delete uploadZone;  // Deallocate memory
+            }
+        }
+        cout << "Upload deletion complete\n";
+    }
+
+    cout << "Searching for first program to use\n";
     bool foundFirstProgram = false;
     while (!foundFirstProgram) {  // This could go infinite
-        this->currentPlayerIndex = ++this->currentPlayerIndex % this->players.size();
+        this->currentPlayerIndex++;
+        this->currentPlayerIndex = this->currentPlayerIndex % this->players.size();
         // Find a first program
         for (int i=0; i<this->pieces.size(); i++) {
+            // Loop through all the pieces, prep all pieces controlled by the player, select one to be first
             DataBattlePiece* piece = this->pieces[i];
+            cout << "Type: " << piece->pieceType << '\n';
+            cout << "Name: " << piece->name << '\n';
+            cout << "Controller: " << piece->controller << '\n';
             if (piece->controller == currentPlayerIndex) {
                 piece->prepForTurn();
                 if (piece->pieceType == 'p') {  // Or avatar or user, etc
@@ -139,8 +175,10 @@ void DataBattle::switchTurns() {
 
 void DataBattle::switchPrograms() {  // Find the next available program and switch to it
     cout << "Switching programs\n";
-    this->currentProgram->tickStatuses();  // Maybe we want to call this someplace else
-
+    if (this->currentProgram != nullptr) {
+        this->currentProgram->tickStatuses();  // Maybe we want to call this someplace else
+        cout << "Statuses ticked\n";
+    }
     if (this->nextProgram == nullptr) {
         this->switchTurns();
     } else {
@@ -151,7 +189,7 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
         for (int i=0; i<this->pieces.size(); i++) {
             int index = i % this->pieces.size();
             DataBattlePiece* piece = this->pieces[index];
-            if (piece->pieceType == 'p') {  // Or avatar or user, etc
+            if (piece->pieceType == 'p') {
                 // Set nextProgram to that, maybe add a 'next' marker to it
                 this->nextProgram = piece;
                 this->nextProgramIndex = index;
@@ -166,35 +204,58 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
 }
 
 string DataBattle::takeCommand(string command, int playerIndex) {
+    cout << "Command: " << command << '\n';
     if (startsWith(command, "upload")) {
         vector<string> splitCommand = splitString(command, ':');
         // 1: Byte coord, 2: Program type, 3: Name
-        sf::Vector2i coord = readByteCoord(splitCommand[1]);
-        // Do some checking on the coord
-
-        //int playerIndex = stoi(splitCommand[]);
-        string programType = splitCommand[2];
-        Player* player = players[playerIndex];
-
-        for (pair<string, int> p : player->programs) {
-            if (programType == p.first) {  // If the player has that program in their inventory
-                if (player->programs[programType] > 0) {  // If they have at least 1
-                    player->programs[programType]--;  // Remove 1 from their inventory
+        sf::Vector2i targetCoord = readByteCoord(splitCommand[1]);
+        // Do some checking on the coord, make sure there's actually an upload there
+        DataBattlePiece* uploadZone = nullptr;
+        int uploadIndex = -1;
+        for (int i=0; i<this->pieces.size(); i++) {
+            DataBattlePiece* piece = this->pieces[i];
+            sf::Vector2i coord = piece->sectors[0]->coord;
+            if (piece->pieceType == 'u') {
+                if ((coord.x == targetCoord.x) && (coord.y == targetCoord.y)) {
+                    // Should also check if the player in question controls that upload
+                    uploadZone = piece;
+                    uploadIndex = i;
+                    break;
                 }
             }
         }
 
-        // Add the program
-        Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
-        newProgram->move(coord, true);
-        newProgram->owner = playerIndex;
-        newProgram->controller = playerIndex;
-        if (splitCommand[3] == "NULL") {  // We can add more checks to piece names
-            newProgram->name = "piece" + to_string(this->pieces.size());
-        }
-        this->pieces.push_back(newProgram);
+        if (uploadZone != nullptr) {  // If we found a valid upload zone
+            string programType = splitCommand[2];
+            Player* player = players[playerIndex];
 
-        return "ok";
+            for (pair<string, int> p : player->programs) {
+                if (programType == p.first) {  // If the player has that program in their inventory
+                    if (player->programs[programType] > 0) {  // If they have at least 1
+                        player->programs[programType]--;  // Remove 1 from their inventory
+                    }
+                }
+            }
+
+            // Add the program
+            Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
+            newProgram->move(targetCoord, true);
+            newProgram->owner = playerIndex;
+            newProgram->controller = playerIndex;
+            if (splitCommand[3] == "NULL") {  // We can add more checks to piece names
+                newProgram->name = "piece" + to_string(this->pieceCounter);
+            }
+            this->addPiece(newProgram);
+
+            // Remove the upload zone
+            this->pieces.erase(this->pieces.begin() + uploadIndex); // Remove from pieces
+            delete uploadZone;  // Deallocate the memory
+
+            return "ok";
+        } else {
+            return "upload failed";
+        }
+
     } else if (startsWith(command, "move")) {
         // Do something, Taipu
         // 1: Piece name, 2: direction
@@ -282,21 +343,35 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         }
 
         return "ok";
+
+    } else if (startsWith(command, "noaction")) {
+        if (startsWith(command, "noaction:")) {  // If the user specified a particular piece
+            return "Not implemented";
+        } else {  // No piece specified, NA the current piece
+            this->currentProgram->noAction();
+            this->switchPrograms();
+            return "ok";
+        }
     } else if (startsWith(command, "DBI")) {
         if (this->currentPlayerIndex == -1) {
+            cout << "Checking player readiness\n";
             this->players[playerIndex]->readyup();
             // Check to see if all players are ready; if so, start
             bool allReady = true;
-            for (Player* player : this->players) {
+            for (int i=0; i<this->players.size(); i++) {
+                Player* player = this->players[i];
                 if (!player->ready) {
+                    cout << "Player " << i << " not ready\n";
                     allReady = false;
                     break;
+                } else {
+                    cout << "Player " << i << " ready\n";
                 }
             }
             if (allReady) {
                 // Start
+                cout << "Starting\n";
                 this->switchTurns();
-                return "Starting";
             }
             return "ok";
         }
@@ -387,4 +462,9 @@ void DataBattle::flipSector(sf::Vector2i coord) {
     } else {
         this->grid[coord.x][coord.y] = 0;
     }
+}
+
+void DataBattle::addPiece(DataBattlePiece* newPiece) {
+    this->pieces.push_back(newPiece);
+    this->pieceCounter++;
 }
