@@ -265,42 +265,43 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         // Find our source piece
         DataBattlePiece* sourcePiece = nullptr;
         for (DataBattlePiece* piece : this->pieces) {
-            if (piece->name == splitCommand[1]) {
+            if (piece->name == pieceName) {
                 sourcePiece = piece;
                 break;
             }
         }
-        // See if that direction is a valid move
-        sf::Vector2i coordToCheck = sf::Vector2<int>(sourcePiece->sectors[0]->coord);  // Copy the head coord
-        bool valid = false;
-        if (direction == 'n') {
-            coordToCheck += sf::Vector2<int>(0, -1);
-        } else if (direction == 's') {
-            coordToCheck += sf::Vector2<int>(0, 1);
-        } else if (direction == 'e') {
-            coordToCheck += sf::Vector2<int>(1, 0);
-        } else if (direction == 'w') {
-            coordToCheck += sf::Vector2<int>(-1, 0);
-        }
-        // See if there's a piece occupying that coord
-        DataBattlePiece* occupyingPiece = nullptr;
-        for (DataBattlePiece* piece : this->pieces) {
-            if ((piece->sectors[0]->coord.x == coordToCheck.x) && (piece->sectors[0]->coord.y == coordToCheck.y)) {
-                occupyingPiece = piece;
-                break;
+        if (sourcePiece->currentMove < sourcePiece->speed) {  // If we haven't moved all we can this turn
+            // See if that direction is a valid move
+            sf::Vector2i coordToCheck = sf::Vector2<int>(sourcePiece->sectors[0]->coord);  // Copy the head coord
+            bool valid = false;
+            if (direction == 'n') {
+                coordToCheck += sf::Vector2<int>(0, -1);
+            } else if (direction == 's') {
+                coordToCheck += sf::Vector2<int>(0, 1);
+            } else if (direction == 'e') {
+                coordToCheck += sf::Vector2<int>(1, 0);
+            } else if (direction == 'w') {
+                coordToCheck += sf::Vector2<int>(-1, 0);
             }
+            // See if there's a piece occupying that coord
+            DataBattlePiece* occupyingPiece = nullptr;
+            for (DataBattlePiece* piece : this->pieces) {
+                if ((piece->sectors[0]->coord.x == coordToCheck.x) && (piece->sectors[0]->coord.y == coordToCheck.y)) {
+                    occupyingPiece = piece;
+                    break;
+                }
+            }
+            if (occupyingPiece != nullptr) {  // If something is occupying that coord
+                return "no";  // Fail
+                // Implement different stuff for credit pickups, flags, etc.
+            }
+            // If we're here, there's nothing occupying the coord we want to move on.
+            if (this->grid[coordToCheck.x][coordToCheck.y]) {  // If the grid square is not empty
+                sourcePiece->move(coordToCheck, false);
+                // Add code for gridwalk, negawalk, gridburn
+            }
+            return "ok";
         }
-        if (occupyingPiece != nullptr) {  // If something is occupying that coord
-            return "no";  // Fail
-            // Implement different stuff for credit pickups, flags, etc.
-        }
-        // If we're here, there's nothing occupying the coord we want to move on.
-        if (this->grid[coordToCheck.x][coordToCheck.y]) {  // If the grid square is not empty
-            sourcePiece->move(coordToCheck, false);
-            // Add code for gridwalk, negawalk, gridburn
-        }
-
-        return "ok";
     } else if (startsWith(command, "action")) {
         // 1: Piece name, 2: Action index, >2: Target coords
         vector<string> splitCommand = splitString(command, ':');

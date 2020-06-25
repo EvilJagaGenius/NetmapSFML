@@ -7,7 +7,7 @@ ProgramAction::ProgramAction() {
 ProgramAction::~ProgramAction() {}
 void ProgramAction::load(string filename) {
     // Do something, Taipu
-    cout << "Loading action\n"
+    cout << "Loading action\n";
     ifstream textFile;
     textFile.open(filename);
     string line;
