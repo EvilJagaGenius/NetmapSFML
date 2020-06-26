@@ -5,6 +5,17 @@
 		<Option title="NetmapSFML" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option show_notes="0">
+			<notes>
+				<![CDATA[NetmapSFML build instructions: 
+
+Before building the executable, you must either supply your own compiled SFML libraries or build them yourself. If you are using your own, then just copy them to 'sfml/lib', and if you want to build them yourself, then run the 'build_sfml.bat' script. 
+
+Note: When building SFML yourself, you must have Bash, CMake, and this version of MinGW (https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/7.3.0/threads-posix/dwarf/i686-7.3.0-release-posix-dwarf-rt_v5-rev0.7z/download) installed and added to the PATH. Also ensure that no other conflicting versions of 'g++' or 'mingw32-make' exist on the PATH. 
+
+After building the executable, you need to copy 'openal32.dll' and the entire Data directory to your executable directory. The file 'openal32.dll' can be found at 'sfml/extlibs/bin/x64/'.]]>
+			</notes>
+		</Option>
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/NetmapSFML" prefix_auto="1" extension_auto="1" />
@@ -13,15 +24,26 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="sfml/include" />
-					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add library="sfml/lib/libsfml-audio-d.a" />
-					<Add library="sfml/lib/libsfml-graphics-d.a" />
-					<Add library="sfml/lib/libsfml-window-d.a" />
-					<Add library="sfml/lib/libsfml-system-d.a" />
-					<Add directory="SFML_Libraries/lib" />
+					<Add library="libsfml-audio-s-d.a" />
+					<Add library="libsfml-graphics-s-d.a" />
+					<Add library="libsfml-window-s-d.a" />
+					<Add library="libsfml-network-s-d.a" />
+					<Add library="libsfml-system-s-d.a" />
+					<Add library="libwinmm.a" />
+					<Add library="libopengl32.a" />
+					<Add library="libgdi32.a" />
+					<Add library="libfreetype.a" />
+					<Add library="libopenal32.a" />
+					<Add library="libflac.a" />
+					<Add library="libvorbisenc.a" />
+					<Add library="libvorbisfile.a" />
+					<Add library="libvorbis.a" />
+					<Add library="libogg.a" />
+					<Add library="libws2_32.a" />
+					<Add directory="sfml/lib" />
+					<Add directory="sfml/extlibs/libs-mingw/x64" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -31,17 +53,27 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="sfml/include" />
-					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="sfml/lib/libsfml-network.a" />
-					<Add library="sfml/lib/libsfml-audio.a" />
-					<Add library="sfml/lib/libsfml-graphics.a" />
-					<Add library="sfml/lib/libsfml-window.a" />
-					<Add library="sfml/lib/libsfml-system.a" />
-					<Add directory="SFML_Libraries/lib" />
+					<Add library="libsfml-audio-s.a" />
+					<Add library="libsfml-graphics-s.a" />
+					<Add library="libsfml-window-s.a" />
+					<Add library="libsfml-network-s.a" />
+					<Add library="libsfml-system-s.a" />
+					<Add library="libwinmm.a" />
+					<Add library="libopengl32.a" />
+					<Add library="libgdi32.a" />
+					<Add library="libfreetype.a" />
+					<Add library="libopenal32.a" />
+					<Add library="libflac.a" />
+					<Add library="libvorbisenc.a" />
+					<Add library="libvorbisfile.a" />
+					<Add library="libvorbis.a" />
+					<Add library="libogg.a" />
+					<Add library="libws2_32.a" />
+					<Add directory="sfml/lib" />
+					<Add directory="sfml/extlibs/libs-mingw/x64" />
 				</Linker>
 			</Target>
 		</Build>
@@ -49,10 +81,14 @@
 			<Add option="-Wall" />
 			<Add option="-std=c++14" />
 			<Add option="-fexceptions" />
-			<Add directory="SFML_Libraries/include" />
+			<Add option="-DSFML_STATIC" />
+			<Add directory="sfml/include" />
+			<Add directory="include" />
 		</Compiler>
 		<Linker>
-			<Add directory="SFML_Libraries/lib" />
+			<Add option="-static" />
+			<Add directory="sfml/lib" />
+			<Add directory="sfml/extlibs/libs-mingw/x64" />
 		</Linker>
 		<Unit filename="include/animation.h" />
 		<Unit filename="include/animator.h" />
