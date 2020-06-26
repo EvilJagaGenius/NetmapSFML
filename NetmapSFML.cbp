@@ -13,14 +13,14 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="SFML_Libraries/include" />
+					<Add directory="sfml/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add library="SFML_Libraries/lib/libsfml-audio-d.a" />
-					<Add library="SFML_Libraries/lib/libsfml-graphics-d.a" />
-					<Add library="SFML_Libraries/lib/libsfml-window-d.a" />
-					<Add library="SFML_Libraries/lib/libsfml-system-d.a" />
+					<Add library="sfml/lib/libsfml-audio-d.a" />
+					<Add library="sfml/lib/libsfml-graphics-d.a" />
+					<Add library="sfml/lib/libsfml-window-d.a" />
+					<Add library="sfml/lib/libsfml-system-d.a" />
 					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>
@@ -31,16 +31,16 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="SFML_Libraries/include" />
+					<Add directory="sfml/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="SFML_Libraries/lib/libsfml-network.a" />
-					<Add library="SFML_Libraries/lib/libsfml-audio.a" />
-					<Add library="SFML_Libraries/lib/libsfml-graphics.a" />
-					<Add library="SFML_Libraries/lib/libsfml-window.a" />
-					<Add library="SFML_Libraries/lib/libsfml-system.a" />
+					<Add library="sfml/lib/libsfml-network.a" />
+					<Add library="sfml/lib/libsfml-audio.a" />
+					<Add library="sfml/lib/libsfml-graphics.a" />
+					<Add library="sfml/lib/libsfml-window.a" />
+					<Add library="sfml/lib/libsfml-system.a" />
 					<Add directory="SFML_Libraries/lib" />
 				</Linker>
 			</Target>
