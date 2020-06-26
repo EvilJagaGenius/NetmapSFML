@@ -26,7 +26,7 @@ void DataBattlePiece::load() {}
 void DataBattlePiece::move(sf::Vector2i coord, bool firstTime) {}
 void DataBattlePiece::addSector(sf::Vector2i coord, int pos) {}
 void DataBattlePiece::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {}
-void DataBattlePiece::switchToAiming(int actionIndex) {}
+void DataBattlePiece::switchToAiming() {}
 void DataBattlePiece::noAction() {}
 void DataBattlePiece::takeDamage(Netmap_Playable* level, int damage) {}
 void DataBattlePiece::amputate(Netmap_Playable* level, sf::Vector2i coord) {}

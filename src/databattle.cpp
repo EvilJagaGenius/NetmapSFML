@@ -299,6 +299,9 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             if (this->grid[coordToCheck.x][coordToCheck.y]) {  // If the grid square is not empty
                 sourcePiece->move(coordToCheck, false);
                 // Add code for gridwalk, negawalk, gridburn
+                if (sourcePiece->currentMove >= sourcePiece->speed) {
+                    sourcePiece->switchToAiming();
+                }
             }
             return "ok";
         }
@@ -316,32 +319,20 @@ string DataBattle::takeCommand(string command, int playerIndex) {
                 break;
             }
         }
+        //cout << sourcePiece->actions.size() << '\n';
         ProgramAction* action = sourcePiece->actions[actionIndex];
         int maxTargets = action->numOfTargets;
         int i=0;
-        // I think it'll be easy to set up a loop to find valid targets.  How do we do something to them?
+        // Get target coords
+        vector<sf::Vector2i> targetCoords;
         while ((i < maxTargets) && (i < splitCommand.size() - 3)) {
             string targetByteCoord = splitCommand[i+3];
             sf::Vector2i targetCoord = readByteCoord(targetByteCoord);
-            DataBattlePiece* targetPiece = nullptr;
-            for (DataBattlePiece* piece : this->pieces) {
-                // See if the target coord is part of that piece's sectors
-                for (ProgramSector* sector : piece->sectors) {
-                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
-                        targetPiece = piece;
-                        break;
-                    }
-                }
-                if (targetPiece != nullptr) {  // If we found our target
-                    break;
-                }
-            }
-            // Now we need to do something to targetPiece.  Damage, buff/debuff, warp, etc
-            // We SHOULD make these command strings as well, so we can pass them across a networked game
-            cout << "Hit target\n";
-
+            targetCoords.push_back(targetCoord);
             i++;
         }
+        // Perform the action on those targets
+        this->performAction(action, targetCoords);
 
         return "ok";
 
@@ -468,4 +459,26 @@ void DataBattle::flipSector(sf::Vector2i coord) {
 void DataBattle::addPiece(DataBattlePiece* newPiece) {
     this->pieces.push_back(newPiece);
     this->pieceCounter++;
+}
+
+void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targets) {
+    // We could use a vector or a straight-up array.  Not sure which works better.
+    cout << "Performing action " << action->actionName << '\n';
+    for (string command : action->commands) {
+        vector<string> splitCommand = splitString(command, ':');
+        // Do something, Taipu
+        if (splitCommand[0] == "damage") {  // Damage
+            int damage = stoi(splitCommand[1]);
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
+            for (DataBattlePiece* piece : this->pieces) {
+                for (ProgramSector* sector : piece->sectors) {
+                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
+                        cout << "Found target " << piece->name << '\n';
+                        //piece->takeDamage(2);
+                    }
+                }
+            }
+        }
+        // Add more here.  Like healing, warping, zero and one, applying statuses
+    }
 }

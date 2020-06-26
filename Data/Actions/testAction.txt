@@ -7,5 +7,5 @@ sprite:0
 PREREQS
 END_PREREQS
 COMMANDS
-target:0:damage:2
+damage:2:0
 END_COMMANDS

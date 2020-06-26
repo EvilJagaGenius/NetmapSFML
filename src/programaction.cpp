@@ -7,14 +7,16 @@ ProgramAction::ProgramAction() {
 ProgramAction::~ProgramAction() {}
 void ProgramAction::load(string filename) {
     // Do something, Taipu
-    cout << "Loading action\n";
+    cout << "Loading action " << filename << '\n';
     ifstream textFile;
     textFile.open(filename);
     string line;
     char loading = '0';
 
     while (getline(textFile, line)) {
-        if (startsWith(line, "name:")) {
+        if (startsWith(line, "//")) {  // Ignore comments
+            continue;
+        } else if (startsWith(line, "name:")) {
             this->actionName = splitString(line, ':')[1];
         } else if (startsWith(line, "desc:")) {
             this->description = splitString(line, ':')[1];

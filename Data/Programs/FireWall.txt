@@ -1,7 +1,7 @@
 name:FireWall
 maxSize:20
 speed:2
-action:Burn
+//action:Burn
 sprite:0:34
 color:252:98:0
 symbol:&

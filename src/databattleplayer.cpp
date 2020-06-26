@@ -474,7 +474,11 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         if (this->db->currentPlayerIndex == this->localPlayerIndex) {  // If it's our turn
             // Do something, Taipu
             if (clicked) {
-                cout << "Player clicked\n";
+                if (this->db->currentProgram->state == 'a') {  // If our program is aiming
+                    if ((tileCoord.x != -1) && (tileCoord.y != -1)) {
+                        this->db->takeCommand("action:" + this->db->currentProgram->name + ":0:" + getByteCoord(tileCoord), this->localPlayerIndex);
+                    }
+                }
             }
             if (pressedUp) {
                 this->db->takeCommand("move:" + this->db->currentProgram->name + ":n", this->localPlayerIndex);

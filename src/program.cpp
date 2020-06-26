@@ -124,6 +124,10 @@ Program::~Program() {
     for (int i=0; i<this->sectors.size(); i++) {
         delete this->sectors[i];
     }
+    // Also, deallocate any actions created.
+    for (int i=0; i<this->actions.size(); i++) {
+        delete this->actions[i];
+    }
 }
 
 void Program::deleteSectors() {
@@ -139,7 +143,9 @@ void Program::load() {
     vector<string> splitLine;
     while (getline(textFile, line)) {
         splitLine = splitString(line, ':');
-        if (startsWith(line, "name")) {
+        if (startsWith(line, "//")) {  // Ignore comments
+            continue;
+        } else if (startsWith(line, "name")) {
             this->screenName = splitLine[1];
         } else if (startsWith(line, "screenName")) {
             this->screenName = splitLine[1];
@@ -150,6 +156,9 @@ void Program::load() {
         } else if (startsWith(line, "maxSpeed")) {
             this->maxSpeed = stoi(splitLine[1]);
         } else if (startsWith(line, "action")) {
+            string actionName = splitLine[1];
+            ProgramAction* newAction = new ProgramAction();
+            newAction->load("Data\\Actions\\" + actionName + ".txt");
 			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
@@ -244,11 +253,11 @@ void Program::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vect
     }
 }
 
-void Program::switchToAiming(int actionIndex) {
+void Program::switchToAiming() {
+    cout << "Switching to aiming\n";
     this->state = 'a';
-    this->currentActionIndex = actionIndex;
-    this->currentAction = this->actions[this->currentActionIndex];
     // Should add an if statement to automatically end the turn if we don't have any actions (like the Memory Hog)
+    cout << "Done switching to aiming\n";
 }
 
 void Program::noAction() {

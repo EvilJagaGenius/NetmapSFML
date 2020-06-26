@@ -2,8 +2,8 @@ name:Bit-Man
 maxSize:3
 speed:2
 maxSpeed:10
-action:Zero
-action:One
+//action:Zero
+//action:One
 sprite:0:16
 color:182:252:0
 symbol:~

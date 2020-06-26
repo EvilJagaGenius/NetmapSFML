@@ -61,7 +61,7 @@ class DataBattlePiece
         virtual void move(sf::Vector2i coord, bool firstTime);  // Another thing that might be reserved in C++.  Maybe make this bool?
         virtual void addSector(sf::Vector2i coord, int pos);
         virtual void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
-        virtual void switchToAiming(int actionIndex);
+        virtual void switchToAiming();
         virtual void noAction();
         virtual void takeDamage(Netmap_Playable* level, int damage);
         virtual void amputate(Netmap_Playable* level, sf::Vector2i coord);

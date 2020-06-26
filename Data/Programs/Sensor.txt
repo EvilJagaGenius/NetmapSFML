@@ -2,7 +2,7 @@ name:Sensor
 maxSize:1
 speed:0
 maxSpeed:10
-action:Blip
+//action:Blip
 sprite:0:26
 color:252:241:0
 symbol:i
