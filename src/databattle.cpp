@@ -239,6 +239,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
 
             // Add the program
             Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
+            //Program* newProgram = new Program(programType);  // Create a new one from the definition file
             newProgram->move(targetCoord, true);
             newProgram->owner = playerIndex;
             newProgram->controller = playerIndex;
@@ -334,10 +335,16 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         // Perform the action on those targets
         this->performAction(action, targetCoords);
 
+        // Once we've used that action, that piece is done
+        sourcePiece->noAction();
+        if (sourcePiece == this->currentProgram) {  // Switch programs if necessary
+            this->switchPrograms();
+        }
+
         return "ok";
 
     } else if (startsWith(command, "noaction")) {
-        if (startsWith(command, "noaction:")) {  // If the user specified a particular piece
+        if (startsWith(command, "noaction:")) {  // If the user specified a particular piece, hence the semicolon
             return "Not implemented";
         } else {  // No piece specified, NA the current piece
             this->currentProgram->noAction();

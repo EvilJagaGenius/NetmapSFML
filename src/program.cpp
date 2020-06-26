@@ -5,7 +5,6 @@ Program::Program(string programType) {
     this->pieceType = 'p';
     this->programType = programType;
     this->color = sf::Color::White;
-    this->load();
     this->currentMove = 0;
     this->size = 0;
     this->state = 'm';
@@ -13,6 +12,8 @@ Program::Program(string programType) {
     this->owner = '0';
     this->invisibilityTimer = 0;
     this->visible = true;
+
+    this->load();
 }
 
 Program::Program(Program* original) {  // Copy constructor
@@ -44,6 +45,15 @@ Program::Program(Program* original) {  // Copy constructor
             ProgramSector* sectorToLink = this->sectors[index];
             ProgramSector::linkSectors(s, sectorToLink);
         }
+    }
+    // Copy status effects
+    for (pair<char, int> p : this->statuses) {
+        this->statuses[p.first] = original->statuses[p.first];
+    }
+
+    // Copy actions
+    for (ProgramAction* action : original->actions) {
+        this->actions.push_back(action);
     }
 
     this->owner = original->owner;
@@ -95,11 +105,16 @@ Program::Program(DataBattlePiece* original) {  // Alt copy constructor
             s->numLinks++;
             //ProgramSector::linkSectors(s, sectorToLink);
         }
+    }
 
-        // Copy status effects
-        for (pair<char, int> p : this->statuses) {
-            this->statuses[p.first] = original->statuses[p.first];
-        }
+    // Copy status effects
+    for (pair<char, int> p : this->statuses) {
+        this->statuses[p.first] = original->statuses[p.first];
+    }
+
+    // Copy actions
+    for (ProgramAction* action : original->actions) {
+        this->actions.push_back(action);
     }
 
     this->owner = original->owner;
@@ -159,6 +174,7 @@ void Program::load() {
             string actionName = splitLine[1];
             ProgramAction* newAction = new ProgramAction();
             newAction->load("Data\\Actions\\" + actionName + ".txt");
+            this->actions.push_back(newAction);
 			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
