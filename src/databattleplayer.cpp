@@ -261,7 +261,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
             ProgramSector* sector = piece->sectors[j];
             if (j==0) {  // Draw head sprite
                 //cout << "Drawing head sprite\n";
-                spriteToDraw.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                spriteToDraw.setTextureRect(sf::Rect<int>(TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(spriteToDraw);
                 if (piece->state == 'd') { // If done
@@ -271,10 +271,15 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
                     window->draw(this->gridSprite);
                 }
             } else {  // Draw tail sprite
-                spriteToDraw.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, (piece->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                spriteToDraw.setTextureRect(sf::Rect<int>(0, 0, TILE_SIZE, TILE_SIZE));
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(spriteToDraw);
             }
+            // Draw the collar sprite here (with color)
+            spriteToDraw.setTextureRect(sf::Rect<int>(0, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            spriteToDraw.setColor(this->db->players[piece->controller]->color);
+            window->draw(spriteToDraw);
+            spriteToDraw.setColor(sf::Color::White);  // Reset the color for when we use this next
         }
     }
 
@@ -330,6 +335,10 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         musicTrack.setLoop(true);
         musicTrack.play();
     }
+
+    // Background
+    sf::Texture bkgTexture = imgLoad("Data\\DataBattleBkgs\\" + this->db->bkgFilename);
+    this->bkgSprite = sf::Sprite(bkgTexture);
 
     // FPS measurements
     sf::Clock chrono;

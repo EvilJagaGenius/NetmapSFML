@@ -19,11 +19,12 @@
 int main()
 {
 	cout << "Start.\n";
-	
+
     sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
     window.setFramerateLimit(60);
 
     Player* PLAYER = new Player;
+    PLAYER->color = sf::Color::Green;
 
     //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
     //Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes

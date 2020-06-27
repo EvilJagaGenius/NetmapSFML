@@ -2,9 +2,9 @@ name:Data Doctor
 maxSize:4
 speed:2
 maxSpeed:10
-//action:Grow
+action:Grow
 //action:Surgery1
-sprite:0:6
+sprite:1:10
 color:0:0:255
 symbol:d
 description:Healer meta-program

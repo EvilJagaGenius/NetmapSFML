@@ -17,6 +17,7 @@ class Player
         unordered_map<string, int> programs;
         int credits;
         bool ready;
+        sf::Color color;
 
         // Functions
         Player();

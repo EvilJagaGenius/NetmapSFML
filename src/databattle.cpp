@@ -475,17 +475,77 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
         vector<string> splitCommand = splitString(command, ':');
         // Do something, Taipu
         if (splitCommand[0] == "damage") {  // Damage
-            int damage = stoi(splitCommand[1]);
+            int health = stoi(splitCommand[1]);
             sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
             for (DataBattlePiece* piece : this->pieces) {
                 for (ProgramSector* sector : piece->sectors) {
                     if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
                         cout << "Found target " << piece->name << '\n';
-                        //piece->takeDamage(2);
+                        //piece->takeDamage(health);
+                        // Do we use Program::takeDamage() or reimplement it here?
                     }
                 }
             }
+        } else if (splitCommand[0] == "grow") {  // Grow/heal
+            int amtToGrow = stoi(splitCommand[1]);
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
+            for (DataBattlePiece* piece : this->pieces) {
+                for (ProgramSector* sector : piece->sectors) {
+                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
+                        cout << "Found target " << piece->name << '\n';
+                        // We can't use Program::grow() anymore, reimplement here
+                        for (int i=0; i<amtToGrow; i++) {
+                            if (piece->size < piece->maxSize) {  // If we haven't hit max size
+                                sf::Vector2i coordToAttach;
+                                ProgramSector* previousSector = nullptr;
+
+                                for (ProgramSector* s : piece->sectors) {
+                                    // See if there's a sector we can grow off of.  Check if any of the contiguous sectors are free.
+                                    sf::Vector2i coord = s->coord;
+                                    if (this->grid[coord.x][coord.y-1] != 0) {  // North
+                                        coordToAttach = sf::Vector2<int>(coord.x, coord.y-1);
+                                        previousSector = s;
+                                        break;
+                                    } else if (this->grid[coord.x][coord.y+1] != 0) {  // South
+                                        coordToAttach = sf::Vector2<int>(coord.x, coord.y+1);
+                                        previousSector = s;
+                                        break;
+                                    } else if (this->grid[coord.x+1][coord.y] != 0) {  // East
+                                        coordToAttach = sf::Vector2<int>(coord.x+1, coord.y);
+                                        previousSector = s;
+                                        break;
+                                    } else if (this->grid[coord.x-1][coord.y-1] != 0) {  // West
+                                        coordToAttach = sf::Vector2<int>(coord.x-1, coord.y);
+                                        previousSector = s;
+                                        break;
+                                    }
+                                }
+                                if (previousSector != nullptr) {  // If we found an empty contiguous sector
+                                    ProgramSector* newSector = new ProgramSector(coordToAttach, previousSector);
+                                    piece->sectors.push_back(newSector);
+                                    piece->size = piece->sectors.size();
+                                } else {  // We found no such contiguous sector and can't grow further
+                                    break;
+                                }
+                            } else {  // If we have hit max size, we can't grow any further
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (splitCommand[0] == "zero") {  // BitMan's Zero
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[1])];
+            if (this->grid[targetCoord.x][targetCoord.y] != 0) {
+                this->grid[targetCoord.x][targetCoord.y] = 0;
+            }
+        } else if (splitCommand[0] == "one") {  // BitMan's One
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[1])];
+            if (this->grid[targetCoord.x][targetCoord.y] == 0) {
+                this->grid[targetCoord.x][targetCoord.y] = 1;
+            }
         }
+
         // Add more here.  Like healing, warping, zero and one, applying statuses
     }
 }
