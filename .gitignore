@@ -1,5 +1,6 @@
 bin/Release
 obj
+.objs
 NetmapSFML.layout
 NetmapSFML.depend
 NetmapSFML.exe

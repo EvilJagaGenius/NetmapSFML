@@ -1,7 +1,7 @@
 bkg:LinuxDNA_Resized.png
 cash:500
 music:hacking.ogg
-players:1
+players:2
 start_grid
 0000000000000000
 0000000000000000
@@ -21,7 +21,7 @@ start_grid
 0000000000000000
 end_grid
 start_commands
-addUpload:6:10:0
+addUpload:6:10:1
 addUpload:9:10:0
 addDefender:FireWall:6:5:sent1
 addSector:sent1:7:5:0

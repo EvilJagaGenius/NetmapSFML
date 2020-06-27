@@ -23,8 +23,10 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1024, 576), "NETMAP 1.0");
     window.setFramerateLimit(60);
 
-    Player* PLAYER = new Player;
-    PLAYER->color = sf::Color::Green;
+    Player* PLAYER = new Player();
+    Player* PLAYER2 = new Player();
+    PLAYER->color = sf::Color::Red;
+    PLAYER2->color = sf::Color::Blue;
 
     //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
     //Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes
@@ -33,6 +35,7 @@ int main()
     string lastPlayable = "quit:"; //"scene:testScene";
     DataBattle* testDB = new DataBattle("TestBattle");
     testDB->addPlayer(PLAYER);
+    testDB->addPlayer(PLAYER2);
     Netmap_Playable* CURRENT_PLAYABLE = new DataBattlePlayer(testDB);
     // There should probably be a better way to connect players and DB Players.
     CURRENT_PLAYABLE->play(&window);
@@ -79,6 +82,7 @@ int main()
 
     // We need to clean things up before we exit the program
     delete PLAYER;
+    delete PLAYER2;
     for (pair<string, Program*> p : PROGRAM_DB) {
         delete p.second;
     }
