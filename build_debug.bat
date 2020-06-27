@@ -1,8 +1,4 @@
 mkdir bin
-cd sfml
-REM cmake -G"MinGW Makefiles" -S./ -DBUILD_SHARED_LIBS=TRUE -DSFML_USE_STATIC_STD_LIBS=FALSE
-cmake -G"MinGW Makefiles" -S./ -DBUILD_SHARED_LIBS=FALSE -DSFML_USE_STATIC_STD_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug
-mingw32-make
-cd ..
+mkdir bin\Debug
 mingw32-make Debug
-copy /Y .\sfml\extlibs\bin\x86\openal32.dll .\
+copy /Y .\sfml\extlibs\bin\x86\openal32.dll .\bin\Debug\ 

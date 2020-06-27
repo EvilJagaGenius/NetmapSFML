@@ -2,21 +2,23 @@ OBJS	= animation.o animator.o choiceinputbox.o databattle.o databattlepiece.o da
 SOURCE	= animation.cpp animator.cpp choiceinputbox.cpp databattle.cpp databattlepiece.cpp databattleplayer.cpp inputbox.cpp netmap_playable.cpp npc.cpp npcanim.cpp player.cpp program.cpp programaction.cpp programsector.cpp scene.cpp sceneentity.cpp scenelayer.cpp sectorinputbox.cpp textinputbox.cpp titlescreen.cpp toolbox.cpp uploadzone.cpp main.cpp
 HEADER	= animation.h animator.h choiceinputbox.h databattle.h databattlepiece.h databattleplayer.h inputbox.h netmap_playable.h npc.h npcanim.h player.h program.h programaction.h programsector.h scene.h sceneentity.h scenelayer.h sectorinputbox.h textinputbox.h titlescreen.h toolbox.h uploadzone.h
 
-BIN	 = .
+BIN	 = bin
 SRC	 = src
 
 ifeq ($(OS),Windows_NT)
-OUT	= $(BIN)/NetmapSFML.exe
-OUT_DEBUG	 = $(BIN)/NetmapSFML_Debug.exe
+OUT	= $(BIN)/Release/NetmapSFML.exe
+OUT_DEBUG	 = $(BIN)/Debug/NetmapSFML.exe
 else
-OUT	= $(BIN)/NetmapSFML
-OUT_DEBUG	 = $(BIN)/NetmapSFML_Debug
+OUT	= $(BIN)/Release/NetmapSFML
+OUT_DEBUG	 = $(BIN)/Debug/NetmapSFML
 endif
 
 CC	 = g++
-FLAGS	 = -g -c -Wall -std=c++11 -DSFML_STATIC -Iinclude -Isfml/include
-WIN32_EXAMPLE_FLAGS	 = -g -c -Wall -std=c++11 -DSFML_STATIC -Isfml/include
-LFLAGS	 = -DSFML_STATIC -std=c++11
+
+FLAGS	 = -g -c -Wall -std=c++14 -DSFML_STATIC -Iinclude -Isfml/include
+WIN32_EXAMPLE_FLAGS	 = -g -c -Wall -std=c++14 -DSFML_STATIC -Isfml/include
+
+LFLAGS	 = -DSFML_STATIC -std=c++14
 LIBS_INCLUDE	 = -Lsfml/lib -Lsfml/extlibs/libs-mingw/x86
 LIBS	 = -lsfml-audio-s -lsfml-graphics-s -lsfml-window-s -lsfml-network-s -lsfml-system-s -lwinmm -lopengl32 -lgdi32 -lfreetype -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lws2_32
 LIBS_DEBUG	 = -lsfml-audio-s-d -lsfml-graphics-s-d -lsfml-window-s-d -lsfml-network-s-d -lsfml-system-s-d -lwinmm -lopengl32 -lgdi32 -lfreetype -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg -lws2_32
@@ -32,10 +34,10 @@ Debug: $(OBJS)
 
 #An example program: 
 Win32: Win32.o
-	$(CC) $(LFLAGS) Win32.o -o sfml/examples/win32/Win32.exe $(LIBS_INCLUDE) $(LIBS)  
+	$(CC) $(LFLAGS) sfml/examples/win32/Win32.o -o sfml/examples/win32/Win32.exe $(LIBS_INCLUDE) $(LIBS)  
 
 Win32.o: sfml/examples/win32/Win32.cpp
-	$(CC) $(WIN32_EXAMPLE_FLAGS) sfml/examples/win32/Win32.cpp
+	$(CC) $(WIN32_EXAMPLE_FLAGS) sfml/examples/win32/Win32.cpp -o sfml/examples/win32/Win32.o
 
 
 animation.o: $(SRC)/animation.cpp
