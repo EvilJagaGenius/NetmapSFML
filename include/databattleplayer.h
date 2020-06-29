@@ -25,6 +25,7 @@ class DataBattlePlayer : public Netmap_Playable
         int localPlayerIndex;
         DataBattlePiece* selectedUpload;  // Maybe just change this to a general focus
         unordered_map<string, string> uploadMap;
+        Player* localPlayer;
 
         DataBattlePlayer();
         DataBattlePlayer(DataBattle* db);

@@ -545,7 +545,18 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
                 this->grid[targetCoord.x][targetCoord.y] = 1;
             }
         }
-
         // Add more here.  Like healing, warping, zero and one, applying statuses
+    }
+}
+
+void DataBattle::tick() {
+    // Get commands from players (rewrite if needed for online games)
+    for (int i=0; i<this->players.size(); i++) {
+        Player* player = this->players[i];
+        while (!(player->cmdQueue.empty())) {
+            string cmd = player->cmdQueue.front();
+            player->cmdQueue.pop();
+            this->takeCommand(cmd, i);
+        }
     }
 }

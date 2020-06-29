@@ -328,6 +328,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
 
+
     // Music
     if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
         cout << "Music file not found: " << this->musicFilename << '\n';
@@ -352,6 +353,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     sf::IntRect hudButtonRect = sf::Rect<int>(WY, 0, 100, 14);
 
     bool pressedUp, pressedDown, pressedLeft, pressedRight, pressedN;
+
+    localPlayer = this->db->players[this->localPlayerIndex];
 
     while (window->isOpen()) {
         window->clear();
@@ -471,10 +474,10 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                         cout << "Clicked DBI\n";
                         // Send our upload commands
                         for (pair<string, string> p : this->uploadMap) {
-                            this->db->takeCommand("upload:" + p.first + ":" + p.second + ":NULL", this->localPlayerIndex);
+                            this->localPlayer->cmdQueue.push("upload:" + p.first + ":" + p.second + ":NULL");
                         }
                         // Send ready signal
-                        this->db->takeCommand("DBI", this->localPlayerIndex);
+                        this->localPlayer->cmdQueue.push("DBI");
                     }
                 }
             }
@@ -485,20 +488,20 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             if (clicked) {
                 if (this->db->currentProgram->state == 'a') {  // If our program is aiming
                     if ((tileCoord.x != -1) && (tileCoord.y != -1)) {
-                        this->db->takeCommand("action:" + this->db->currentProgram->name + ":0:" + getByteCoord(tileCoord), this->localPlayerIndex);
+                        this->localPlayer->cmdQueue.push("action:" + this->db->currentProgram->name + ":0:" + getByteCoord(tileCoord));
                     }
                 }
             }
             if (pressedUp) {
-                this->db->takeCommand("move:" + this->db->currentProgram->name + ":n", this->localPlayerIndex);
+                this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":n");
             } else if (pressedDown) {
-                this->db->takeCommand("move:" + this->db->currentProgram->name + ":s", this->localPlayerIndex);
+                this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":s");
             } else if (pressedLeft) {
-                this->db->takeCommand("move:" + this->db->currentProgram->name + ":w", this->localPlayerIndex);
+                this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":w");
             } else if (pressedRight) {
-                this->db->takeCommand("move:" + this->db->currentProgram->name + ":e", this->localPlayerIndex);
+                this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":e");
             } else if (pressedN) {
-                this->db->takeCommand("noaction", this->localPlayerIndex);
+                this->localPlayer->cmdQueue.push("noaction");
             }
         }
 
@@ -663,6 +666,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         if (this->disconnect) {
             return this->destination;
         }*/
+
+        this->db->tick();  // Tick the DB
 
         //cout << "Calling render()\n";
         this->render(window);

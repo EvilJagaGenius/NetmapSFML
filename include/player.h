@@ -2,9 +2,8 @@
 #define PLAYER_H
 
 #include <iostream>
-#include <vector>
 #include <string>
-#include <fstream>
+#include <queue>
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 
@@ -18,6 +17,7 @@ class Player
         int credits;
         bool ready;
         sf::Color color;
+        queue<string> cmdQueue;
 
         // Functions
         Player();
