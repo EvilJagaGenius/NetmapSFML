@@ -28,11 +28,11 @@ void DataBattlePiece::addSector(sf::Vector2i coord, int pos) {}
 void DataBattlePiece::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {}
 void DataBattlePiece::switchToAiming() {}
 void DataBattlePiece::noAction() {}
-void DataBattlePiece::takeDamage(Netmap_Playable* level, int damage) {}
-void DataBattlePiece::amputate(Netmap_Playable* level, sf::Vector2i coord) {}
+void DataBattlePiece::takeDamage(int damage) {}
+/*void DataBattlePiece::amputate(Netmap_Playable* level, sf::Vector2i coord) {}
 void DataBattlePiece::grow(Netmap_Playable* level, int amtToGrow) {
     cout << "Called DataBattlePiece::grow()\n";
-}
+}*/
 void DataBattlePiece::prepForTurn() {}
 void DataBattlePiece::tickStatuses() {  // This requires a dedicated function
     // The behavior for status effects should stay the same no matter what program type, so I hope this works

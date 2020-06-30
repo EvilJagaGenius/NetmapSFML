@@ -86,9 +86,9 @@ int main()
     for (pair<string, Program*> p : PROGRAM_DB) {
         delete p.second;
     }
-    for (pair<string, ProgramAction*> p : ACTION_DB) {
+    /*for (pair<string, ProgramAction*> p : ACTION_DB) {
         delete p.second;
-    }
+    }*/
     cout << "Cleanup complete\n";
 
     return 0;

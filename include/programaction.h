@@ -17,6 +17,7 @@ using namespace std;
 class ProgramAction {
     public:
         // Variables
+        string filename;
         string actionName;
         string description;
         int range;
@@ -40,6 +41,7 @@ class ProgramAction {
 };
 
 // Child classes
+/*
 class Slice: public ProgramAction {
 public:
     Slice();
@@ -122,14 +124,12 @@ public:
     void use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets);
 };
 
-/*
 class SpotLight: public ProgramAction {
 public:
     SpotLight();
     virtual ~SpotLight();
     void use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets);
 };
-*/
 
 class Byte: public ProgramAction {
 public:
@@ -138,14 +138,12 @@ public:
     void use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets);
 };
 
-/*
 class PackRun: public ProgramAction {
 public:
     PackRun();
     virtual ~PackRun();
     void use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i> targets);
 }
-*/
 
 class Phaser: public ProgramAction {
 public:
@@ -199,5 +197,6 @@ static unordered_map<string, ProgramAction*> ACTION_DB = {{"Slice", new Slice()}
                                                         {"Blip", new Blip()},
                                                         {"Thump", new Thump()},
                                                         {"Burn", new Burn()}};
+*/
 
 #endif // PROGRAMACTION_H

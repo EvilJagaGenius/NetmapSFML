@@ -55,9 +55,9 @@ class Program: public DataBattlePiece
         void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
         void switchToAiming();
         void noAction();
-        void takeDamage(Netmap_Playable* level, int damage);
-        void amputate(Netmap_Playable* level, sf::Vector2i coord);
-        void grow(Netmap_Playable* level, int amtToGrow);
+        void takeDamage(int damage);
+        //void amputate(Netmap_Playable* level, sf::Vector2i coord);
+        //void grow(Netmap_Playable* level, int amtToGrow);
         void prepForTurn();
 
     protected:

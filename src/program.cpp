@@ -53,7 +53,9 @@ Program::Program(Program* original) {  // Copy constructor
 
     // Copy actions
     for (ProgramAction* action : original->actions) {
-        this->actions.push_back(action);
+        ProgramAction* newAction = new ProgramAction();
+        newAction->load(action->filename);
+        this->actions.push_back(newAction);
     }
 
     this->owner = original->owner;
@@ -114,7 +116,9 @@ Program::Program(DataBattlePiece* original) {  // Alt copy constructor
 
     // Copy actions
     for (ProgramAction* action : original->actions) {
-        this->actions.push_back(action);
+        ProgramAction* newAction = new ProgramAction();
+        newAction->load(action->filename);
+        this->actions.push_back(newAction);
     }
 
     this->owner = original->owner;
@@ -282,7 +286,7 @@ void Program::noAction() {
     this->currentActionIndex = -1;
 }
 
-void Program::takeDamage(Netmap_Playable* level, int damage) {
+void Program::takeDamage(int damage) {
     cout << "Program::takeDamage() called\n";
     for (int d=0; d<damage; d++) {  // For each point of damage
         if (this->size > 1) {
@@ -299,10 +303,10 @@ void Program::takeDamage(Netmap_Playable* level, int damage) {
                             break;
                         }
                     }
-                    // If we have gridburn, blank out the sector
+                    /*// If we have gridburn, blank out the sector
                     if (this->statuses['b'] != 0) {
                         level->grid[this->sectors[i]->coord.x][this->sectors[i]->coord.y] = 0;
-                    }
+                    }*/
                     // Delete the sector from the program
                     delete this->sectors[i];
                     this->sectors.erase(this->sectors.begin() + i);
@@ -321,7 +325,7 @@ void Program::takeDamage(Netmap_Playable* level, int damage) {
     }
 }
 
-void Program::amputate(Netmap_Playable* level, sf::Vector2i coord) {
+/*void Program::amputate(Netmap_Playable* level, sf::Vector2i coord) {
     cout << "Amputating\n";
     // Ooh, I need some help from a CS professor...
     // What do we need to do?
@@ -438,7 +442,7 @@ void Program::grow(Netmap_Playable* level, int amtToGrow) {
             break;
         }
     }
-}
+}*/
 
 void Program::prepForTurn() {
     this->state = 'm';

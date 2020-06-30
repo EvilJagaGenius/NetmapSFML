@@ -7,6 +7,7 @@ ProgramAction::ProgramAction() {
 ProgramAction::~ProgramAction() {}
 void ProgramAction::load(string filename) {
     // Do something, Taipu
+    this->filename = filename;
     cout << "Loading action " << filename << '\n';
     ifstream textFile;
     textFile.open(filename);
@@ -66,6 +67,7 @@ bool ProgramAction::checkPrereqs(DataBattlePiece* p) {
     return true;
 }
 
+/*
 // Slice (use as template)
 Slice::Slice() {
     this->actionName = "Slice";
@@ -766,3 +768,4 @@ void Burn::use(Netmap_Playable* db, DataBattlePiece* source, vector<sf::Vector2i
         }
     }
 }
+*/

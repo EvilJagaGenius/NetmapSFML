@@ -25,6 +25,7 @@ DataBattle::~DataBattle() {
     for (int i=0; i<this->pieces.size(); i++) {
         delete this->pieces[i];
     }
+    //cout << "~DataBattle() complete\n";
 }
 
 void DataBattle::load() {
@@ -481,8 +482,7 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
                 for (ProgramSector* sector : piece->sectors) {
                     if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
                         cout << "Found target " << piece->name << '\n';
-                        //piece->takeDamage(health);
-                        // Do we use Program::takeDamage() or reimplement it here?
+                        piece->takeDamage(health);
                     }
                 }
             }
