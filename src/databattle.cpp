@@ -180,6 +180,7 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
         this->currentProgram->tickStatuses();  // Maybe we want to call this someplace else
         cout << "Statuses ticked\n";
     }
+    cout << "Victory check: " << this->checkForVictory() << '\n';
     if (this->nextProgram == nullptr) {
         this->switchTurns();
     } else {
@@ -429,31 +430,29 @@ string DataBattle::lookAt(int x, int y) {
 }
 
 int DataBattle::checkForVictory() {
-    /*// Check friendlies
-    bool playerStillAlive = false;
-    for (int i=0; i<this->friendlies.size(); i++) {
-        if (this->friendlies[i]->state != 'x') {
-            playerStillAlive = true;
+    // We're checking to see if there's only one player with pieces still on the board.
+    int pieceCounts[this->players.size()];
+    for (int i=0; i<this->players.size(); i++) {
+        pieceCounts[i] = 0;
+    }
+    int winner = -1;
+
+    for (DataBattlePiece* piece : this->pieces) {
+        if (piece->pieceType == 'p') {  // We're only counting Programs at the moment
+            pieceCounts[piece->controller]++;
         }
     }
 
-    // Check defenders
-    bool compStillAlive = false;
-    for (pair<string, DataBattlePiece*> p : this->defenders) {
-        if (p.second->state != 'x') {
-            compStillAlive = true;
+    for (int i=0; i<this->players.size(); i++) {
+        if (pieceCounts[i] > 0) {
+            if (winner == -1) {  // If we've haven't found a winner yet (someone with 1+ pieces on the grid)
+                winner = i;
+            } else {  // If we've already found a winner
+                return -1;  // Inconclusive, keep going.
+            }
         }
     }
-    if (compStillAlive && playerStillAlive) {
-        return '0'; // No one's won yet
-    } else if (compStillAlive && !playerStillAlive) {
-        return 'c'; // The computer won
-    } else if (playerStillAlive && !compStillAlive) {
-        return 'p'; // The player won
-    }
-    // Assuming you reached this point, both player and computer are dead
-    return 'd'; // Draw*/
-    return '0';
+    return winner;
 }
 
 void DataBattle::flipSector(sf::Vector2i coord) {

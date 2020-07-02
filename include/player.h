@@ -14,6 +14,7 @@ class Player
     public:
         // Variables
         unordered_map<string, int> programs;
+        unordered_map<string, string> uploadMap;
         int credits;
         bool ready;
         sf::Color color;
@@ -24,6 +25,7 @@ class Player
         virtual ~Player();
         void giveStartingPrograms();
         void readyup();
+        void addToUploadMap(string byteCoord, string pieceName);
 
     protected:
 

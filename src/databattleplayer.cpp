@@ -198,7 +198,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
 
     // Upload phase: draw pieces in uploadMap
     if (this->db->currentPlayerIndex == -1) {
-        for (pair<string, string> p : this->uploadMap) {
+        for (pair<string, string> p : this->localPlayer->uploadMap) {
             //cout << "Drawing " << p.first << ' ' << p.second << '\n';
             // Do something, Taipu
             sf::Vector2i tileCoord = readByteCoord(p.first);
@@ -436,12 +436,12 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     // See if we clicked on one of our programs in the HUD bar
                     DataBattlePiece* selectedProgram = nullptr;
                     int i=0;
-                    for (pair<string, int> p : this->db->players[localPlayerIndex]->programs) {
+                    for (pair<string, int> p : this->localPlayer->programs) {
                         hudButtonRect.top = i*14;
                         if (hudButtonRect.contains(this->mousePos)) {
                             cout << "Clicked " << p.first << '\n';
                             if (selectedUpload != nullptr) {
-                                cout << "Adding piece to upload map\n";
+                                /*cout << "Adding piece to upload map\n";
                                 // Do something, Taipu
                                 // Put that piece in uploadMap, so we upload it on hitting DBI
                                 bool foundUpload = false;
@@ -463,6 +463,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                                     this->uploadMap.emplace(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
                                 }
                                 // Note: add code to render() to render pieces in the upload map
+                                */
+                                this->localPlayer->addToUploadMap(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
                             }
                             break;
                         }
@@ -473,7 +475,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     if (mousePos.y >= WY - 14) {  // If clicked DBI
                         cout << "Clicked DBI\n";
                         // Send our upload commands
-                        for (pair<string, string> p : this->uploadMap) {
+                        for (pair<string, string> p : this->localPlayer->uploadMap) {
                             this->localPlayer->cmdQueue.push("upload:" + p.first + ":" + p.second + ":NULL");
                         }
                         // Send ready signal

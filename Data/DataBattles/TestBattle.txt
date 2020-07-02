@@ -23,6 +23,4 @@ end_grid
 start_commands
 addUpload:6:10:0
 addUpload:9:10:0
-addDefender:FireWall:6:5:sent1
-addSector:sent1:7:5:0
 end_commands
