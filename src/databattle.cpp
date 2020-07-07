@@ -217,9 +217,8 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         for (int i=0; i<this->pieces.size(); i++) {
             DataBattlePiece* piece = this->pieces[i];
             sf::Vector2i coord = piece->sectors[0]->coord;
-            if (piece->pieceType == 'u') {
+            if (piece->pieceType == 'u' && piece->controller == playerIndex) {
                 if ((coord.x == targetCoord.x) && (coord.y == targetCoord.y)) {
-                    // Should also check if the player in question controls that upload
                     uploadZone = piece;
                     uploadIndex = i;
                     break;

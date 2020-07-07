@@ -424,7 +424,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     // See if there's an upload zone there, set it as our selected upload
                     this->selectedUpload = nullptr;
                     for (DataBattlePiece* piece : this->db->pieces) {
-                        if (piece->pieceType == 'u') {
+                        if (piece->pieceType == 'u' && piece->controller == this->localPlayerIndex) {
                             if ((piece->sectors[0]->coord.x == tileCoord.x) && (piece->sectors[0]->coord.y == tileCoord.y)) {
                                 this->selectedUpload = piece;
                                 cout << "Clicked an upload zone\n";
@@ -441,29 +441,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                         if (hudButtonRect.contains(this->mousePos)) {
                             cout << "Clicked " << p.first << '\n';
                             if (selectedUpload != nullptr) {
-                                /*cout << "Adding piece to upload map\n";
-                                // Do something, Taipu
-                                // Put that piece in uploadMap, so we upload it on hitting DBI
-                                bool foundUpload = false;
-                                // See if we already have a piece ready to upload at that coord
-                                for (pair<string, string> p2 : this->uploadMap) {
-                                    if (p2.first == getByteCoord(selectedUpload->sectors[0]->coord)) {  // If so
-                                        cout << "Replacing piece\n";
-                                        // Replace it
-                                        foundUpload = true;
-                                        //this->uploadMap[p2.first] = "Hack";
-                                        this->uploadMap[p2.first] = p.first;
-                                        cout << this->uploadMap[p2.first] << '\n';
-                                        break;
-                                    }
-                                }
-                                if (!foundUpload) {  // Otherwise
-                                    cout << "Creating spot in upload map\n";
-                                    // Create an entry for that spot in uploadMap
-                                    this->uploadMap.emplace(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
-                                }
-                                // Note: add code to render() to render pieces in the upload map
-                                */
                                 this->localPlayer->addToUploadMap(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
                             }
                             break;
@@ -652,22 +629,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             frameTimer++;
         }*/
 
-        // Check to see if anybody won, and if so, end the DataBattle
-        // Wait, this check shouldn't be in here
-        /*if ((this->db->currentPlayerIndex != -1) && (this->checkForVictory() != '0')) {
-            if (this->checkForVictory() == 'p') {  // If the player won
-                cout << "Databattle won\n";
-                musicTrack.stop();
-                return "";
-            } else {  // If the computer won
-                cout << "Databattle lost\n";
-                musicTrack.stop();
-                return this->destination;
-            }
-        }
-        if (this->disconnect) {
-            return this->destination;
-        }*/
 
         this->db->tick();  // Tick the DB
 

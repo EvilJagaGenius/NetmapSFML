@@ -33,9 +33,9 @@ int main()
     //Netmap_Playable* CURRENT_PLAYABLE = new NPC("RNA_Gemma_1");
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
-    DataBattle* testDB = new DataBattle("TestBattle");
+    DataBattle* testDB = new DataBattle("TestMPBattle");
     testDB->addPlayer(PLAYER);
-    //testDB->addPlayer(PLAYER2);
+    testDB->addPlayer(PLAYER2);
     Netmap_Playable* CURRENT_PLAYABLE = new DataBattlePlayer(testDB);
     // There should probably be a better way to connect players and DB Players.
     CURRENT_PLAYABLE->play(&window);
