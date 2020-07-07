@@ -24,6 +24,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add library="libsfml-audio-s-d.a" />
@@ -53,6 +54,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -98,6 +100,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="include/databattleplayer.h" />
 		<Unit filename="include/inputbox.h" />
 		<Unit filename="include/netmap_playable.h" />
+		<Unit filename="include/networkdatabattle.h" />
 		<Unit filename="include/npc.h" />
 		<Unit filename="include/npcanim.h" />
 		<Unit filename="include/player.h" />
@@ -121,6 +124,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="src/databattleplayer.cpp" />
 		<Unit filename="src/inputbox.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
+		<Unit filename="src/networkdatabattle.cpp" />
 		<Unit filename="src/npc.cpp" />
 		<Unit filename="src/npcanim.cpp" />
 		<Unit filename="src/player.cpp" />
