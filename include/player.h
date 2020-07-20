@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "program.h"
+
 #include <iostream>
 #include <string>
 #include <queue>
@@ -14,7 +16,7 @@ class Player
     public:
         // Variables
         unordered_map<string, int> programs;
-        unordered_map<string, string> uploadMap;
+        unordered_map<string, DataBattlePiece*> uploadMap;
         int credits;
         bool ready;
         sf::Color color;

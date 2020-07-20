@@ -1,9 +1,8 @@
 #include "program.h"
 
 Program::Program(string programType) {
-    this->name = programType;
+    this->uploadName = programType;
     this->pieceType = 'p';
-    this->programType = programType;
     this->color = sf::Color::White;
     this->currentMove = 0;
     this->size = 0;
@@ -19,8 +18,8 @@ Program::Program(string programType) {
 Program::Program(Program* original) {  // Copy constructor
     cout << "Using copy constructor\n";
     this->pieceType = original->pieceType;
-    this->programType = original->programType;
     this->name = original->name;
+    this->uploadName = original->uploadName;
     this->screenName = original->screenName;
     this->spriteCoord = original->spriteCoord;
     this->color = original->color;
@@ -77,6 +76,7 @@ Program::Program(DataBattlePiece* original) {  // Alt copy constructor
     this->pieceType = original->pieceType;
     this->name = original->name;
     this->screenName = original->screenName;
+    this->uploadName = original->uploadName;
     this->spriteCoord = original->spriteCoord;
     this->color = original->color;
 
@@ -157,7 +157,7 @@ void Program::deleteSectors() {
 
 void Program::load() {
     ifstream textFile;
-    textFile.open("Data\\Programs\\" + programType + ".txt");
+    textFile.open("Data\\Programs\\" + name + ".txt");
     string line;
     vector<string> splitLine;
     while (getline(textFile, line)) {
@@ -181,13 +181,11 @@ void Program::load() {
             this->actions.push_back(newAction);
 			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
-            this->spriteCoord = *(new sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2])));
-        } else if (startsWith(line, "maxSize")) {
-            this->color = *(new sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3])));
+            this->spriteCoord = sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2]));
         } else if (startsWith(line, "description")) {
             this->description = splitLine[1];
         } else if (startsWith(line, "color")) {
-            this->color = *(new sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3])));
+            this->color = sf::Color(stoi(splitLine[1]), stoi(splitLine[2]), stoi(splitLine[3]));
         }
     }
 }
@@ -316,7 +314,7 @@ void Program::takeDamage(int damage) {
             this->size = this->sectors.size();
         } else {
             // Kill the program
-            cout << "X_X: " << this->programType << '\n';
+            cout << "X_X: " << this->uploadName << '\n';
             // Not sure what to do here, so I'll just set the state to 'x' (dead) and do other stuff in DataBattle::play()
             this->state = 'x';
             this->size = 0;

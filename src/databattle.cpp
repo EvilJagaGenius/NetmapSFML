@@ -239,8 +239,8 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             }
 
             // Add the program
-            Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
-            //Program* newProgram = new Program(programType);  // Create a new one from the definition file
+            //Program* newProgram = new Program(PROGRAM_DB[programType]);  // Clone one from PROGRAM_DB
+            Program* newProgram = new Program(programType);  // Create a new one from the definition file
             newProgram->move(targetCoord, true);
             newProgram->owner = playerIndex;
             newProgram->controller = playerIndex;
@@ -548,6 +548,7 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
 }
 
 void DataBattle::tick() {
+    cout << "DataBattle::tick()\n";
     // Get commands from players (rewrite if needed for online games)
     for (int i=0; i<this->players.size(); i++) {
         Player* player = this->players[i];

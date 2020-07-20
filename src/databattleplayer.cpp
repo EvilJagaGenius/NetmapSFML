@@ -26,8 +26,7 @@ DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
     this->setDB(db);
 }
 
-DataBattlePlayer::~DataBattlePlayer()
-{
+DataBattlePlayer::~DataBattlePlayer() {
     //dtor
 }
 
@@ -52,123 +51,6 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     }
 
     /*
-    // Draw defenders
-    this->programSprite.setColor(sf::Color::White);
-    for (pair<string, DataBattlePiece*> element : defenders) {
-        DataBattlePiece* p = element.second;
-        if (p->visible) {
-            for (int i=0; i<(p->size); i++) {
-                ProgramSector* sector = p->sectors[i];
-                // Draw connecting lines
-                for (ProgramSector* s : sector->links) {
-                    sf::Vector2i nextCoord = s->coord;
-                    sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
-                    sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
-                    sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
-                    sf::Vector2f topLeft;
-                    if (centerA.x < centerB.x) {
-                        topLeft.x = centerA.x;
-                    } else {
-                        topLeft.x = centerB.x;
-                    }
-                    if (centerA.y < centerB.y) {
-                        topLeft.y = centerA.y;
-                    } else {
-                        topLeft.y = centerB.y;
-                    }
-                    connectingLine.setFillColor(p->color);
-                    connectingLine.setOutlineColor(p->color);
-                    connectingLine.setPosition(topLeft);
-                    window->draw(connectingLine);
-                }
-            }
-            for (int i=0; i<(p->size); i++) {
-                ProgramSector* sector = p->sectors[i];
-                if (i==0) {  // Draw head sprite
-                    this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                    this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                    window->draw(this->programSprite);
-                    if (p->state == 'd') { // If done
-                        // Draw the 'done' marker
-                        this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                        this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                        window->draw(this->gridSprite);
-                    }
-                } else {  // Draw tail sprite
-                    this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                    this->programSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                    window->draw(this->programSprite);
-                }
-            }
-        }
-    }
-
-    // Draw friendlies
-    this->programSprite.setColor(sf::Color::White);
-    for (int i=0; i<this->friendlies.size(); i++) {
-        DataBattlePiece* p = this->friendlies[i];
-        if (!p->visible) {
-            this->programSprite.setColor(sf::Color(128,128,128,128));  // Hopefully this turns things transparent
-        } else {
-            this->programSprite.setColor(sf::Color::White);  // And this fixes it
-        }
-        for (int j=0; j<(p->size); j++) {
-            ProgramSector* sector = p->sectors[j];
-            for (ProgramSector* s : sector->links) {
-                sf::Vector2i nextCoord = s->coord;
-                sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
-                sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
-                sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
-                sf::Vector2f topLeft;
-                if (centerA.x < centerB.x) {
-                    topLeft.x = centerA.x;
-                } else {
-                    topLeft.x = centerB.x;
-                }
-                if (centerA.y < centerB.y) {
-                    topLeft.y = centerA.y;
-                } else {
-                    topLeft.y = centerB.y;
-                }
-                connectingLine.setFillColor(p->color);
-                connectingLine.setOutlineColor(p->color);
-                connectingLine.setPosition(topLeft);
-                window->draw(connectingLine);
-            }
-        }
-        for (int j=0; j<(p->size); j++) {
-            ProgramSector* sector = p->sectors[j];
-            if (j==0) {  // Draw head sprite
-                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, p->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
-                window->draw(this->programSprite);
-                if (p->state == 'd') { // If done
-                    // Draw the 'done' marker
-                    this->gridSprite.setTextureRect(sf::Rect<int>(TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                    this->gridSprite.setPosition(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE);
-                    window->draw(this->gridSprite);
-                }
-            } else {  // Draw tail sprite
-                this->programSprite.setTextureRect(sf::Rect<int>(p->spriteCoord.x*TILE_SIZE, (p->spriteCoord.y + 1)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                this->programSprite.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
-                window->draw(this->programSprite);
-            }
-        }
-    }
-
-    // Draw upload zones
-    if (this->phase == 'u') {  // If in the upload phase
-        for (int i = 0; i < this->uploads.size(); i++) {
-            sf::Vector2i coord = this->uploads[i];
-            this->gridSprite.setPosition(coord.x*TILE_SIZE + coord.x*GAP_SIZE, coord.y*TILE_SIZE + coord.y*GAP_SIZE);
-            if (i == this->selectedUpload) {
-                this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-            } else {
-                this->gridSprite.setTextureRect(sf::Rect<int>(0, 2*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-            }
-            window->draw(this->gridSprite);
-        }
-    } else {
     // Draw movement area, associated buttons
     if (db->currentProgram->state == 'm') {
         for (sf::Vector2i coord : this->moveArea) {
@@ -198,11 +80,12 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
 
     // Upload phase: draw pieces in uploadMap
     if (this->db->currentPlayerIndex == -1) {
-        for (pair<string, string> p : this->localPlayer->uploadMap) {
+        for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
             //cout << "Drawing " << p.first << ' ' << p.second << '\n';
             // Do something, Taipu
             sf::Vector2i tileCoord = readByteCoord(p.first);
-            DataBattlePiece* piece = PROGRAM_DB[p.second];
+            //DataBattlePiece* piece = PROGRAM_DB[p.second];  // We need a better way to do this than referencing PROGRAM_DB
+            DataBattlePiece* piece;
             // Draw the head sprite for that piece at that tile
             this->programSprite.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             this->programSprite.setPosition(tileCoord.x * (TILE_SIZE + GAP_SIZE), tileCoord.y * (TILE_SIZE + GAP_SIZE));
@@ -354,9 +237,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
     bool pressedUp, pressedDown, pressedLeft, pressedRight, pressedN;
 
-    localPlayer = this->db->players[this->localPlayerIndex];
-
     while (window->isOpen()) {
+        cout << "DataBattlePlayer::play() loop\n";
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
@@ -452,8 +334,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     if (mousePos.y >= WY - 14) {  // If clicked DBI
                         cout << "Clicked DBI\n";
                         // Send our upload commands
-                        for (pair<string, string> p : this->localPlayer->uploadMap) {
-                            this->localPlayer->cmdQueue.push("upload:" + p.first + ":" + p.second + ":NULL");
+                        for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
+                            this->localPlayer->cmdQueue.push("upload:" + p.first + ":" + p.second->uploadName + ":NULL");
                         }
                         // Send ready signal
                         this->localPlayer->cmdQueue.push("DBI");
@@ -629,10 +511,9 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             frameTimer++;
         }*/
 
-
         this->db->tick();  // Tick the DB
 
-        //cout << "Calling render()\n";
+        cout << "Calling render()\n";
         this->render(window);
         window->display();
         //cout << "Finished main loop\n";
@@ -644,4 +525,8 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 void DataBattlePlayer::setDB(DataBattle* db) {
     this->db = db;
     this->musicFilename = this->db->musicFilename;
+}
+
+void DataBattlePlayer::setPlayer(Player* player) {
+    this->localPlayer = player;
 }

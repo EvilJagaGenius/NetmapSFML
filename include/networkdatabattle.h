@@ -5,11 +5,20 @@
 
 #include "databattle.h"
 
+// Class for multiplayer DataBattles conducted over a network.
+// One local player, connecting to an authoritative server.
+
 class NetworkDataBattle : public DataBattle
 {
     public:
         NetworkDataBattle();
+        NetworkDataBattle(string ipString, unsigned short port);
         virtual ~NetworkDataBattle();
+        void connect(string ipString, unsigned short port);
+        void tick();  // Override
+        int localPlayerIndex;
+
+        sf::TcpSocket* serverSocket;  // Only maintain one socket, to the server
 
     protected:
 

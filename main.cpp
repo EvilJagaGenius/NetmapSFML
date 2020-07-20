@@ -1,3 +1,5 @@
+// Main file for Netmap 1.0
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,9 +8,8 @@
 #include <SFML/Network.hpp>
 
 #include "toolbox.h"
-#include "programaction.h"
 #include "netmap_playable.h"
-#include "databattle.h"
+#include "networkdatabattle.h"
 #include "databattleplayer.h"
 //#include "databattleeditor.h"  // Needs reworked before adding it back in
 #include "titlescreen.h"
@@ -28,38 +29,29 @@ int main()
     PLAYER->color = sf::Color::Red;
     PLAYER2->color = sf::Color::Blue;
 
-    //Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
-    //Netmap_Playable* CURRENT_PLAYABLE = new Scene("RNA_1");  // Testing out scenes
-    //Netmap_Playable* CURRENT_PLAYABLE = new NPC("RNA_Gemma_1");
+    Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
+    DataBattle* db = nullptr;
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
-    DataBattle* testDB = new DataBattle("TestMPBattle");
-    testDB->addPlayer(PLAYER);
-    testDB->addPlayer(PLAYER2);
-    Netmap_Playable* CURRENT_PLAYABLE = new DataBattlePlayer(testDB);
     // There should probably be a better way to connect players and DB Players.
-    CURRENT_PLAYABLE->play(&window);
-    delete testDB;  // Clean up memory
-    /*while (true) {
-        CURRENT_PLAYABLE->setHUD(testHUD);
+    //CURRENT_PLAYABLE->play(&window);
+    while (true) {
         CURRENT_PLAYABLE->setPlayer(PLAYER);
         nextPlayable = CURRENT_PLAYABLE->play(&window);
+        cout << nextPlayable << '\n';
         delete CURRENT_PLAYABLE;
+        if (db != nullptr) {
+            delete db;
+            db = nullptr;
+        }
         cout << "Deletion of CURRENT_PLAYABLE successful\n";
         if (startsWith(nextPlayable, "quit:") || (nextPlayable.size() == 0)) {
             cout << "Quitting game\n";
             break;
-        } else if (startsWith(nextPlayable, "editor:")) {
-            cout << "Launching editor\n";
-            CURRENT_PLAYABLE = new DataBattleEditor(splitString(nextPlayable, ':')[1]);
         } else if (startsWith(nextPlayable, "db:")) {
             cout << "Launching DB\n";
-            CURRENT_PLAYABLE = new DataBattle(splitString(nextPlayable, ':')[1]);
-        } else if (startsWith(nextPlayable, "dbFromEditor:")) {
-            cout << "Launching DB from editor\n";
-            CURRENT_PLAYABLE = new DataBattle(splitString(nextPlayable, ':')[1]);
-            CURRENT_PLAYABLE->destination = "editor:" + splitString(nextPlayable, ':')[1];
-            cout << "Creation successful\n";
+            db = new DataBattle(splitString(nextPlayable, ':')[1]);
+            CURRENT_PLAYABLE = new DataBattlePlayer(db);
         } else if (startsWith(nextPlayable, "title:")) {
             cout << "Returning to title\n";
             CURRENT_PLAYABLE = new TitleScreen();
@@ -72,23 +64,22 @@ int main()
             CURRENT_PLAYABLE = new NPC(splitPlayable[1]);
             CURRENT_PLAYABLE->destination = lastPlayable;
         } else if (startsWith(nextPlayable, "netgame:")) {
-            vector<string> splitPlayable = splitString(nextPlayable, ':');
-            string ipAddress = splitPlayable[1];
-            int portNum = stoi(splitPlayable[2]);
+            cout << "Network game\n";
+            vector<string> splitAddress = splitString(nextPlayable, ':');
+            string ipAddress = splitAddress[1];
+            unsigned short portNum = stoi(splitAddress[2]);
+            // Do something, Taipu
+            db = new NetworkDataBattle(ipAddress, portNum);
+            CURRENT_PLAYABLE = new DataBattlePlayer(db);
         }
         lastPlayable = nextPlayable;
-    }*/
+    }
     cout << "Loop exited\n";
 
     // We need to clean things up before we exit the program
     delete PLAYER;
     delete PLAYER2;
-    for (pair<string, Program*> p : PROGRAM_DB) {
-        delete p.second;
-    }
-    /*for (pair<string, ProgramAction*> p : ACTION_DB) {
-        delete p.second;
-    }*/
+
     cout << "Cleanup complete\n";
 
     return 0;

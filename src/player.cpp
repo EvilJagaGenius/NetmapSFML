@@ -7,9 +7,13 @@ Player::Player()
     this->giveStartingPrograms();
 }
 
-Player::~Player()
-{
-    //dtor
+Player::~Player(){
+    // Delete any entries still in uploadMap
+    for (pair<string, DataBattlePiece*> p : this->uploadMap) {
+        if (p.second != nullptr) {
+            delete this->uploadMap[p.first];
+        }
+    }
 }
 
 void Player::giveStartingPrograms() {
@@ -27,23 +31,26 @@ void Player::readyup() {
 }
 
 void Player::addToUploadMap(string byteCoord, string pieceName) {
+    // Put the piece in uploadMap, so we upload it on hitting DBI
     cout << "Adding piece to upload map\n";
-    // Do something, Taipu
-    // Put that piece in uploadMap, so we upload it on hitting DBI
-    bool foundUpload = false;
+
+    DataBattlePiece* newPiece = new Program(pieceName);
+
     // See if we already have a piece ready to upload at that coord
-    for (pair<string, string> p : this->uploadMap) {
+    bool foundUpload = false;
+    for (pair<string, DataBattlePiece*> p : this->uploadMap) {
         if (p.first == byteCoord) {  // If so
             cout << "Replacing piece\n";
             // Replace it
             foundUpload = true;
-            this->uploadMap[p.first] = pieceName;
+            delete this->uploadMap[p.first];
+            this->uploadMap[p.first] = newPiece;
             break;
         }
     }
     if (!foundUpload) {  // Otherwise
         cout << "Creating spot in upload map\n";
         // Create an entry for that spot in uploadMap
-        this->uploadMap.emplace(byteCoord, pieceName);
+        this->uploadMap.emplace(byteCoord, newPiece);
     }
 }

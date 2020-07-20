@@ -21,6 +21,7 @@ class DataBattlePiece
         // Variables
         string name;
         string screenName;
+        string uploadName;  // The string you use when sending the upload command (program type for Programs)
         string description;
         sf::Vector2i spriteCoord;
         sf::Color color;

@@ -41,7 +41,7 @@ class Program: public DataBattlePiece
         //ProgramAction* currentAction;
 
         //char state;
-        string programType;
+        //string programType;
 
         // Functions
         Program(string programType);
@@ -69,7 +69,7 @@ class Program: public DataBattlePiece
 // Constants
 const static sf::Texture PROGRAM_SHEET = imgLoad("Data\\Sprites\\Programs.png");
 // I'm not entirely sure we need PROGRAM_DB (bad memory practice and all), but I'm keeping it around for the time being
-static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack")},
+/*static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack")},
                                                     {"Slingshot", new Program("Slingshot")},
                                                     {"DataDr", new Program("DataDr")},
                                                     {"Bug", new Program("Bug")},
@@ -80,5 +80,6 @@ static unordered_map<string, Program*> PROGRAM_DB = {{"Hack", new Program("Hack"
                                                     {"Sensor", new Program("Sensor")},
                                                     {"Warden", new Program("Warden")},
                                                     {"FireWall", new Program("FireWall")}};
+*/
 
 #endif // PROGRAM_H
