@@ -3,7 +3,7 @@
 Player::Player()
 {
     //ctor
-
+    this->color = sf::Color::White;  // White (no tint) by default
     this->giveStartingPrograms();
 }
 

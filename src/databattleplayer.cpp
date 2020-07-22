@@ -175,9 +175,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
 
     // Draw the HUD panel
     //sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
-
     this->hudPanel.clear(sf::Color::Transparent);
-    Player* localPlayer = this->db->players[localPlayerIndex];
     int i = 0;
     for (pair<string, int> p : localPlayer->programs) {
         //cout << p.first << '\n';
@@ -238,7 +236,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     bool pressedUp, pressedDown, pressedLeft, pressedRight, pressedN;
 
     while (window->isOpen()) {
-        cout << "DataBattlePlayer::play() loop\n";
+        //cout << "DataBattlePlayer::play() loop\n";
         window->clear();
         this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
@@ -513,7 +511,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
         this->db->tick();  // Tick the DB
 
-        cout << "Calling render()\n";
+        //cout << "Calling render()\n";
         this->render(window);
         window->display();
         //cout << "Finished main loop\n";

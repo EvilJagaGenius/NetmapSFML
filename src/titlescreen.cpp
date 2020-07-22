@@ -160,7 +160,6 @@ string TitleScreen::play(sf::RenderWindow* window) {
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
                     textBoxType = '0';
-                    cout << "Executing netplay return statement\n";
                     return ("netgame:" + ipAddress + ":9900");
                 }
             }
