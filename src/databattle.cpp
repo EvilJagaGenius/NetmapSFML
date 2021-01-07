@@ -25,6 +25,9 @@ DataBattle::~DataBattle() {
     for (int i=0; i<this->pieces.size(); i++) {
         delete this->pieces[i];
     }
+    for (int i=0; i<this->players.size(); i++) {
+        delete this->players[i];  // Delete all the players.  Find some way to avoid deleting PLAYER in SP games
+    }
     //cout << "~DataBattle() complete\n";
 }
 
@@ -207,9 +210,9 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
 
 string DataBattle::takeCommand(string command, int playerIndex) {
     cout << "Command: " << command << '\n';
-    if (startsWith(command, "upload")) {
-        vector<string> splitCommand = splitString(command, ':');
+    if (startsWith(command, "upload")) {  // Upload piece
         // 1: Byte coord, 2: Program type, 3: Name
+        vector<string> splitCommand = splitString(command, ':');
         sf::Vector2i targetCoord = readByteCoord(splitCommand[1]);
         // Do some checking on the coord, make sure there's actually an upload there
         DataBattlePiece* uploadZone = nullptr;
@@ -258,8 +261,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             return "upload failed";
         }
 
-    } else if (startsWith(command, "move")) {
-        // Do something, Taipu
+    } else if (startsWith(command, "move")) {  // Move
         // 1: Piece name, 2: direction
         vector<string> splitCommand = splitString(command, ':');
         string pieceName = splitCommand[1];
@@ -375,6 +377,35 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             }
             return "ok";
         }
+    } else if (startsWith(command, "players:")) {
+        // Create that many players and add them to the game
+        int numberOfPlayers = stoi(command.substr(8));
+        this->players.clear();  // Empty out whatever players we had.  In a network game, this empties out PLAYER (we still have a reference to it though in main.cpp)
+        for (int i=0; i<numberOfPlayers; i++) {
+            Player* newPlayer = new Player();  // Create new player object
+            this->players.push_back(newPlayer);  // Add it to the game
+        }
+        // We're going to need some way to clean all these players up
+        return "ok";
+
+    } else if (startsWith(command, "playerIndex:")) {  // Set localPlayerIndex
+        this->localPlayerIndex = stoi(command.substr(12));
+        return "ok";
+    } else if (startsWith(command, "addUpload:")) {  // Upload zone
+        // 1:x, 2:y, 3:owner
+        cout << "Adding upload zone\n";
+        vector<string> splitCommand = splitString(command, ':');
+        UploadZone* newUpload = new UploadZone(stoi(splitCommand[1]), stoi(splitCommand[2]), stoi(splitCommand[3]));
+        this->addPiece(newUpload);
+    } else if (startsWith(command, "addProgram")) {
+        // 1:DataBattlePiece type, 2:x, 3:y, 4:owner, 5:name
+        cout << "Adding defender\n";
+        vector<string> splitCommand = splitString(command, ':');
+        Program* newProgram = new Program(splitCommand[1]);
+        newProgram->move(sf::Vector2<int>(stoi(splitCommand[2]), stoi(splitCommand[3])), true);
+        newProgram->owner = stoi(splitCommand[4]);
+        newProgram->name = splitCommand[5];
+        this->addPiece(newProgram);
     }
 
     return "Not implemented";

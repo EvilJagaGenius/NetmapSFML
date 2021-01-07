@@ -4,11 +4,15 @@ NetworkDataBattle::NetworkDataBattle() {
     // Might have to copy stuff from DataBattle()
     this->serverSocket = new sf::TcpSocket();
     this->serverSocket->setBlocking(false);
+    this->localPlayerIndex = -1;
+    this->currentPlayerIndex = -1;
 }
 
 NetworkDataBattle::NetworkDataBattle(string ipString, unsigned short port) {
     this->serverSocket = new sf::TcpSocket();
     this->serverSocket->setBlocking(false);
+    this->localPlayerIndex = -1;
+    this->currentPlayerIndex = -1;
 
     this->connect(ipString, port);
 }
@@ -39,6 +43,8 @@ void NetworkDataBattle::connect(string ipString, unsigned short port) {
                     // Do something, Taipu
                     vector<string> splitPacket = splitString(packetString, ':');
                     this->filename = splitPacket[1];
+                    cout << splitPacket[1] << '\n';
+                    cout << this->filename << '\n';
                     this->load();
                     keepReceiving = false;
                 }
@@ -52,30 +58,46 @@ void NetworkDataBattle::tick() {  // Override
     // Receive data from the server
     sf::Packet serverPacket;
     string packetString;
-    this->serverSocket->receive(serverPacket);
-    serverPacket >> packetString;
-    if (packetString.size() > 0) {
-        cout << packetString << '\n';
-    }
+
     // I would love some sort of loop like Java has with scanners.
     // while (serverSocket->hasNext()) {
     //      serverSocket->receive(serverPacket);
     //      Do something, Taipu }
     // How can we mimic that?
     // Once we've received the packet, do whatever it tells you
+    //cout << "Receiver loop\n";
+    while (this->serverSocket->receive(serverPacket) == sf::Socket::Done) {  // While we're receiving packets from the server
+        serverPacket >> packetString;
+        if (packetString.size() > 0) {
+            cout << packetString << '\n';
+            // Maybe we should move this split-up into lines into takeCommand()
+            vector<string> lines = splitString(packetString, '\n');
+            for (string line : lines) {
+                this->takeCommand(line, this->localPlayerIndex);  // Execute whatever commands the server tells us to
+            }
+        }
+    }
 
     // Send our data to the server
-    // How do we do this?  Do we need to know which player is the local player and only send their commands?
-    /*sf::Packet packetToSend;
-    Player* localPlayer = this->players[localPlayerIndex];
-    while (!(localPlayer->cmdQueue.empty())) {
-        string command = localPlayer->cmdQueue.front();
-        localPlayer->cmdQueue.pop();
-        this->takeCommand(command, localPlayerIndex);
-        packetToSend << command;
-        // Is there a maximum size to a packet we might be in danger of exceeding?  Or will the socket handle that for us, splitting things into multiple packets if necessary?
+    if (this->localPlayerIndex != -1) {  // If we're a valid player
+        //cout << "Sender loop\n";
+        sf::Packet packetToSend;
+        Player* localPlayer = this->players[localPlayerIndex];
+        int commandsInPacket = 0;
+        while (!(localPlayer->cmdQueue.empty())) {  // While there's commands to send
+            string command = localPlayer->cmdQueue.front();  // Read the command
+            localPlayer->cmdQueue.pop();  // Remove from queue
+            this->takeCommand(command, localPlayerIndex);  // Execute on our end... Maybe don't do this, wait for the server to confirm?
+            packetToSend << (command + "\n");  // Stuff the command into a packet
+            commandsInPacket++;
+            // Is there a maximum size to a packet we might be in danger of exceeding?  Or will the socket handle that for us, splitting things into multiple packets if necessary?
+        }
+        if (commandsInPacket > 0) {
+            //cout << "Sending packet... ";
+            this->serverSocket->send(packetToSend);  // Send that packet containing all of the local player's commands
+            //cout << "Packet sent\n";
+        }
     }
-    this->serverSocket->send(packetToSend);*/
 }
 
 void NetworkDataBattle::load() {  // Override

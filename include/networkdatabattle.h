@@ -17,7 +17,6 @@ class NetworkDataBattle : public DataBattle
         void connect(string ipString, unsigned short port);
         void tick();  // Override
         void load();  // Override
-        int localPlayerIndex;
 
         sf::TcpSocket* serverSocket;  // Only maintain one socket, to the server
 

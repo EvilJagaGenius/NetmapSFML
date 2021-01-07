@@ -156,14 +156,14 @@ void Program::deleteSectors() {
 }
 
 void Program::load() {
+    cout << "Loading " << this->uploadName << '\n';
     ifstream textFile;
-    textFile.open("Data\\Programs\\" + name + ".txt");
+    textFile.open("Data\\Programs\\" + this->uploadName + ".txt");
     string line;
     vector<string> splitLine;
     while (getline(textFile, line)) {
         splitLine = splitString(line, ':');
         if (startsWith(line, "//")) {  // Ignore comments
-            continue;
         } else if (startsWith(line, "name")) {
             this->screenName = splitLine[1];
         } else if (startsWith(line, "screenName")) {
@@ -182,6 +182,7 @@ void Program::load() {
 			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2]));
+            cout << "Sprite coord: (" << this->spriteCoord.x << ", " << this->spriteCoord.y << ")\n";
         } else if (startsWith(line, "description")) {
             this->description = splitLine[1];
         } else if (startsWith(line, "color")) {

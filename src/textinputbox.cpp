@@ -51,8 +51,8 @@ void TextInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
             this->input = "";
             this->done = true;
         } else {
-            cout << "As int: " << value << '\n';
-            cout << "As char: " << letter << '\n';
+            //cout << "As int: " << value << '\n';
+            //cout << "As char: " << letter << '\n';
             this->input += letter;
         }
         // AAUGH

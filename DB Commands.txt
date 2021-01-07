@@ -1,0 +1,13 @@
+List of databattle commands for Netmap 1.0.
+
+map:<string filename>
+	Server
+	Tells the client which map to load.
+	
+players:<int numberOfPlayers>
+	Server
+	Tells the client how many players are participating in this databattle.
+	
+playerIndex:<int index>
+	Server
+	Tells the client which player they are in this databattle.  If -1, they are a spectator.

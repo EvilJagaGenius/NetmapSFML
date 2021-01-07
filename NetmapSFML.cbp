@@ -48,7 +48,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/NetmapSFML" prefix_auto="1" extension_auto="1" />
+				<Option output="NetmapSFML" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />

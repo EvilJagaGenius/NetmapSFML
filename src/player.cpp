@@ -32,8 +32,7 @@ void Player::readyup() {
 
 void Player::addToUploadMap(string byteCoord, string pieceName) {
     // Put the piece in uploadMap, so we upload it on hitting DBI
-    cout << "Adding piece to upload map\n";
-
+    cout << "Adding " << pieceName << " to upload map\n";
     DataBattlePiece* newPiece = new Program(pieceName);
 
     // See if we already have a piece ready to upload at that coord
@@ -53,4 +52,5 @@ void Player::addToUploadMap(string byteCoord, string pieceName) {
         // Create an entry for that spot in uploadMap
         this->uploadMap.emplace(byteCoord, newPiece);
     }
+    cout << "Piece added successfully\n";
 }

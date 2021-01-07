@@ -42,6 +42,7 @@ class DataBattle
         sf::Vector2i programHead;
         vector<DataBattlePiece*> pieces;
         int pieceCounter;
+        int localPlayerIndex;
 
 
         // Functions

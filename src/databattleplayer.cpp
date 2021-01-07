@@ -50,52 +50,8 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         }
     }
 
-    /*
-    // Draw movement area, associated buttons
-    if (db->currentProgram->state == 'm') {
-        for (sf::Vector2i coord : this->moveArea) {
-            if ((this->grid[coord.x][coord.y]) != 0 || (this->db->currentProgram->statuses['g'] != 0)) {  // We shouldn't be running this check here, the DB should
-                if (coord == this->nButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(0*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->sButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->eButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(2*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else if (coord == this->wButton) {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                } else {
-                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                }
-                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
-                window->draw(this->gridSprite);
-            }
-        }
-    } else if (db->currentProgram->state == 'a') {  // Draw aiming area
-        for (sf::Vector2i coord : this->aimArea) {
-            this->gridSprite.setTextureRect(sf::Rect<int>(this->db->currentProgram->currentAction->targetSprite*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-            this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
-            window->draw(this->gridSprite);
-        }
-    }*/
-
-    // Upload phase: draw pieces in uploadMap
-    if (this->db->currentPlayerIndex == -1) {
-        for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
-            //cout << "Drawing " << p.first << ' ' << p.second << '\n';
-            // Do something, Taipu
-            sf::Vector2i tileCoord = readByteCoord(p.first);
-            //DataBattlePiece* piece = PROGRAM_DB[p.second];  // We need a better way to do this than referencing PROGRAM_DB
-            DataBattlePiece* piece;
-            // Draw the head sprite for that piece at that tile
-            this->programSprite.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-            this->programSprite.setPosition(tileCoord.x * (TILE_SIZE + GAP_SIZE), tileCoord.y * (TILE_SIZE + GAP_SIZE));
-            window->draw(this->programSprite);
-        }
-    }
-
     // Draw pieces
     for (int i=0; i<this->db->pieces.size(); i++) {
-        //cout << "Looping through pieces\n";
         DataBattlePiece* piece = this->db->pieces[i];
         sf::Sprite spriteToDraw;
         spriteToDraw = this->gridSprite;
@@ -166,6 +122,22 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         }
     }
 
+    // Upload phase: draw pieces in uploadMap
+    if (this->db->currentPlayerIndex == -1) {
+        for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
+            //cout << "Drawing " << p.first << ' ' << p.second->uploadName << '\n';
+            // Do something, Taipu
+            sf::Vector2i tileCoord = readByteCoord(p.first);
+            DataBattlePiece* piece = p.second;
+            // Draw the head sprite for that piece at that tile
+            //cout << "(" << piece->spriteCoord.x << ", " << piece->spriteCoord.y << ")\n";
+            this->programSprite.setTextureRect(sf::Rect<int>(piece->spriteCoord.x*TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+            this->programSprite.setPosition(tileCoord.x * (TILE_SIZE + GAP_SIZE), tileCoord.y * (TILE_SIZE + GAP_SIZE));
+            window->draw(this->programSprite);
+            //cout << "Done drawing\n";
+        }
+    }
+
     // Last: Draw the tile-highlighting cursor
     if (cursorTile.x != -1) {  // If we found a valid tile to highlight
         this->gridSprite.setTextureRect(sf::Rect<int>(0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE));
@@ -209,6 +181,10 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
 
+    if (this->db->localPlayerIndex != -1) {
+            cout << "Setting localPlayer\n";
+        this->localPlayer = this->db->players[this->db->localPlayerIndex];
+    }
 
     // Music
     if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
@@ -304,7 +280,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     // See if there's an upload zone there, set it as our selected upload
                     this->selectedUpload = nullptr;
                     for (DataBattlePiece* piece : this->db->pieces) {
-                        if (piece->pieceType == 'u' && piece->controller == this->localPlayerIndex) {
+                        if (piece->pieceType == 'u' && piece->owner == this->db->localPlayerIndex) {
                             if ((piece->sectors[0]->coord.x == tileCoord.x) && (piece->sectors[0]->coord.y == tileCoord.y)) {
                                 this->selectedUpload = piece;
                                 cout << "Clicked an upload zone\n";
@@ -508,7 +484,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             }
             frameTimer++;
         }*/
-
+        //cout << "Calling tick()\n";
         this->db->tick();  // Tick the DB
 
         //cout << "Calling render()\n";
