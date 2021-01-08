@@ -181,11 +181,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     this->gridSprite = sf::Sprite(GRID_SHEET);
     this->programSprite = sf::Sprite(PROGRAM_SHEET);
 
-    if (this->db->localPlayerIndex != -1) {
-            cout << "Setting localPlayer\n";
-        this->localPlayer = this->db->players[this->db->localPlayerIndex];
-    }
-
     // Music
     if (!this->musicTrack.openFromFile("Data\\Music\\" + this->musicFilename)) {
         cout << "Music file not found: " << this->musicFilename << '\n';
@@ -222,6 +217,10 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         pressedLeft = false;
         pressedRight = false;
         pressedN = false;
+
+        if (this->db->localPlayerIndex != -1) {
+            this->localPlayer = this->db->players[this->db->localPlayerIndex];
+        }
 
         if (mousePos.x <= WY) {
             if ((mousePos.x % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE) && (mousePos.y % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE)) {  // If on a valid coord
@@ -273,7 +272,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         }
 
         if (this->db->currentPlayerIndex == -1) {  // Upload phase
-            // Do something, Taipu
             if (clicked) {
                 if ((tileCoord.x != -1) && (tileCoord.y != -1)) {  // See if we clicked on a tile
                     cout << "Valid coord: " << getByteCoord(tileCoord) << '\n';
@@ -309,16 +307,16 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                         cout << "Clicked DBI\n";
                         // Send our upload commands
                         for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
-                            this->localPlayer->cmdQueue.push("upload:" + p.first + ":" + p.second->uploadName + ":NULL");
+                            this->localPlayer->cmdQueue.emplace("upload:" + to_string(this->db->localPlayerIndex) + ":" + p.first + ":" + p.second->uploadName + ":NULL");
                         }
                         // Send ready signal
-                        this->localPlayer->cmdQueue.push("DBI");
+                        this->localPlayer->cmdQueue.emplace("DBI");
                     }
                 }
             }
         }
 
-        if (this->db->currentPlayerIndex == this->localPlayerIndex) {  // If it's our turn
+        if ((this->db->currentPlayerIndex == this->db->localPlayerIndex) && (this->db->localPlayerIndex != -1)) {  // If it's our turn
             // Do something, Taipu
             if (clicked) {
                 if (this->db->currentProgram->state == 'a') {  // If our program is aiming
@@ -340,150 +338,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             }
         }
 
-
-        /*// Player's turn
-        if (this->phase == 'p'  && this->currentProgram != nullptr) {
-            this->programHead = this->currentProgram->sectors[0]->coord;
-
-            if ((this->currentProgram->state == 'm') && (this->currentProgram->currentMove >= this->currentProgram->speed)) {  // If out of moves
-                this->currentProgram->switchToAiming(0);
-                // Get aim area here
-            }
-
-            if (clicked) {
-                if (this->currentProgram->state == 'm') {  // If moving
-                    this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
-                    this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
-                    this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
-                    this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
-
-                    if ((this->grid[tileCoord.x][tileCoord.y] != 0) || (this->currentProgram->statuses['g'] != 0)) {  // If it's a tile (or we have gridwalk)
-                        if (tileCoord == nButton) {
-                            //this->currentProgram->move(this, nButton, false);
-                            //hud->setFocus(this->currentProgram);
-                            db->takeCommand("move:" + to_string(currentProgramIndex) + ":n");
-                        } else if (tileCoord == sButton) {
-                            //this->currentProgram->move(this, sButton, false);
-                            //hud->setFocus(this->currentProgram);
-                            db->takeCommand("move:" + to_string(currentProgramIndex) + ":s");
-                        } else if (tileCoord == eButton) {
-                            //this->currentProgram->move(this, eButton, false);
-                            //hud->setFocus(this->currentProgram);
-                            db->takeCommand("move:" + to_string(currentProgramIndex) + ":e");
-                        } else if (tileCoord == wButton) {
-                            //this->currentProgram->move(this, wButton, false);
-                            //hud->setFocus(this->currentProgram);
-                            db->takeCommand("move:" + to_string(currentProgramIndex) + ":w");
-                        }
-                    }
-
-                    this->programHead = this->currentProgram->sectors[0]->coord;
-                    if (this->currentProgram->currentMove < this->currentProgram->speed) {
-                        this->moveArea = getRadius(this->currentProgram->speed - this->currentProgram->currentMove, this->programHead, false);
-
-                        /*this->nButton = sf::Vector2<int>(programHead.x, programHead.y - 1);
-                        this->sButton = sf::Vector2<int>(programHead.x, programHead.y + 1);
-                        this->eButton = sf::Vector2<int>(programHead.x + 1, programHead.y);
-                        this->wButton = sf::Vector2<int>(programHead.x - 1, programHead.y);
-                    } else {
-                        this->targets.clear();
-                        this->currentProgram->switchToAiming(0);
-                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead, this->targets.size());
-                        //this->hud->setSubFocus(0);
-                    }
-
-                } else if (this->currentProgram->state == 'a') {  // If aiming
-                    for (sf::Vector2i coord : this->aimArea) {
-                        if (coord == tileCoord) {
-                            this->targets.push_back(tileCoord);  // Add it to the target list
-                            this->aimArea = this->currentProgram->currentAction->getAimArea(this->programHead, this->targets.size());
-                            if (this->targets.size() >= this->currentProgram->currentAction->numOfTargets) {  // If we've selected all our targets
-                                //this->currentProgram->useAction(this, this->currentProgram->currentActionIndex, this->targets);
-                                // Switch to next available program
-                                this->switchPrograms();
-                                string commandString = "action" + to_string(currentProgram->currentActionIndex);
-                                for (sf::Vector2i coord : this->targets) {
-                                    commandString += ":" + getByteCoord(coord);
-                                }
-                                db->takeCommand(commandString);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Enemy turn
-        else if (this->phase == 'e') {
-            if (frameTimer >= 10) {
-                frameTimer = 0;
-                programHead = this->currentProgram->sectors[0]->coord;
-                // Rudimentary AI here, copied from the Python.  If somebody could help me improve this that'd be nice
-                // Look for closest target
-                sf::Vector2i targetCoord = sf::Vector2<int>(-1, -1);
-                for (int i=0; i<this->friendlies.size(); i++) {
-                    for (ProgramSector* s : this->friendlies[i]->sectors) {
-                        if (targetCoord.x == -1) {  // If we haven't set targetCoord yet
-                            targetCoord = s->coord;
-                        } else {
-                            int distanceToTarget = abs(targetCoord.x - programHead.x) + abs(targetCoord.y - programHead.y);
-                            int distanceToCandidate = abs(s->coord.x - programHead.x) + abs(s->coord.y - programHead.y);
-                            if (distanceToCandidate < distanceToTarget) {  // If that target is closer
-                                targetCoord = s->coord;  // Change targets
-                            }
-                        }
-                    }
-                }
-                int xDistance = targetCoord.x - programHead.x;
-                int yDistance = targetCoord.y - programHead.y;
-
-                if (this->currentProgram->state == 'm') {  // If moving
-                    if (this->currentProgram->currentMove >= this->currentProgram->speed) {  // If it's out of moves
-                        this->currentProgram->switchToAiming(0);
-                        this->targets.clear();
-                        this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
-                    } else if ((yDistance < 0) && ((startsWith(this->lookAt(programHead.x, programHead.y-1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y-1), "defender " + this->currentDefenderIndex)))) {
-                        // North
-                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x, programHead.y-1), false);
-                        this->programHead = this->currentProgram->sectors[0]->coord;
-                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
-                    } else if ((yDistance > 0) && ((startsWith(this->lookAt(programHead.x, programHead.y+1), "tile")) || (startsWith(this->lookAt(programHead.x, programHead.y+1), "defender " + this->currentDefenderIndex)))) {
-                        // South
-                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x, programHead.y+1), false);
-                        this->programHead = this->currentProgram->sectors[0]->coord;
-                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
-                    } else if ((xDistance > 0) && ((startsWith(this->lookAt(programHead.x+1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x+1, programHead.y), "defender " + this->currentDefenderIndex)))) {
-                        // East
-                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x+1, programHead.y), false);
-                        this->programHead = this->currentProgram->sectors[0]->coord;
-                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
-                    } else if ((xDistance < 0) && ((startsWith(this->lookAt(programHead.x-1, programHead.y), "tile")) || (startsWith(this->lookAt(programHead.x-1, programHead.y), "defender " + this->currentDefenderIndex)))) {
-                        // West
-                        this->currentProgram->move(this, sf::Vector2<int>(programHead.x-1, programHead.y), false);
-                        this->programHead = this->currentProgram->sectors[0]->coord;
-                        this->moveArea = getRadius(this->currentProgram->speed, this->programHead);
-                    } else {  // If you can't move anywhere you'd like to go
-                        if ((xDistance == 0) || (yDistance == 0)) {  // If you're right against the target
-                            this->currentProgram->switchToAiming(0);  // Switch to aiming
-                            this->aimArea = this->currentProgram->currentAction->getAimArea(this->currentProgram->sectors[0]->coord, this->targets.size());
-                        } else {
-                            this->currentProgram->noAction();  // Take no action
-                        }
-                    }
-                } else if (this->currentProgram->state == 'a') {  // If aiming
-                    // Attempt to attack the closest sector of a friendly program
-                    int actionIndex = 0;  // This value can be changed if the AI improves and defender Programs get multiple actions to choose from
-                    this->targets.clear();
-                    this->targets.push_back(targetCoord);
-                    cout << "Attacking " << getByteCoord(targetCoord) << '\n';
-                    this->currentProgram->useAction(this, actionIndex, targets);
-
-                    // Switch to the next available defender; failing that, switch turns
-                    this->switchPrograms(hud);
-                }
-            }
-            frameTimer++;
-        }*/
         //cout << "Calling tick()\n";
         this->db->tick();  // Tick the DB
 

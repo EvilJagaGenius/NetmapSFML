@@ -182,7 +182,6 @@ void Program::load() {
 			//this->actions.push_back(ACTION_DB[splitLine[1]]);
         } else if (startsWith(line, "sprite")) {
             this->spriteCoord = sf::Vector2i(stoi(splitLine[1]), stoi(splitLine[2]));
-            cout << "Sprite coord: (" << this->spriteCoord.x << ", " << this->spriteCoord.y << ")\n";
         } else if (startsWith(line, "description")) {
             this->description = splitLine[1];
         } else if (startsWith(line, "color")) {

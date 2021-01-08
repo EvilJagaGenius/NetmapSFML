@@ -211,9 +211,9 @@ void DataBattle::switchPrograms() {  // Find the next available program and swit
 string DataBattle::takeCommand(string command, int playerIndex) {
     cout << "Command: " << command << '\n';
     if (startsWith(command, "upload")) {  // Upload piece
-        // 1: Byte coord, 2: Program type, 3: Name
+        // 1: Owner, 2: Byte coord, 3: Program type, 4: Name
         vector<string> splitCommand = splitString(command, ':');
-        sf::Vector2i targetCoord = readByteCoord(splitCommand[1]);
+        sf::Vector2i targetCoord = readByteCoord(splitCommand[2]);
         // Do some checking on the coord, make sure there's actually an upload there
         DataBattlePiece* uploadZone = nullptr;
         int uploadIndex = -1;
@@ -230,7 +230,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         }
 
         if (uploadZone != nullptr) {  // If we found a valid upload zone
-            string programType = splitCommand[2];
+            string programType = splitCommand[3];
             Player* player = players[playerIndex];
 
             for (pair<string, int> p : player->programs) {
@@ -247,7 +247,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             newProgram->move(targetCoord, true);
             newProgram->owner = playerIndex;
             newProgram->controller = playerIndex;
-            if (splitCommand[3] == "NULL") {  // We can add more checks to piece names
+            if (splitCommand[4] == "NULL") {  // We can add more checks to piece names
                 newProgram->name = "piece" + to_string(this->pieceCounter);
             }
             this->addPiece(newProgram);
@@ -399,7 +399,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         this->addPiece(newUpload);
     } else if (startsWith(command, "addProgram")) {
         // 1:DataBattlePiece type, 2:x, 3:y, 4:owner, 5:name
-        cout << "Adding defender\n";
+        cout << "Adding program\n";
         vector<string> splitCommand = splitString(command, ':');
         Program* newProgram = new Program(splitCommand[1]);
         newProgram->move(sf::Vector2<int>(stoi(splitCommand[2]), stoi(splitCommand[3])), true);
