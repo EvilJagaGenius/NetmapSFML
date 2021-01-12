@@ -69,10 +69,11 @@ void NetworkDataBattle::tick() {  // Override
         if (packetString.size() > 0) {
             cout << "SERVER: " << packetString << '\n';
             // Maybe we should move this split-up into lines into takeCommand()
-            vector<string> lines = splitString(packetString, '\n');
+            /*vector<string> lines = splitString(packetString, '\n');
             for (string line : lines) {
                 this->takeCommand(line, this->localPlayerIndex);  // Execute whatever commands the server tells us to
-            }
+            }*/
+            this->takeCommand(packetString, this->localPlayerIndex);
         }
     }
 
@@ -207,10 +208,9 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
                 break;
             }
         }
-        if (sourcePiece->currentMove < sourcePiece->speed) {  // If we haven't moved all we can this turn
-            // See if that direction is a valid move
+        if (sourcePiece != nullptr) {
+            cout << "Moving " << sourcePiece->name << '\n';
             sf::Vector2i coordToCheck = sf::Vector2<int>(sourcePiece->sectors[0]->coord);  // Copy the head coord
-            bool valid = false;
             if (direction == 'n') {
                 coordToCheck += sf::Vector2<int>(0, -1);
             } else if (direction == 's') {
@@ -220,19 +220,6 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
             } else if (direction == 'w') {
                 coordToCheck += sf::Vector2<int>(-1, 0);
             }
-            // See if there's a piece occupying that coord
-            DataBattlePiece* occupyingPiece = nullptr;
-            for (DataBattlePiece* piece : this->pieces) {
-                if ((piece->sectors[0]->coord.x == coordToCheck.x) && (piece->sectors[0]->coord.y == coordToCheck.y)) {
-                    occupyingPiece = piece;
-                    break;
-                }
-            }
-            if (occupyingPiece != nullptr) {  // If something is occupying that coord
-                return "no";  // Fail
-                // Implement different stuff for credit pickups, flags, etc.
-            }
-            // If we're here, there's nothing occupying the coord we want to move on.
             if (this->grid[coordToCheck.x][coordToCheck.y]) {  // If the grid square is not empty
                 sourcePiece->move(coordToCheck, false);
                 // Add code for gridwalk, negawalk, gridburn
@@ -241,6 +228,8 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
                 }
             }
             return "ok";
+        } else {
+            cout << "sourcePiece not found\n";
         }
     } else if (startsWith(command, "action")) {
         // 1: Piece name, 2: Action index, >2: Target coords
@@ -309,21 +298,47 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
         return "ok";
 
     } else if (startsWith(command, "addUpload:")) {  // Upload zone
-        // 1:x, 2:y, 3:owner
-        cout << "Adding upload zone\n";
+        // 1: Byte coord, 2: owner
+        cout << "Adding upload zone... ";
         vector<string> splitCommand = splitString(command, ':');
-        UploadZone* newUpload = new UploadZone(stoi(splitCommand[1]), stoi(splitCommand[2]), stoi(splitCommand[3]));
+        sf::Vector2i coord = readByteCoord(splitCommand[1]);
+        UploadZone* newUpload = new UploadZone(coord.x, coord.y, stoi(splitCommand[2]));
         this->addPiece(newUpload);
-
-    } else if (startsWith(command, "addProgram")) {
-        // 1:DataBattlePiece type, 2:x, 3:y, 4:owner, 5:name
+        cout << "Done\n";
+    } else if (startsWith(command, "addProgram:")) {
+        // 1: Program type, 2: byte coord, 3: owner, 4: name
         cout << "Adding program\n";
         vector<string> splitCommand = splitString(command, ':');
         Program* newProgram = new Program(splitCommand[1]);
-        newProgram->move(sf::Vector2<int>(stoi(splitCommand[2]), stoi(splitCommand[3])), true);
-        newProgram->owner = stoi(splitCommand[4]);
-        newProgram->name = splitCommand[5];
+        sf::Vector2i coord = readByteCoord(splitCommand[2]);
+        newProgram->move(coord, true);
+        newProgram->owner = stoi(splitCommand[3]);
+        newProgram->name = splitCommand[4];
         this->addPiece(newProgram);
+    } else if (startsWith(command, "startTurn:")) {  // Start turn
+        // 1: Player index
+        // What do we do here?  We need a targeted version of switchTurns()
+        playerIndex = stoi(command.substr(10));
+        this->currentPlayerIndex = playerIndex;
+        bool foundFirstProgram = false;
+        for (int i=0; i<this->pieces.size(); i++) {
+            // Loop through all the pieces, prep all pieces controlled by the player, select one to be first
+            DataBattlePiece* piece = this->pieces[i];
+            cout << "Type: " << piece->pieceType << '\n';
+            cout << "Name: " << piece->name << '\n';
+            cout << "Controller: " << piece->controller << '\n';
+            if (piece->controller == currentPlayerIndex) {
+                piece->prepForTurn();
+                if (piece->pieceType == 'p') {  // Or avatar or user, etc
+                    if (!foundFirstProgram) {
+                        foundFirstProgram = true;
+                        this->nextProgram = piece;
+                        this->nextProgramIndex = i;
+                    }
+                }
+            }
+        }
+        this->switchPrograms();
     }
 
     return "Not implemented";

@@ -309,7 +309,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             }
             return "ok";
         }
-    } else if (startsWith(command, "action")) {
+    } else if (startsWith(command, "action")) {  // Actions
         // 1: Piece name, 2: Action index, >2: Target coords
         vector<string> splitCommand = splitString(command, ':');
         string pieceName = splitCommand[1];
@@ -346,11 +346,19 @@ string DataBattle::takeCommand(string command, int playerIndex) {
 
         return "ok";
 
-    } else if (startsWith(command, "noaction")) {
-        if (startsWith(command, "noaction:")) {  // If the user specified a particular piece, hence the semicolon
-            return "Not implemented";
-        } else {  // No piece specified, NA the current piece
-            this->currentProgram->noAction();
+    } else if (startsWith(command, "noaction")) {  // No Action
+        // 1: Piece name
+        vector<string> splitCommand = splitString(command, ':');
+        string pieceName = splitCommand[1];
+        DataBattlePiece* sourcePiece = nullptr;
+        for (DataBattlePiece* piece : this->pieces) {
+            if (piece->name == pieceName) {
+                sourcePiece = piece;
+                break;
+            }
+        }
+        if (sourcePiece != nullptr && sourcePiece->owner == playerIndex) {
+            sourcePiece->noAction();
             this->switchPrograms();
             return "ok";
         }
@@ -392,65 +400,27 @@ string DataBattle::takeCommand(string command, int playerIndex) {
         this->localPlayerIndex = stoi(command.substr(12));
         return "ok";
     } else if (startsWith(command, "addUpload:")) {  // Upload zone
-        // 1:x, 2:y, 3:owner
+        // 1: Byte coord, 2: owner
         cout << "Adding upload zone\n";
         vector<string> splitCommand = splitString(command, ':');
-        UploadZone* newUpload = new UploadZone(stoi(splitCommand[1]), stoi(splitCommand[2]), stoi(splitCommand[3]));
+        sf::Vector2i coord = readByteCoord(splitCommand[1]);
+        UploadZone* newUpload = new UploadZone(coord.x, coord.y, stoi(splitCommand[2]));
         this->addPiece(newUpload);
     } else if (startsWith(command, "addProgram")) {
-        // 1:DataBattlePiece type, 2:x, 3:y, 4:owner, 5:name
+        // 1: Program type, 2: byte coord, 3: owner, 4: name
         cout << "Adding program\n";
         vector<string> splitCommand = splitString(command, ':');
         Program* newProgram = new Program(splitCommand[1]);
-        newProgram->move(sf::Vector2<int>(stoi(splitCommand[2]), stoi(splitCommand[3])), true);
-        newProgram->owner = stoi(splitCommand[4]);
-        newProgram->name = splitCommand[5];
+        sf::Vector2i coord = readByteCoord(splitCommand[2]);
+        newProgram->move(coord, true);
+        newProgram->owner = stoi(splitCommand[3]);
+        newProgram->name = splitCommand[4];
         this->addPiece(newProgram);
     }
-
     return "Not implemented";
 }
 
 string DataBattle::lookAt(sf::Vector2i coord) {
-    /*// Uploads
-    if (this->phase == 'u') {
-        for (int i=0; i<this->uploads.size(); i++) {
-            if (coord == this->uploads[i]) {
-                this->selectedUpload = i;
-                return "upload " + to_string(i);
-            }
-        }
-    }
-    // Cash pickups
-    for (sf::Vector2i c : this->cashPickups) {
-        if (c == coord) {
-            return "cash";
-        }
-    }
-    // Defenders
-    for (pair<string, DataBattlePiece*> p : this->defenders) {
-        for (ProgramSector* s : p.second->sectors) {
-            if (s->coord == coord) {
-                return "defender " + p.first;
-            }
-        }
-    }
-
-    // Friendlies
-    for (int i=0; i<this->friendlies.size(); i++) {
-        for (ProgramSector* s : this->friendlies[i]->sectors) {
-            if (s->coord == coord) {
-                return "friendly " + to_string(i);
-            }
-        }
-    }
-
-    // Tiles
-    if (this->grid[coord.x][coord.y] == 0) {
-        return "empty";
-    } else {
-        return "tile";
-    }*/
     return "Not implemented";
 }
 
@@ -499,7 +469,6 @@ void DataBattle::addPiece(DataBattlePiece* newPiece) {
 }
 
 void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targets) {
-    // We could use a vector or a straight-up array.  Not sure which works better.
     cout << "Performing action " << action->actionName << '\n';
     for (string command : action->commands) {
         vector<string> splitCommand = splitString(command, ':');

@@ -49,6 +49,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
             }
         }
     }
+    //cout << "Grid drawn\n";
 
     // Draw pieces
     for (int i=0; i<this->db->pieces.size(); i++) {
@@ -99,7 +100,6 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         for (int j=0; j<(piece->size); j++) {
             ProgramSector* sector = piece->sectors[j];
             if (j==0) {  // Draw head sprite
-                //cout << "Drawing head sprite\n";
                 spriteToDraw.setTextureRect(sf::Rect<int>(TILE_SIZE, piece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(spriteToDraw);
@@ -121,6 +121,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
             spriteToDraw.setColor(sf::Color::White);  // Reset the color for when we use this next
         }
     }
+    //cout << "Pieces drawn\n";
 
     // Upload phase: draw pieces in uploadMap
     if (this->db->currentPlayerIndex == -1) {
@@ -137,6 +138,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
             //cout << "Done drawing\n";
         }
     }
+    //cout << "uploadMap drawn\n";
 
     // Last: Draw the tile-highlighting cursor
     if (cursorTile.x != -1) {  // If we found a valid tile to highlight
@@ -144,6 +146,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         this->gridSprite.setPosition(sf::Vector2<float>(cursorTile.x*TILE_SIZE + cursorTile.x*GAP_SIZE, cursorTile.y*TILE_SIZE + cursorTile.y*GAP_SIZE));
         window->draw(gridSprite);
     }
+    //cout << "Cursor drawn\n";
 
     // Draw the HUD panel
     //sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
@@ -165,6 +168,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     this->hudText.setString("DATABATTLE INITIALIZE");
     this->hudText.setPosition(0, WY-14);
     this->hudPanel.draw(this->hudText);
+    //cout << "HUD drawn\n";
 
     this->hudPanel.display();
     sf::Sprite sprite(this->hudPanel.getTexture());
@@ -300,7 +304,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                             break;
                         }
                         i++;
-
                     }
                     // DataBattle Initialize
                     if (mousePos.y >= WY - 14) {  // If clicked DBI
@@ -334,7 +337,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             } else if (pressedRight) {
                 this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":e");
             } else if (pressedN) {
-                this->localPlayer->cmdQueue.push("noaction");
+                this->localPlayer->cmdQueue.push("noaction:" + this->db->currentProgram->name);
             }
         }
 
