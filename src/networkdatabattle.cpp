@@ -6,6 +6,25 @@ NetworkDataBattle::NetworkDataBattle() {
     this->serverSocket->setBlocking(false);
     this->localPlayerIndex = -1;
     this->currentPlayerIndex = -1;
+    this->currentProgram = nullptr;
+    this->currentProgramIndex = -1;
+    this->nextProgram = nullptr;
+    this->nextProgramIndex = -1;
+}
+
+NetworkDataBattle::NetworkDataBattle(string filename) {
+    // Might have to copy stuff from DataBattle()
+    this->filename = filename;
+    this->serverSocket = new sf::TcpSocket();
+    this->serverSocket->setBlocking(false);
+    this->localPlayerIndex = -1;
+    this->currentPlayerIndex = -1;
+    this->currentProgram = nullptr;
+    this->currentProgramIndex = -1;
+    this->nextProgram = nullptr;
+    this->nextProgramIndex = -1;
+
+    this->load();
 }
 
 NetworkDataBattle::NetworkDataBattle(string ipString, unsigned short port) {
@@ -47,8 +66,8 @@ void NetworkDataBattle::connect(string ipString, unsigned short port) {
                     // Do something, Taipu
                     vector<string> splitPacket = splitString(packetString, ':');
                     this->filename = splitPacket[1];
-                    cout << splitPacket[1] << '\n';
-                    cout << this->filename << '\n';
+                    //cout << splitPacket[1] << '\n';
+                    //cout << this->filename << '\n';
                     this->load();
                     keepReceiving = false;
                 }

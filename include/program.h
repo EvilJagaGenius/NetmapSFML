@@ -42,6 +42,7 @@ class Program: public DataBattlePiece
 
         //char state;
         //string programType;
+        int cost;
 
         // Functions
         Program(string programType);

@@ -9,7 +9,8 @@
 
 #include "toolbox.h"
 #include "netmap_playable.h"
-#include "networkdatabattle.h"
+#include "networkdatabattle.h" // We might not need this, with moving netcode into Lobby
+#include "lobby.h"
 #include "databattleplayer.h"
 //#include "databattleeditor.h"  // Needs reworked before adding it back in
 #include "titlescreen.h"
@@ -31,6 +32,7 @@ int main()
 
     Netmap_Playable* CURRENT_PLAYABLE = new TitleScreen();
     DataBattle* db = nullptr;
+    sf::TcpSocket* netSocket = nullptr;  // For netplay shenanigans
     string nextPlayable;
     string lastPlayable = "quit:"; //"scene:testScene";
     // There should probably be a better way to connect players and DB Players.
@@ -55,6 +57,10 @@ int main()
         } else if (startsWith(nextPlayable, "title:")) {
             cout << "Returning to title\n";
             CURRENT_PLAYABLE = new TitleScreen();
+            if (netSocket != nullptr) {  // If we get to the title screen, we have left the netgame lobby
+                delete netSocket;
+                netSocket = nullptr;
+            }
         } else if (startsWith(nextPlayable, "scene:")) {
             cout << "Launching scene\n";
             CURRENT_PLAYABLE = new Scene(splitString(nextPlayable, ':')[1]);
@@ -63,14 +69,27 @@ int main()
             vector<string> splitPlayable = splitString(nextPlayable, ':');
             CURRENT_PLAYABLE = new NPC(splitPlayable[1]);
             CURRENT_PLAYABLE->destination = lastPlayable;
-        } else if (startsWith(nextPlayable, "netgame:")) {
-            cout << "Network game\n";
+        } else if (startsWith(nextPlayable, "netlobby:")) {
+            cout << "Network lobby\n";
             vector<string> splitAddress = splitString(nextPlayable, ':');
             string ipAddress = splitAddress[1];
             unsigned short portNum = stoi(splitAddress[2]);
-            // Do something, Taipu
-            db = new NetworkDataBattle(ipAddress, portNum);
-            CURRENT_PLAYABLE = new DataBattlePlayer(db);
+            Lobby* newLobby;
+            if (netSocket == nullptr) {
+                Lobby* newLobby = new Lobby(ipAddress, portNum);
+                netSocket = newLobby->serverSocket;  // If we jump into a DB from here, we can pass the socket along
+            } else {
+                Lobby* newLobby = new Lobby(netSocket);
+            }
+            CURRENT_PLAYABLE = newLobby;
+        } else if (startsWith(nextPlayable, "netdb:")) {
+            vector<string> splitPlayable = splitString(nextPlayable, ':');
+            NetworkDataBattle* newNetDB = new NetworkDataBattle(splitPlayable[1]);
+            newNetDB->serverSocket = netSocket;
+            db = newNetDB;
+            DataBattlePlayer* dbPlayer = new DataBattlePlayer(db);
+            dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + netSocket.getRemotePort();
+            CURRENT_PLAYABLE = dbPlayer;
         }
         lastPlayable = nextPlayable;
     }
@@ -79,6 +98,10 @@ int main()
     // We need to clean things up before we exit the program
     delete PLAYER;
     delete PLAYER2;
+    if (netSocket != nullptr) {
+        delete netSocket;
+        netSocket = nullptr;
+    }
 
     cout << "Cleanup complete\n";
 

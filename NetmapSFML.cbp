@@ -99,6 +99,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="include/databattlepiece.h" />
 		<Unit filename="include/databattleplayer.h" />
 		<Unit filename="include/inputbox.h" />
+		<Unit filename="include/lobby.h" />
 		<Unit filename="include/netmap_playable.h" />
 		<Unit filename="include/networkdatabattle.h" />
 		<Unit filename="include/npc.h" />
@@ -123,6 +124,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="src/databattlepiece.cpp" />
 		<Unit filename="src/databattleplayer.cpp" />
 		<Unit filename="src/inputbox.cpp" />
+		<Unit filename="src/lobby.cpp" />
 		<Unit filename="src/netmap_playable.cpp" />
 		<Unit filename="src/networkdatabattle.cpp" />
 		<Unit filename="src/npc.cpp" />

@@ -43,6 +43,7 @@ class DataBattle
         vector<DataBattlePiece*> pieces;
         int pieceCounter;
         int localPlayerIndex;
+        bool shop;
 
 
         // Functions

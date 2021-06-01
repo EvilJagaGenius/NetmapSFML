@@ -11,6 +11,7 @@ Program::Program(string programType) {
     this->owner = '0';
     this->invisibilityTimer = 0;
     this->visible = true;
+    this->cost = 0;
 
     this->load();
 }
@@ -23,6 +24,7 @@ Program::Program(Program* original) {  // Copy constructor
     this->screenName = original->screenName;
     this->spriteCoord = original->spriteCoord;
     this->color = original->color;
+    this->cost = 0;
 
     for (ProgramSector* s : original->sectors) {
         this->sectors.push_back(new ProgramSector(s->coord));
@@ -79,6 +81,7 @@ Program::Program(DataBattlePiece* original) {  // Alt copy constructor
     this->uploadName = original->uploadName;
     this->spriteCoord = original->spriteCoord;
     this->color = original->color;
+    this->cost = 0;
 
     for (ProgramSector* s : original->sectors) {
         this->sectors.push_back(new ProgramSector(s->coord));
@@ -174,6 +177,8 @@ void Program::load() {
             this->speed = stoi(splitLine[1]);
         } else if (startsWith(line, "maxSpeed")) {
             this->maxSpeed = stoi(splitLine[1]);
+        } else if (startsWith(line, "cost")) {
+            this->cost = stoi(splitLine[1]);
         } else if (startsWith(line, "action")) {
             string actionName = splitLine[1];
             ProgramAction* newAction = new ProgramAction();

@@ -14,6 +14,7 @@ class NetworkDataBattle : public DataBattle
         sf::TcpSocket* serverSocket;  // Only maintain one socket, to the server
 
         NetworkDataBattle();
+        NetworkDataBattle(string filename);
         NetworkDataBattle(string ipString, unsigned short port);
         virtual ~NetworkDataBattle();
         void connect(string ipString, unsigned short port);

@@ -62,40 +62,6 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
             spriteToDraw = this->programSprite;
         }
 
-        /*if (!piece->visible) {
-            // If we control the piece
-                this->programSprite.setColor(sf::Color(128,128,128,128));  // Hopefully this turns things transparent
-            // Else
-                //this->programSprite.setColor(sf::Color::Transparent);
-        } else {
-            this->programSprite.setColor(sf::Color::White);  // And this fixes it
-        }*/
-        /*// Draw connecting lines
-        for (int j=0; j<(piece->size); j++) {
-            //cout << "Looping through sectors\n";
-            ProgramSector* sector = piece->sectors[j];
-            for (ProgramSector* s : sector->links) {
-                sf::Vector2i nextCoord = s->coord;
-                sf::Vector2i centerA = sf::Vector2<int>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE + 13, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE + 13);
-                sf::Vector2i centerB = sf::Vector2<int>(nextCoord.x*TILE_SIZE + nextCoord.x*GAP_SIZE + 13, nextCoord.y*TILE_SIZE + nextCoord.y*GAP_SIZE + 13);
-                sf::RectangleShape connectingLine(sf::Vector2<float>(abs(centerA.x - centerB.x) + 2, abs(centerA.y - centerB.y) + 2));
-                sf::Vector2f topLeft;
-                if (centerA.x < centerB.x) {
-                    topLeft.x = centerA.x;
-                } else {
-                    topLeft.x = centerB.x;
-                }
-                if (centerA.y < centerB.y) {
-                    topLeft.y = centerA.y;
-                } else {
-                    topLeft.y = centerB.y;
-                }
-                connectingLine.setFillColor(piece->color);
-                connectingLine.setOutlineColor(piece->color);
-                connectingLine.setPosition(topLeft);
-                window->draw(connectingLine);
-            }
-        }*/
         // Draw sector sprites
         for (int j=0; j<(piece->size); j++) {
             ProgramSector* sector = piece->sectors[j];

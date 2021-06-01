@@ -130,8 +130,7 @@ string TitleScreen::play(sf::RenderWindow* window) {
             }
 
         }
-        // Playing DBs from a filename
-        if (this->currentInputBox != nullptr) {
+        if (this->currentInputBox != nullptr) {  // Playing DBs from a filename
             if (textBoxType == 'f') {
                 if (this->currentInputBox->done) {
                     string filename = this->currentInputBox->getFocus();
@@ -154,19 +153,16 @@ string TitleScreen::play(sf::RenderWindow* window) {
                         }
                     }
                 }
-            } else if (textBoxType == 'n') {
+            } else if (textBoxType == 'n') {  // Netplay
                 if (this->currentInputBox->done) {
                     string ipAddress = this->currentInputBox->getFocus();
                     delete this->currentInputBox;
                     this->currentInputBox = nullptr;
                     textBoxType = '0';
-                    return ("netgame:" + ipAddress + ":9900");
+                    return ("netlobby:" + ipAddress + ":9900");
                 }
             }
         }
-
-
-
         this->render(window);
         window->display();
     }
