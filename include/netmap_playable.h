@@ -22,6 +22,7 @@ class Netmap_Playable
         vector<DataBattlePiece*> friendlies;
         string destination;
         int grid[16][16];
+        InputBox* inputBox;
 
         Netmap_Playable();
         virtual ~Netmap_Playable();

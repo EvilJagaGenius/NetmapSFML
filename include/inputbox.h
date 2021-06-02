@@ -22,9 +22,7 @@ class InputBox
         virtual ~InputBox();
         void virtual setMousePos(sf::Vector2i mousePos);
         void virtual render(sf::RenderWindow* window, Netmap_Playable* playable);
-        void virtual render(sf::RenderWindow* window, DataBattle* playable);
         void virtual takeInput(sf::Event event, Netmap_Playable* playable);
-        void virtual takeInput(sf::Event event, DataBattle* playable);
         void virtual setFocus(string focus);
         void virtual setFocus(DataBattlePiece* focus);
         void virtual setSubFocus(int subFocus);

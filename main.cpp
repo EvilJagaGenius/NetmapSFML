@@ -88,7 +88,7 @@ int main()
             newNetDB->serverSocket = netSocket;
             db = newNetDB;
             DataBattlePlayer* dbPlayer = new DataBattlePlayer(db);
-            dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + netSocket.getRemotePort();
+            dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + to_string(netSocket->getRemotePort());
             CURRENT_PLAYABLE = dbPlayer;
         }
         lastPlayable = nextPlayable;

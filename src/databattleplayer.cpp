@@ -106,7 +106,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     }
     //cout << "uploadMap drawn\n";
 
-    // Last: Draw the tile-highlighting cursor
+    // Draw the tile-highlighting cursor
     if (cursorTile.x != -1) {  // If we found a valid tile to highlight
         this->gridSprite.setTextureRect(sf::Rect<int>(0, 3*TILE_SIZE, TILE_SIZE, TILE_SIZE));
         this->gridSprite.setPosition(sf::Vector2<float>(cursorTile.x*TILE_SIZE + cursorTile.x*GAP_SIZE, cursorTile.y*TILE_SIZE + cursorTile.y*GAP_SIZE));
@@ -115,7 +115,6 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     //cout << "Cursor drawn\n";
 
     // Draw the HUD panel
-    //sf::Font font = fontLoad("Data\\Fonts\\Terminus.ttf");
     this->hudPanel.clear(sf::Color::Transparent);
     int i = 0;
     for (pair<string, int> p : localPlayer->programs) {
@@ -123,12 +122,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         this->hudText.setString(p.first);
         this->hudText.setPosition(0, i*14);
         this->hudText.setColor(sf::Color::White);
-        //window->draw(this->hudText);
         this->hudPanel.draw(this->hudText);
-        //renderText(&this->hudPanel, p.first, sf::Rect<int>(0,0,100,100), this->hudFont, 14, sf::Color::Black);
-
-        //this->hudPanel.draw(rect);
-        //window->draw(rect);
         i++;
     }
     this->hudText.setString("DATABATTLE INITIALIZE");
@@ -136,11 +130,14 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     this->hudPanel.draw(this->hudText);
     //cout << "HUD drawn\n";
 
+    // Finally, if there's an InputBox on-screen, render it last over everything else
+    if (this->inputBox != nullptr) {
+        this->inputBox
+    }
+
     this->hudPanel.display();
     sf::Sprite sprite(this->hudPanel.getTexture());
     sprite.setPosition(WY, 0);
-    //this->hudSprite.setTexture(this->hudPanel.getTexture());
-    //this->hudSprite.setTextureRect(sf::Rect<int>(100, 100, 100, 100));
     window->draw(sprite);
 }
 
