@@ -1,6 +1,7 @@
 #include "databattleplayer.h"
 
 DataBattlePlayer::DataBattlePlayer() {
+    this->localPlayer = nullptr;
     this->hudPanel.create(WY, WY);
 
     this->hudText = sf::Text("", DEFAULT_FONT, 12);
@@ -13,6 +14,7 @@ DataBattlePlayer::DataBattlePlayer() {
 }
 
 DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
+    this->localPlayer = nullptr;
     this->hudPanel.create(WY, WY);
 
     this->hudText = sf::Text("", DEFAULT_FONT, 12);
@@ -27,7 +29,9 @@ DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
 }
 
 DataBattlePlayer::~DataBattlePlayer() {
-    //dtor
+    if (this->inputBox != nullptr) {
+        delete this->inputBox;
+    }
 }
 
 void DataBattlePlayer::render(sf::RenderWindow* window) {
@@ -131,8 +135,9 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     //cout << "HUD drawn\n";
 
     // Finally, if there's an InputBox on-screen, render it last over everything else
+    // The main use of this right now is a shop screen.  Implement it
     if (this->inputBox != nullptr) {
-        this->inputBox
+        this->inputBox->render(window, this);
     }
 
     this->hudPanel.display();
@@ -209,31 +214,35 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             if (event.type == sf::Event::Closed)
                 window->close();
 
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::I) {
-                    cout << fps << '\n';
-                    //cout << "Victory status: " << this->checkForVictory() << '\n';
-                    cout << "Current program: " << this->db->currentProgram->name << '\n';
-                    for (ProgramSector* s : this->db->currentProgram->sectors) {
-                        cout << "Sector: " << getByteCoord(s->coord) << '\n';
-                        for (ProgramSector* l : s->links) {
-                            cout << "Link: " << getByteCoord(l->coord) << '\n';
+            if (this->inputBox != nullptr) {
+                this->inputBox->takeInput(event, this);
+            } else {
+                if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::I) {
+                        cout << fps << '\n';
+                        //cout << "Victory status: " << this->checkForVictory() << '\n';
+                        cout << "Current program: " << this->db->currentProgram->name << '\n';
+                        for (ProgramSector* s : this->db->currentProgram->sectors) {
+                            cout << "Sector: " << getByteCoord(s->coord) << '\n';
+                            for (ProgramSector* l : s->links) {
+                                cout << "Link: " << getByteCoord(l->coord) << '\n';
+                            }
                         }
+                    } else if (event.key.code == sf::Keyboard::Up) {
+                        pressedUp = true;
+                    } else if (event.key.code == sf::Keyboard::Down) {
+                        pressedDown = true;
+                    } else if (event.key.code == sf::Keyboard::Left) {
+                        pressedLeft = true;
+                    } else if (event.key.code == sf::Keyboard::Right) {
+                        pressedRight = true;
+                    } else if (event.key.code == sf::Keyboard::N) {  // No action
+                        pressedN = true;
                     }
-                } else if (event.key.code == sf::Keyboard::Up) {
-                    pressedUp = true;
-                } else if (event.key.code == sf::Keyboard::Down) {
-                    pressedDown = true;
-                } else if (event.key.code == sf::Keyboard::Left) {
-                    pressedLeft = true;
-                } else if (event.key.code == sf::Keyboard::Right) {
-                    pressedRight = true;
-                } else if (event.key.code == sf::Keyboard::N) {  // No action
-                    pressedN = true;
-                }
-            } else if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    clicked = true;
+                } else if (event.type == sf::Event::MouseButtonPressed) {
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        clicked = true;
+                    }
                 }
             }
         }

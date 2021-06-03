@@ -9,7 +9,7 @@
 
 #include "toolbox.h"
 #include "netmap_playable.h"
-#include "networkdatabattle.h" // We might not need this, with moving netcode into Lobby
+#include "networkdatabattle.h"
 #include "lobby.h"
 #include "databattleplayer.h"
 //#include "databattleeditor.h"  // Needs reworked before adding it back in
@@ -17,6 +17,7 @@
 //#include "hud.h"  // This might need reworked too
 #include "scene.h"
 #include "npc.h"
+#include "shopinputbox.h"
 
 int main()
 {
@@ -89,6 +90,7 @@ int main()
             db = newNetDB;
             DataBattlePlayer* dbPlayer = new DataBattlePlayer(db);
             dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + to_string(netSocket->getRemotePort());
+            dbPlayer->inputBox = new ShopInputBox();
             CURRENT_PLAYABLE = dbPlayer;
         }
         lastPlayable = nextPlayable;

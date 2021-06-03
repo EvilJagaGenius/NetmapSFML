@@ -112,6 +112,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="include/sceneentity.h" />
 		<Unit filename="include/scenelayer.h" />
 		<Unit filename="include/sectorinputbox.h" />
+		<Unit filename="include/shopinputbox.h" />
 		<Unit filename="include/textinputbox.h" />
 		<Unit filename="include/titlescreen.h" />
 		<Unit filename="include/toolbox.h" />
@@ -137,6 +138,7 @@ After building the executable, you need to copy 'openal32.dll' and the entire Da
 		<Unit filename="src/sceneentity.cpp" />
 		<Unit filename="src/scenelayer.cpp" />
 		<Unit filename="src/sectorinputbox.cpp" />
+		<Unit filename="src/shopinputbox.cpp" />
 		<Unit filename="src/textinputbox.cpp" />
 		<Unit filename="src/titlescreen.cpp" />
 		<Unit filename="src/toolbox.cpp" />

@@ -41,7 +41,7 @@ NetworkDataBattle::NetworkDataBattle(string ipString, unsigned short port) {
 }
 
 NetworkDataBattle::~NetworkDataBattle() {
-    delete this->serverSocket;
+    //delete this->serverSocket;
 }
 
 void NetworkDataBattle::connect(string ipString, unsigned short port) {

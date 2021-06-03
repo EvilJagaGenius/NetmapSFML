@@ -130,8 +130,8 @@ string TitleScreen::play(sf::RenderWindow* window) {
             }
 
         }
-        if (this->currentInputBox != nullptr) {  // Playing DBs from a filename
-            if (textBoxType == 'f') {
+        if (this->currentInputBox != nullptr) {
+            if (textBoxType == 'f') {  // Playing DBs from a filename
                 if (this->currentInputBox->done) {
                     string filename = this->currentInputBox->getFocus();
                     delete this->currentInputBox;

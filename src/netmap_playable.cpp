@@ -1,16 +1,15 @@
 #include "netmap_playable.h"
 
-Netmap_Playable::Netmap_Playable()
-{
+Netmap_Playable::Netmap_Playable() {
     for (int i=0; i<16; i++) {
         for (int j=0; j<16; j++) {
             this->grid[i][j] = 0;
         }
     }
+    this->localPlayer = nullptr;
 }
 
-Netmap_Playable::~Netmap_Playable()
-{
+Netmap_Playable::~Netmap_Playable() {
     //dtor
 }
 
