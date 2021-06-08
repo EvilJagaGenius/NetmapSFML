@@ -358,6 +358,17 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
             }
         }
         this->switchPrograms();
+    } else if (startsWith(command, "buy:")) {
+        // 1: Program to buy
+        string programName = command.substr(4);
+        Player* localPlayer = this->players[this->localPlayerIndex];
+        Program programToBuy = Program(command.substr(4));
+        localPlayer->credits -= programToBuy.cost;
+        if (localPlayer->programs.count(programName) > 0) {  // If the player already has one of those
+            localPlayer->programs[programName] += 1;  // Give them another one
+        } else {  // If this is their first
+            localPlayer->programs.insert({{programName, 1}});  // Insert a new element in their program list
+        }
     }
 
     return "Not implemented";

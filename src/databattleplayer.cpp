@@ -194,6 +194,13 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
             this->localPlayer = this->db->players[this->db->localPlayerIndex];
         }
 
+        if (this->inputBox != nullptr) {
+            if (this->inputBox->done) {
+                delete this->inputBox;
+                this->inputBox = nullptr;
+            }
+        }
+
         if (mousePos.x <= WY) {
             if ((mousePos.x % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE) && (mousePos.y % (TILE_SIZE + GAP_SIZE) <= TILE_SIZE)) {  // If on a valid coord
                 tileCoord.x = mousePos.x / (TILE_SIZE + GAP_SIZE);
@@ -215,6 +222,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                 window->close();
 
             if (this->inputBox != nullptr) {
+                this->inputBox->setMousePos(mousePos);
                 this->inputBox->takeInput(event, this);
             } else {
                 if (event.type == sf::Event::KeyPressed) {

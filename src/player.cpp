@@ -3,7 +3,7 @@
 Player::Player()
 {
     //ctor
-    this->credits = 0;
+    this->credits = 5000;
     this->color = sf::Color::White;  // White (no tint) by default
     this->giveStartingPrograms();
 }

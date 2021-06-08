@@ -11,9 +11,13 @@ class ShopInputBox: public InputBox
         sf::Vector2i mousePos;
         sf::Vector2i topLeft;
         sf::Rect<int> rect;
+        sf::Rect<int> buttonRect;
         sf::RectangleShape boxGraphic;
+        sf::RectangleShape buttonGraphic;
         sf::Text textBox;
         vector<Program*> programList;
+        string focus;
+        int highlightedBox;
 
         ShopInputBox();
         virtual ~ShopInputBox();
