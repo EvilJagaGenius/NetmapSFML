@@ -9,6 +9,14 @@ Lobby::Lobby(string ipString, int port) {
     this->textBox = sf::Text("", DEFAULT_FONT, 12);
     this->textBox.setColor(sf::Color::White);
     this->textBox.setPosition(0, 0);
+    this->buttonRect = sf::Rect<int>(0, 0, 200, 14);
+    this->buttonGraphic = sf::RectangleShape(sf::Vector2<float>(200, 14));
+    this->buttonGraphic.setFillColor(sf::Color::Transparent);
+    this->buttonGraphic.setOutlineColor(sf::Color::White);
+    this->buttonGraphic.setOutlineThickness(1);
+
+    this->inputBox = nullptr;
+    this->inputBoxType = '0';
 
     this->connect(ipString, port);
 }
@@ -21,6 +29,14 @@ Lobby::Lobby(sf::TcpSocket* socket) {
     this->textBox = sf::Text("", DEFAULT_FONT, 12);
     this->textBox.setColor(sf::Color::White);
     this->textBox.setPosition(0, 0);
+    this->buttonRect = sf::Rect<int>(0, 0, 200, 14);
+    this->buttonGraphic = sf::RectangleShape(sf::Vector2<float>(200, 14));
+    this->buttonGraphic.setFillColor(sf::Color::Transparent);
+    this->buttonGraphic.setOutlineColor(sf::Color::White);
+    this->buttonGraphic.setOutlineThickness(1);
+
+    this->inputBox = nullptr;
+    this->inputBoxType = '0';
 }
 
 Lobby::~Lobby() {
@@ -76,54 +92,119 @@ void Lobby::connect(string ipString, int port) {
 }
 
 void Lobby::render(sf::RenderWindow* window) {
-    window->clear(sf::Color::Blue);  // Blue screen of lobby system kindof working
-    int yPos = 0;
+    window->clear(sf::Color::Black);
+    this->highlightedDB = -1;
+
+    this->textBox.setPosition(0, 0);
+    this->textBox.setString("DataBattles:");
+    window->draw(this->textBox);
+
+    this->buttonRect.left = 0;
+    int yPos = 14;
     for (int i=0; i<this->dbs.size(); i++) {
+        this->buttonRect.top = yPos;
+        if (this->buttonRect.contains(mousePos)) {
+            this->highlightedDB = i;
+            this->buttonGraphic.setPosition(0, yPos);
+            window->draw(this->buttonGraphic);
+        }
         this->textBox.setPosition(0, yPos);
         this->textBox.setString("DB:" + this->dbs[i]);
         window->draw(this->textBox);
         yPos += 14;
     }
-    for (int i=0; i<this->players.size(); i++) {
+
+    this->textBox.setPosition(0, 150);
+    this->textBox.setString("Chat:");
+    window->draw(this->textBox);
+
+    yPos = 400;
+    for (int i=0; i<this->chatbox.size(); i++) {
         this->textBox.setPosition(0, yPos);
+        this->textBox.setString(this->chatbox[i]);
+        window->draw(this->textBox);
+        yPos -= 14;
+    }
+
+    this->textBox.setPosition(WY, 0);
+    this->textBox.setString("Players:");
+    window->draw(this->textBox);
+    yPos = 14;
+    for (int i=0; i<this->players.size(); i++) {
+        this->textBox.setPosition(WY, yPos);
         this->textBox.setString("PL:" + this->players[i]);
         window->draw(this->textBox);
         yPos += 14;
     }
+
+    // Render an input box if we have one
+    if (this->inputBox != nullptr) {
+        this->inputBox->render(window, this);
+    }
 }
 
 string Lobby::play(sf::RenderWindow* window) {
-    // Do something, Taipu
-    sf::Vector2i mousePos;
     sf::Event event;
     bool clicked;
+    string dbMapName;
+    int dbCreditLimit;
 
     while (window->isOpen()) {
-        mousePos = sf::Mouse::getPosition(*window);
+        this->mousePos = sf::Mouse::getPosition(*window);
         clicked = false;
 
         while (window->pollEvent(event)) {
-            /*if (this->currentInputBox != nullptr) {
-                this->currentInputBox->takeInput(event, this);
-            }*/
             if (event.type == sf::Event::Closed) {
                 window->close();
-            } else if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::C) {  // Create DB
-                    // I have no idea how to format this blasted command
-                    // createDB:mapName:credits:Kings:Characters:CTF
-                    this->cmdQueue.push("createDB:TestBattle:2000:0:0:0");
-                } else if (event.key.code == sf::Keyboard::J) {  // Join DB
-                    this->cmdQueue.push("joinDB:0");
-                } else if (event.key.code == sf::Keyboard::T) {  // Chat
-                    // Do something, Taipu
-                    this->cmdQueue.push("chat:Do something, Taipu");
-                }
-            } else if (event.type == sf::Event::MouseButtonPressed) {
-                clicked = true;
             }
+            if (this->inputBox != nullptr) {
+                this->inputBox->takeInput(event, this);
+            } else {
+                if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::C) {  // Create DB
+                        // createDB:mapName:credits:Kings:Characters:CTF
+                        this->inputBox = new TextInputBox("Map name (use TestBattle):");
+                        this->inputBoxType = 'm';
+                    } else if (event.key.code == sf::Keyboard::J) {  // Join DB
+                        this->cmdQueue.push("joinDB:0");
+                    } else if (event.key.code == sf::Keyboard::T) {  // Chat
+                        // Do something, Taipu
+                        this->inputBox = new TextInputBox("Send chat message:");
+                        this->inputBoxType = 't';
+                    }
+                } else if ((event.type == sf::Event::MouseButtonPressed) && (event.mouseButton.button == sf::Mouse::Left)) {
+                    clicked = true;
+                }
+            }
+        }
+        // Input box stuff
+        if (this->inputBox != nullptr) {
+            if (this->inputBox->done) {
+                if (this->inputBoxType == 'm') {  // Map name
+                    dbMapName = this->inputBox->getFocus();
+                    delete this->inputBox;
+                    this->inputBox = new TextInputBox("Credit limit:");
+                    this->inputBoxType = 'c';
+                } else if (this->inputBoxType == 'c') {  // Credit limit
+                    dbCreditLimit = stoi(this->inputBox->getFocus());
+                    delete this->inputBox;
+                    this->inputBox = nullptr;
+                    this->inputBoxType = '0';
+                    // We have all the info we need (for now), send a message to the server
+                    this->cmdQueue.push("createDB:" + dbMapName + ":" + to_string(dbCreditLimit) + ":0:0:0");
+                } else if (this->inputBoxType == 't') {
+                    string message = this->inputBox->getFocus();
+                    delete this->inputBox;
+                    this->inputBox = nullptr;
+                    this->inputBoxType = '0';
+                    this->cmdQueue.push("chat:" + message);
+                }
+            }
+        }
 
-            // Something about if we click on a DB, join that DB
+
+        if (clicked && (highlightedDB != -1)) {  // If the user clicked on a DB, join that DB
+            this->cmdQueue.push("joinDB:" + highlightedDB);
         }
 
         // Receive data from the server
@@ -133,32 +214,28 @@ string Lobby::play(sf::RenderWindow* window) {
             serverPacket >> packetString;
             if (packetString.size() > 0) {
                 cout << packetString << '\n';
-                /*if (startsWith(packetString, "map:")) {
-                    // Do something, Taipu
-                    vector<string> splitPacket = splitString(packetString, ':');
-                    this->filename = splitPacket[1];
-                    cout << splitPacket[1] << '\n';
-                    cout << this->filename << '\n';
-                    this->load();
-                    keepReceiving = false;
-                }*/
-                // We want to get the DB list and list of players
-                if (startsWith(packetString, "dblist:")) {
+                if (startsWith(packetString, "dblist:")) {  // Get DB list
                     this->dbs.clear();
                     vector<string> dbList = splitString(packetString, ':');
                     for (int i=1; i<dbList.size(); i++) {
                         this->dbs.push_back(dbList[i]);
                     }
-                } else if (startsWith(packetString, "players:")) {
+                } else if (startsWith(packetString, "players:")) {  // Get player list
                     vector<string> playerList = splitString(packetString, ':');
                     for (int i=1; i<playerList.size(); i++) {
                         cout << playerList[i] << '\n';
                         this->players.push_back(playerList[i]);
                     }
-                } else if (startsWith(packetString, "map:")) {
-                    vector<string> splitCommand = splitString(packetString, ':');
-                    string mapName = splitCommand[1];
-                    return "netdb:" + mapName;
+                } else if (startsWith(packetString, "netdb:")) {  // Jump into a DB
+                    //vector<string> splitCommand = splitString(packetString, ':');
+                    //string mapName = splitCommand[1];
+                    return packetString;
+                } else if (startsWith(packetString, "chat:")) {  // Chat messages
+                    // Do something, Taipu
+                    this->chatbox.insert(this->chatbox.begin(), packetString.substr(5));
+                    if (chatbox.size() > maxChatboxSize) {
+                        chatbox.pop_back();
+                    }
                 }
                 // More command types here.  Or implement takeCommand()
             }

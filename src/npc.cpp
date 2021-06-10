@@ -6,7 +6,7 @@ NPC::NPC(string filename) {
     this->endConversation = false;
 
     this->filename = filename;
-    this->startTopic = 'open';
+    this->startTopic = "open";
     this->startPart = 0;
     this->currentText = "";
     this->paused = false;

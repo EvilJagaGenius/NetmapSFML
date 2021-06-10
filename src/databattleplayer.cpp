@@ -11,6 +11,7 @@ DataBattlePlayer::DataBattlePlayer() {
     this->hudButton.setFillColor(sf::Color::Transparent);
     this->hudButton.setOutlineColor(sf::Color::White);
     this->hudButton.setOutlineThickness(2);
+    this->inputBoxType = '0';
 }
 
 DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
@@ -24,6 +25,7 @@ DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
     this->hudButton.setFillColor(sf::Color::Transparent);
     this->hudButton.setOutlineColor(sf::Color::White);
     this->hudButton.setOutlineThickness(2);
+    this->inputBoxType = '0';
 
     this->setDB(db);
 }
@@ -123,7 +125,7 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     int i = 0;
     for (pair<string, int> p : localPlayer->programs) {
         //cout << p.first << '\n';
-        this->hudText.setString(p.first);
+        this->hudText.setString(p.first + "  x" + to_string(p.second));
         this->hudText.setPosition(0, i*14);
         this->hudText.setColor(sf::Color::White);
         this->hudPanel.draw(this->hudText);
@@ -135,7 +137,6 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     //cout << "HUD drawn\n";
 
     // Finally, if there's an InputBox on-screen, render it last over everything else
-    // The main use of this right now is a shop screen.  Implement it
     if (this->inputBox != nullptr) {
         this->inputBox->render(window, this);
     }
@@ -196,8 +197,23 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
         if (this->inputBox != nullptr) {
             if (this->inputBox->done) {
-                delete this->inputBox;
-                this->inputBox = nullptr;
+                if (this->inputBoxType == 't') {  // Chat
+                    string message = this->inputBox->getFocus();
+                    this->localPlayer->cmdQueue.push("chat:" + message);
+                    delete this->inputBox;
+                    this->inputBox = nullptr;
+                    this->inputBoxType = '0';
+                } else if (this->inputBoxType == 'c') {  // Character
+                    // Do something about setting the character here
+                    delete this->inputBox;
+                    this->inputBox = new ShopInputBox();  // Switch to shop screen
+                    this->inputBoxType = 's';
+                } else if (this->inputBoxType == 's') {  // Shop
+                    delete this->inputBox;
+                    this->inputBox = nullptr;
+                    this->inputBoxType = '0';
+                }
+                // We should switch input boxes, say from Character -> Shop
             }
         }
 
@@ -246,6 +262,9 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                         pressedRight = true;
                     } else if (event.key.code == sf::Keyboard::N) {  // No action
                         pressedN = true;
+                    } else if (event.key.code == sf::Keyboard::T) {  // Chat
+                        this->inputBox = new TextInputBox("Chat message:");
+                        this->inputBoxType = 't';
                     }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
                     if (event.mouseButton.button == sf::Mouse::Left) {

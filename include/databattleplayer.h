@@ -3,7 +3,8 @@
 
 #include "netmap_playable.h"
 #include "databattle.h"
-#include "inputbox.h"
+#include "textinputbox.h"
+#include "shopinputbox.h"
 
 class DataBattlePlayer : public Netmap_Playable
 {

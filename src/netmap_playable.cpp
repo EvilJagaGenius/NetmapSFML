@@ -19,6 +19,7 @@ void Netmap_Playable::render(sf::RenderWindow* window) {
 
 string Netmap_Playable::play(sf::RenderWindow* window) {
     cout << "Called Netmap_Playable::play()\n";
+    return "";
 }
 void Netmap_Playable::setHUD(InputBox* hud) {}
 void Netmap_Playable::setPlayer(Player* player) {}

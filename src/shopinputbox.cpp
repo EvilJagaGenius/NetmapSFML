@@ -92,7 +92,6 @@ void ShopInputBox::takeInput(sf::Event event, Netmap_Playable* playable) {
             this->done = true;
         }
     }
-    // Also a way to show credits
 }
 string ShopInputBox::getFocus() {
     return this->focus;

@@ -84,13 +84,14 @@ int main()
             }
             CURRENT_PLAYABLE = newLobby;
         } else if (startsWith(nextPlayable, "netdb:")) {
-            vector<string> splitPlayable = splitString(nextPlayable, ':');
-            NetworkDataBattle* newNetDB = new NetworkDataBattle(splitPlayable[1]);
+            //vector<string> splitPlayable = splitString(nextPlayable, ':');
+            NetworkDataBattle* newNetDB = new NetworkDataBattle(nextPlayable);
             newNetDB->serverSocket = netSocket;
             db = newNetDB;
             DataBattlePlayer* dbPlayer = new DataBattlePlayer(db);
             dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + to_string(netSocket->getRemotePort());
             dbPlayer->inputBox = new ShopInputBox();
+            dbPlayer->inputBoxType = 's';
             CURRENT_PLAYABLE = dbPlayer;
         }
         lastPlayable = nextPlayable;

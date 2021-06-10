@@ -15,9 +15,14 @@ class Lobby : public Netmap_Playable
         sf::TcpSocket* serverSocket;
         vector<string> dbs;
         vector<string> players;
+        vector<string> chatbox;  // I would like to use a queue, but queues do not allow for element access and I don't feel like coding around it
+        int maxChatboxSize = 20;
         queue<string> cmdQueue;
         sf::Text textBox;
-        //InputBox* currentInputBox;  // Not sure if we'll use this yet
+        sf::Vector2i mousePos;
+        sf::Rect<int> buttonRect;
+        sf::RectangleShape buttonGraphic;
+        int highlightedDB;
 
         Lobby(string ipAddress, int port);
         Lobby(sf::TcpSocket* socket);

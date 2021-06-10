@@ -23,6 +23,7 @@ class Netmap_Playable
         string destination;
         int grid[16][16];
         InputBox* inputBox;
+        char inputBoxType;
         Player* localPlayer;
 
         Netmap_Playable();

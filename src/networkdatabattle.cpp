@@ -12,11 +12,17 @@ NetworkDataBattle::NetworkDataBattle() {
     this->nextProgramIndex = -1;
 }
 
-NetworkDataBattle::NetworkDataBattle(string filename) {
-    // Might have to copy stuff from DataBattle()
-    this->filename = filename;
-    this->serverSocket = new sf::TcpSocket();
-    this->serverSocket->setBlocking(false);
+NetworkDataBattle::NetworkDataBattle(string command) {
+    cout << "NetworkDataBattle()\n";
+    cout << "command:  " << command << '\n';
+    vector<string> splitCommand = splitString(command, ':');
+
+    this->filename = splitCommand[1];
+    this->creditLimit = stoi(splitCommand[2]);
+    cout << "Read filename and creditLimit\n";
+
+    //this->serverSocket = new sf::TcpSocket();
+    //this->serverSocket->setBlocking(false);
     this->localPlayerIndex = -1;
     this->currentPlayerIndex = -1;
     this->currentProgram = nullptr;
@@ -184,11 +190,9 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
                 }
             }
         }
-
         if (uploadZone != nullptr) {  // If we found a valid upload zone
             string programType = splitCommand[3];
             Player* player = players[playerIndex];
-
             for (pair<string, int> p : player->programs) {
                 if (programType == p.first) {  // If the player has that program in their inventory
                     if (player->programs[programType] > 0) {  // If they have at least 1
@@ -196,7 +200,6 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
                     }
                 }
             }
-
             // Add the program
             Program* newProgram = new Program(programType);  // Create a new one from the definition file
             newProgram->move(targetCoord, true);
@@ -204,11 +207,9 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
             newProgram->controller = playerIndex;
             newProgram->name = splitCommand[4];
             this->addPiece(newProgram);
-
             // Remove the upload zone
             this->pieces.erase(this->pieces.begin() + uploadIndex); // Remove from pieces
             delete uploadZone;  // Deallocate the memory
-
             return "ok";
         } else {
             return "upload failed";
@@ -250,7 +251,7 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
         } else {
             cout << "sourcePiece not found\n";
         }
-    } else if (startsWith(command, "action")) {
+    } else if (startsWith(command, "action")) {  // Perform action
         // 1: Piece name, 2: Action index, >2: Target coords
         vector<string> splitCommand = splitString(command, ':');
         string pieceName = splitCommand[1];
@@ -287,9 +288,20 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
 
         return "ok";
 
-    } else if (startsWith(command, "noaction")) {
+    } else if (startsWith(command, "noaction")) {  // No action
         if (startsWith(command, "noaction:")) {  // If the user specified a particular piece, hence the semicolon
-            return "Not implemented";
+            string pieceName = command.substr(8);
+            DataBattlePiece* sourcePiece = nullptr;
+            for (DataBattlePiece* piece : this->pieces) {
+                if (piece->name == pieceName) {
+                    sourcePiece = piece;
+                    break;
+                }
+            }
+            if (sourcePiece != nullptr) {
+                sourcePiece->noAction();
+            }
+            return "ok";
         } else {  // No piece specified, NA the current piece
             this->currentProgram->noAction();
             this->switchPrograms();
@@ -307,6 +319,7 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
         this->players.clear();  // Empty out whatever players we had.  In a network game, this empties out PLAYER (we still have a reference to it though in main.cpp)
         for (int i=0; i<numberOfPlayers; i++) {
             Player* newPlayer = new Player();  // Create new player object
+            newPlayer->credits = this->creditLimit;
             this->players.push_back(newPlayer);  // Add it to the game
         }
         // We're going to need some way to clean all these players up
@@ -358,7 +371,7 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
             }
         }
         this->switchPrograms();
-    } else if (startsWith(command, "buy:")) {
+    } else if (startsWith(command, "buy:")) {  // Buy program
         // 1: Program to buy
         string programName = command.substr(4);
         Player* localPlayer = this->players[this->localPlayerIndex];
