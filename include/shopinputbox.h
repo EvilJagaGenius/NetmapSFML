@@ -4,6 +4,7 @@
 #include "inputbox.h"
 #include "program.h"
 #include "player.h"
+#include "netmap_playable.h"
 
 class ShopInputBox: public InputBox
 {

@@ -53,7 +53,7 @@ void Lobby::connect(string ipString, int port) {
         cout << "Connected\n";
         // Do something, Taipu
         // We need to send data to the server, our name and color
-        bool keepReceiving = true;
+        /*bool keepReceiving = true;
         while (keepReceiving) {  // Receive data from the server
             sf::Packet receivedPacket = sf::Packet();
             connectionStatus = serverSocket->receive(receivedPacket);
@@ -61,15 +61,6 @@ void Lobby::connect(string ipString, int port) {
             receivedPacket >> packetString;
             if (packetString.size() > 0) {
                 cout << packetString << '\n';
-                /*if (startsWith(packetString, "map:")) {
-                    // Do something, Taipu
-                    vector<string> splitPacket = splitString(packetString, ':');
-                    this->filename = splitPacket[1];
-                    cout << splitPacket[1] << '\n';
-                    cout << this->filename << '\n';
-                    this->load();
-                    keepReceiving = false;
-                }*/
                 // We want to get the DB list and list of players
                 if (startsWith(packetString, "dblist:")) {
                     this->dbs.clear();
@@ -87,7 +78,7 @@ void Lobby::connect(string ipString, int port) {
                 }
                 // More command types here.  Or implement takeCommand()
             }
-        }
+        }*/
     }
 }
 

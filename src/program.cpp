@@ -267,9 +267,9 @@ void Program::addSector(sf::Vector2i coord, int pos=0) {
     this->size++;
 }
 
-void Program::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {
+void Program::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets) {  // I don't think we need this function
     cout << "Program::useAction() called\n";
-    this->actions[actionIndex]->use(level, this, targets);
+    //this->actions[actionIndex]->use(level, this, targets);
     // Action is used whether it failed or not, end the turn
     if (this->state != 'x') {
         this->state = 'd';

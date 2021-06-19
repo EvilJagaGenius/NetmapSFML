@@ -203,6 +203,12 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     delete this->inputBox;
                     this->inputBox = nullptr;
                     this->inputBoxType = '0';
+                } else if (this->inputBoxType == '`') {  // Console command
+                    string command = this->inputBox->getFocus();
+                    this->localPlayer->cmdQueue.push(command);
+                    delete this->inputBox;
+                    this->inputBox = nullptr;
+                    this->inputBoxType = '0';
                 } else if (this->inputBoxType == 'c') {  // Character
                     // Do something about setting the character here
                     delete this->inputBox;
@@ -265,6 +271,9 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     } else if (event.key.code == sf::Keyboard::T) {  // Chat
                         this->inputBox = new TextInputBox("Chat message:");
                         this->inputBoxType = 't';
+                    } else if (event.key.code == sf::Keyboard::Tilde) {  // Command console
+                        this->inputBox = new TextInputBox("Console command:");
+                        this->inputBoxType = '`';
                     }
                 } else if (event.type == sf::Event::MouseButtonPressed) {
                     if (event.mouseButton.button == sf::Mouse::Left) {
@@ -342,6 +351,10 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
         //cout << "Calling tick()\n";
         this->db->tick();  // Tick the DB
+        // How does the DB tell us to stop and jump to another playable?
+        if (this->db->checkForVictory() != -1) {  // If someone has won the DB (or we need to shut down... do we need a dedicated function for that?)
+            return this->db->destination;  // Exit the DB
+        }
 
         //cout << "Calling render()\n";
         this->render(window);

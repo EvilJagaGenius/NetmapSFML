@@ -9,7 +9,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-#include "netmap_playable.h"
 #include "toolbox.h"
 #include "program.h"
 #include "uploadzone.h"
@@ -64,7 +63,7 @@ class DataBattle
         virtual string takeCommand(string command, int playerIndex);  // We might need to override this in NetworkDataBattle
         string lookAt(sf::Vector2i coord);
         string lookAt(int x, int y);
-        int checkForVictory();
+        virtual int checkForVictory();  // NetworkDataBattle needs to override this, to get the victory check from the server.  I think
         void flipSector(sf::Vector2i coord);
         virtual void tick();
 

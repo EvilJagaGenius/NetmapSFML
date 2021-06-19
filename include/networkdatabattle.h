@@ -12,6 +12,7 @@ class NetworkDataBattle : public DataBattle
 {
     public:
         sf::TcpSocket* serverSocket;  // Only maintain one socket, to the server
+        int serverWinner;
 
         NetworkDataBattle();
         NetworkDataBattle(string filename);

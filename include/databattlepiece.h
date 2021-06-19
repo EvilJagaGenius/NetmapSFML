@@ -43,6 +43,7 @@ class DataBattlePiece
         int controller;  // Who is currently controlling the piece
         char pieceType;  // Used to differentiate between programs/users/etc
         char state;
+        bool king;
 
         // Experimental AI variables below
         int targetPlayer;

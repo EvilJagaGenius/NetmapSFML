@@ -10,6 +10,7 @@ NetworkDataBattle::NetworkDataBattle() {
     this->currentProgramIndex = -1;
     this->nextProgram = nullptr;
     this->nextProgramIndex = -1;
+    this->serverWinner = -1;
 }
 
 NetworkDataBattle::NetworkDataBattle(string command) {
@@ -29,6 +30,7 @@ NetworkDataBattle::NetworkDataBattle(string command) {
     this->currentProgramIndex = -1;
     this->nextProgram = nullptr;
     this->nextProgramIndex = -1;
+    this->serverWinner = -1;
 
     this->load();
 }
@@ -42,6 +44,7 @@ NetworkDataBattle::NetworkDataBattle(string ipString, unsigned short port) {
     this->currentProgramIndex = -1;
     this->nextProgram = nullptr;
     this->nextProgramIndex = -1;
+    this->serverWinner = -1;
 
     this->connect(ipString, port);
 }
@@ -137,7 +140,7 @@ void NetworkDataBattle::load() {  // Override
 
     int gridY = 0;
 
-    this->destination = "title:";
+    this->destination = "netlobby:" + this->serverSocket->getRemoteAddress().toString() + ":" + to_string(this->serverSocket->getRemotePort());
 
     while(getline(textFile, line)) {
         if (startsWith(line, "bkg:")) {  // Background
