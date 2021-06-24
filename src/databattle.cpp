@@ -336,7 +336,7 @@ string DataBattle::takeCommand(string command, int playerIndex) {
             i++;
         }
         // Perform the action on those targets
-        this->performAction(action, targetCoords);
+        this->performAction(sourcePiece, action, targetCoords);
 
         // Once we've used that action, that piece is done
         sourcePiece->noAction();
@@ -474,19 +474,23 @@ void DataBattle::addPiece(DataBattlePiece* newPiece) {
     this->pieceCounter++;
 }
 
-void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targets) {
+void DataBattle::performAction(DataBattlePiece* user, ProgramAction* action, vector<sf::Vector2i> targets) {
     cout << "Performing action " << action->actionName << '\n';
     for (string command : action->commands) {
         vector<string> splitCommand = splitString(command, ':');
         // Do something, Taipu
         if (splitCommand[0] == "damage") {  // Damage
             int health = stoi(splitCommand[1]);
-            sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
-            for (DataBattlePiece* piece : this->pieces) {
-                for (ProgramSector* sector : piece->sectors) {
-                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
-                        cout << "Found target " << piece->name << '\n';
-                        piece->takeDamage(health);
+            if (stoi(splitCommand[2]) == -1) {
+                user->takeDamage(health);
+            } else {
+                sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
+                for (DataBattlePiece* piece : this->pieces) {
+                    for (ProgramSector* sector : piece->sectors) {
+                        if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
+                            cout << "Found target " << piece->name << '\n';
+                            piece->takeDamage(health);
+                        }
                     }
                 }
             }
@@ -570,7 +574,7 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
             }
         } else if (splitCommand[0] == "warp") {
             // Ooh, I completely forget how to do this
-            // Let's do something simple.  Take the delta between the two points and move every sector of the target by that amount.  Don't worry about amputation.
+            // Let's do something simple.  Take the delta between the two points and move every sector of the target by that amount.  Don't worry about amputation yet.
             sf::Vector2i targetCoord1 = targets[stoi(splitCommand[1])];
             sf::Vector2i targetCoord2 = targets[stoi(splitCommand[2])];
             DataBattlePiece* targetPiece = nullptr;
@@ -593,7 +597,7 @@ void DataBattle::performAction(ProgramAction* action, vector<sf::Vector2i> targe
             sf::Vector2i targetCoord = targets[stoi(splitCommand[3])];
             for (DataBattlePiece* piece : this->pieces) {
                 for (ProgramSector* sector : piece->sectors) {
-                    if ((sector->coord.x == targetCoord1.x) && (sector->coord.y == targetCoord1.y)) {
+                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
                         piece->statuses[statusType] += amt;
                     }
                 }

@@ -281,7 +281,7 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
             i++;
         }
         // Perform the action on those targets
-        this->performAction(action, targetCoords);
+        this->performAction(sourcePiece, action, targetCoords);
 
         // Once we've used that action, that piece is done
         sourcePiece->noAction();

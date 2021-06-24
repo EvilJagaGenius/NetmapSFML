@@ -1,11 +1,11 @@
-name:Hack
+name:Hack 2.0
 maxSize:3
 speed:2
 maxSpeed:10
-cost:500
+cost:1500
 action:Slice
-//action:Slash
-sprite:0:7
+action:Dice
+sprite:1:8
 color:0:199:252
 symbol:h
-description:Basic attack program
+description:Bigger, faster, and better attacks

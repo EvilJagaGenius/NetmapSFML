@@ -210,6 +210,9 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     this->inputBox = nullptr;
                     this->inputBoxType = '0';
                 } else if (this->inputBoxType == 'c') {  // Character
+                    // Assuming this is just a normal ChoiceInputBox; I could program a specialized box
+                    string characterName = this->inputBox->getFocus();
+                    int characterIndex = this->inputBox->getSubFocus();
                     // Do something about setting the character here
                     delete this->inputBox;
                     this->inputBox = new ShopInputBox();  // Switch to shop screen
@@ -219,7 +222,6 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     this->inputBox = nullptr;
                     this->inputBoxType = '0';
                 }
-                // We should switch input boxes, say from Character -> Shop
             }
         }
 

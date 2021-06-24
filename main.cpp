@@ -90,8 +90,17 @@ int main()
             db = newNetDB;
             DataBattlePlayer* dbPlayer = new DataBattlePlayer(db);
             dbPlayer->destination = "netlobby:" + netSocket->getRemoteAddress().toString() + to_string(netSocket->getRemotePort());
-            dbPlayer->inputBox = new ShopInputBox();
-            dbPlayer->inputBoxType = 's';
+            // This is a hacky solution for characters and the shop box... should rework
+            if (newNetDB->characters) {
+                vector<string> characters;
+                characters.push_back("Gemma");
+                vector<bool> usable (characters.size(), true);
+                dbPlayer->inputBox = new ChoiceInputBox(sf::Vector2<int>(0,0), characters, usable, characters.size());
+                dbPlayer->inputBoxType = 'c';
+            } else if (newNetDB->shop) {
+                dbPlayer->inputBox = new ShopInputBox();
+                dbPlayer->inputBoxType = 's';
+            }
             CURRENT_PLAYABLE = dbPlayer;
         }
         lastPlayable = nextPlayable;
