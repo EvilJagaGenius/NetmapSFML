@@ -26,6 +26,7 @@ class Player
         Player();
         virtual ~Player();
         void giveStartingPrograms();
+        void loadCharacter(string characterName);
         void readyup();
         void addToUploadMap(string byteCoord, string pieceName);
 

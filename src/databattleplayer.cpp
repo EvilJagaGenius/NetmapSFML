@@ -214,6 +214,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     string characterName = this->inputBox->getFocus();
                     int characterIndex = this->inputBox->getSubFocus();
                     // Do something about setting the character here
+                    this->localPlayer->cmdQueue.push("character:" + characterName);
                     delete this->inputBox;
                     this->inputBox = new ShopInputBox();  // Switch to shop screen
                     this->inputBoxType = 's';

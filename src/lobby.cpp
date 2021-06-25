@@ -182,7 +182,7 @@ string Lobby::play(sf::RenderWindow* window) {
                     this->inputBox = nullptr;
                     this->inputBoxType = '0';
                     // We have all the info we need (for now), send a message to the server
-                    this->cmdQueue.push("createDB:" + dbMapName + ":" + to_string(dbCreditLimit) + ":0:0:0");
+                    this->cmdQueue.push("createDB:" + dbMapName + ":" + to_string(dbCreditLimit) + ":1:0:0");
                 } else if (this->inputBoxType == 't') {
                     string message = this->inputBox->getFocus();
                     delete this->inputBox;

@@ -19,7 +19,15 @@ NetworkDataBattle::NetworkDataBattle(string command) {
     vector<string> splitCommand = splitString(command, ':');
 
     this->filename = splitCommand[1];
-    this->creditLimit = stoi(splitCommand[2]);
+    if (splitCommand.size() > 2) {
+        this->shop = true;
+        this->creditLimit = stoi(splitCommand[2]);
+    }
+    if (splitCommand.size() > 3) {
+        if (splitCommand[3][0] != '0') {
+            this->characters = true;
+        }
+    }
     cout << "Read filename and creditLimit\n";
 
     //this->serverSocket = new sf::TcpSocket();
@@ -140,7 +148,9 @@ void NetworkDataBattle::load() {  // Override
 
     int gridY = 0;
 
-    this->destination = "netlobby:" + this->serverSocket->getRemoteAddress().toString() + ":" + to_string(this->serverSocket->getRemotePort());
+    this->destination = "netlobby:";
+    //this->destination = "netlobby:" + this->serverSocket->getRemoteAddress().toString() + ":" + to_string(this->serverSocket->getRemotePort());
+    // This line crashes for some reason.  Not sure why, don't think it was crashing before
 
     while(getline(textFile, line)) {
         if (startsWith(line, "bkg:")) {  // Background
@@ -385,6 +395,10 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
         } else {  // If this is their first
             localPlayer->programs.insert({{programName, 1}});  // Insert a new element in their program list
         }
+    } else if (startsWith(command, "character:")) {  // Select character
+        Player* localPlayer = this->players[this->localPlayerIndex];
+        string charName = command.substr(10);  // Need to check if this exists
+        localPlayer->loadCharacter(charName);
     }
 
     return "Not implemented";
