@@ -279,6 +279,10 @@ void Program::useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vect
 void Program::switchToAiming() {
     cout << "Switching to aiming\n";
     this->state = 'a';
+    if (this->actions.size() > 0) {
+        this->currentActionIndex = 0;
+        this->currentAction = this->actions[this->currentActionIndex];
+    }
     // Should add an if statement to automatically end the turn if we don't have any actions (like the Memory Hog)
     cout << "Done switching to aiming\n";
 }

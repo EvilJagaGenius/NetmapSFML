@@ -148,7 +148,7 @@ void NetworkDataBattle::load() {  // Override
 
     int gridY = 0;
 
-    this->destination = "netlobby:";
+    this->destination = "netlobby:0:0";
     //this->destination = "netlobby:" + this->serverSocket->getRemoteAddress().toString() + ":" + to_string(this->serverSocket->getRemotePort());
     // This line crashes for some reason.  Not sure why, don't think it was crashing before
 

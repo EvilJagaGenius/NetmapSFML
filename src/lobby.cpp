@@ -154,7 +154,7 @@ string Lobby::play(sf::RenderWindow* window) {
                 if (event.type == sf::Event::KeyPressed) {
                     if (event.key.code == sf::Keyboard::C) {  // Create DB
                         // createDB:mapName:credits:Kings:Characters:CTF
-                        this->inputBox = new TextInputBox("Map name (use TestBattle):");
+                        this->inputBox = new TextInputBox("Map name (use TestMPBattle):");
                         this->inputBoxType = 'm';
                     } else if (event.key.code == sf::Keyboard::J) {  // Join DB
                         this->cmdQueue.push("joinDB:0");

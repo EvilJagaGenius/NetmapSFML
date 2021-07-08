@@ -82,7 +82,8 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
                     window->draw(this->gridSprite);
                 }
             } else {  // Draw tail sprite
-                spriteToDraw.setTextureRect(sf::Rect<int>(0, 0, TILE_SIZE, TILE_SIZE));
+                spriteToDraw.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 0, TILE_SIZE, TILE_SIZE));
+                spriteToDraw.setColor(piece->color);
                 spriteToDraw.setPosition(sf::Vector2<float>(sector->coord.x*TILE_SIZE + sector->coord.x*GAP_SIZE, sector->coord.y*TILE_SIZE + sector->coord.y*GAP_SIZE));
                 window->draw(spriteToDraw);
             }
@@ -111,6 +112,42 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
         }
     }
     //cout << "uploadMap drawn\n";
+
+
+    if (this->db->currentProgram != nullptr) {
+        if (this->db->currentProgram->state == 'a') {  // Draw the aiming area
+            for (sf::Vector2i coord : this->aimArea) {
+                this->gridSprite.setTextureRect(sf::Rect<int>(0, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                int targetSprite = this->db->currentProgram->currentAction->targetSprite;
+                if (targetSprite == 0) {  // Red, damage
+                    this->gridSprite.setColor(sf::Color::Red);
+                } else if (targetSprite == 1) {  // Green, grid
+                    this->gridSprite.setColor(sf::Color::Green);
+                } else if (targetSprite == 2) {  // Blue, buff/debuff
+                    this->gridSprite.setColor(sf::Color::Blue);
+                }
+                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                window->draw(this->gridSprite);
+                this->gridSprite.setColor(sf::Color::White);
+            }
+        } else if (this->db->currentProgram->state == 'm') {  // Draw the movement area
+            for (sf::Vector2i coord : this->moveArea) {
+                if (coord == this->nButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(0, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->sButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(1*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->eButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(2*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else if (coord == this->wButton) {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                } else {
+                    this->gridSprite.setTextureRect(sf::Rect<int>(3*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                }
+                this->gridSprite.setPosition(coord.x * (TILE_SIZE + GAP_SIZE), coord.y * (TILE_SIZE + GAP_SIZE));
+                window->draw(this->gridSprite);
+            }
+        }
+    }
 
     // Draw the tile-highlighting cursor
     if (cursorTile.x != -1) {  // If we found a valid tile to highlight
@@ -159,7 +196,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         cout << "Music file not found: " << this->musicFilename << '\n';
     } else {
         musicTrack.setLoop(true);
-        musicTrack.play();
+        //musicTrack.play();  // Silence
     }
 
     // Background
@@ -339,13 +376,13 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     }
                 }
             }
-            if (pressedUp) {
+            if (pressedUp || (clicked && tileCoord == this->nButton)) {
                 this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":n");
-            } else if (pressedDown) {
+            } else if (pressedDown || (clicked && tileCoord == this->sButton)) {
                 this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":s");
-            } else if (pressedLeft) {
+            } else if (pressedLeft || (clicked && tileCoord == this->eButton)) {
                 this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":w");
-            } else if (pressedRight) {
+            } else if (pressedRight || (clicked && tileCoord == this->wButton)) {
                 this->localPlayer->cmdQueue.push("move:" + this->db->currentProgram->name + ":e");
             } else if (pressedN) {
                 this->localPlayer->cmdQueue.push("noaction:" + this->db->currentProgram->name);
@@ -354,10 +391,11 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 
         //cout << "Calling tick()\n";
         this->db->tick();  // Tick the DB
-        // How does the DB tell us to stop and jump to another playable?
-        if (this->db->checkForVictory() != -1) {  // If someone has won the DB (or we need to shut down... do we need a dedicated function for that?)
+        this->adjustRadii();
+        // The block below is causing us to exit the DB early.  Need to fix
+        /*if (this->db->checkForVictory() != -1) {  // If someone has won the DB (or we need to shut down... do we need a dedicated function for that?)
             return this->db->destination;  // Exit the DB
-        }
+        }*/
 
         //cout << "Calling render()\n";
         this->render(window);
@@ -366,6 +404,19 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
     }
 
     return "quit:";
+}
+
+void DataBattlePlayer::adjustRadii() {
+    if (this->db->currentProgram != nullptr) {
+        if (this->db->currentProgram->state == 'm') {
+            int movesRemaining = this->db->currentProgram->speed - this->db->currentProgram->currentMove;
+            this->moveArea = getRadius(movesRemaining, this->db->currentProgram->sectors[0]->coord, false);
+        } else if (this->db->currentProgram->state == 'a') {
+            if (this->db->currentProgram->currentAction != nullptr) {
+                this->aimArea = this->db->currentProgram->currentAction->getAimArea(this->db->currentProgram->sectors[0]->coord, 0);
+            }
+        }
+    }
 }
 
 void DataBattlePlayer::setDB(DataBattle* db) {

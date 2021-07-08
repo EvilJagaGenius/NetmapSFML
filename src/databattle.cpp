@@ -10,6 +10,7 @@ DataBattle::DataBattle(string filename) {
     this->programStartingState = nullptr;
     this->pieces.clear();
     this->currentPlayerIndex = -1;
+    this->winner = -1;
 
     for (int i=0; i<16; i++) {
         for (int j=0; j<16; j++) {

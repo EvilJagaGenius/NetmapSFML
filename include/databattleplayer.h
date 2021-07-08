@@ -33,6 +33,7 @@ class DataBattlePlayer : public Netmap_Playable
         virtual ~DataBattlePlayer();
         void render(sf::RenderWindow* window);
         string play(sf::RenderWindow* window);
+        void adjustRadii();
         void setDB(DataBattle* db);
         void setPlayer(Player* player);
 

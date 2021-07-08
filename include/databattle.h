@@ -42,6 +42,7 @@ class DataBattle
         vector<DataBattlePiece*> pieces;
         int pieceCounter;
         int localPlayerIndex;
+        int winner;
         // Multiplayer vars
         bool shop;
         int creditLimit;
