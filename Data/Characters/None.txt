@@ -1,0 +1,8 @@
+NO CHARACTER
+Freestyle
+Take a lump of credits and build your own program deck.
+PROGRAMS
+Hack:1
+Slingshot:1
+Credits:20000
+END_PROGRAMS

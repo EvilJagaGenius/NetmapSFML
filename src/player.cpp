@@ -40,8 +40,10 @@ void Player::loadCharacter(string characterName) {
         if (loading == 'p') {
             if (startsWith(line, "END_PROGRAMS")) {
                 loading = '0';
+            } else if (startsWith(line, "Credits:")) {
+                int charCredits = stoi(line.substr(7));
+                this->credits += charCredits;
             } else {
-                cout << "line:" << line;
                 vector<string> splitLine = splitString(line, ':');
                 this->programs.insert({{splitLine[0], stoi(splitLine[1])}});
             }

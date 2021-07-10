@@ -95,7 +95,7 @@ int main()
                 vector<string> characters;
                 characters.push_back("Gemma");
                 vector<bool> usable (characters.size(), true);
-                dbPlayer->inputBox = new ChoiceInputBox(sf::Vector2<int>(0,0), characters, usable, characters.size());
+                dbPlayer->inputBox = new ChoiceInputBox(sf::Vector2<int>(WY, 0), characters, usable, characters.size());
                 dbPlayer->inputBoxType = 'c';
             } else if (newNetDB->shop) {
                 dbPlayer->inputBox = new ShopInputBox();

@@ -173,15 +173,15 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     this->hudPanel.draw(this->hudText);
     //cout << "HUD drawn\n";
 
+    this->hudPanel.display();
+    sf::Sprite hudSprite(this->hudPanel.getTexture());
+    hudSprite.setPosition(WY, 0);
+    window->draw(hudSprite);
+
     // Finally, if there's an InputBox on-screen, render it last over everything else
     if (this->inputBox != nullptr) {
         this->inputBox->render(window, this);
     }
-
-    this->hudPanel.display();
-    sf::Sprite sprite(this->hudPanel.getTexture());
-    sprite.setPosition(WY, 0);
-    window->draw(sprite);
 }
 
 

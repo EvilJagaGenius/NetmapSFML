@@ -1,0 +1,12 @@
+WINTER
+"Shinobi"
+Quantum prodigy and a brilliant Netmap dev at 19.  Uses a mix of meta, ranged, and his binary katana.  He picks up his sword moves from old ninja films.
+PROGRAMS
+Shinobi:1
+Clog3:1
+Hack3:1
+Fiddle:1
+Medic:1
+Slingshot:1
+Credits:5000
+END_PROGRAMS

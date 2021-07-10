@@ -603,6 +603,11 @@ void DataBattle::performAction(DataBattlePiece* user, ProgramAction* action, vec
                     }
                 }
             }
+        } else if (splitCommand[0] == "upload") {
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[3])];
+            // Okay, we need a new upload zone
+            UploadZone* newUpload = new UploadZone(targetCoord.x, targetCoord.y, user->controller);
+            this->addPiece(newUpload);
         }
         // More command types here.  Knockback, orbit, more
         // We also need to keep this in sync with NetmapServer
