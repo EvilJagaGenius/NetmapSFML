@@ -573,6 +573,16 @@ void DataBattle::performAction(DataBattlePiece* user, ProgramAction* action, vec
                     }
                 }
             }
+        } else if (splitCommand[0] == "setspeed") {  // Used in Clog's Hang.  Possibly useful for others, the Spider series?
+            int newVal = stoi(splitCommand[1]);
+            sf::Vector2i targetCoord = targets[stoi(splitCommand[2])];
+            for (DataBattlePiece* piece : this->pieces) {
+                for (ProgramSector* sector : piece->sectors) {
+                    if ((sector->coord.x == targetCoord.x) && (sector->coord.y == targetCoord.y)) {
+                        piece->speed = newVal;
+                    }
+                }
+            }
         } else if (splitCommand[0] == "warp") {
             // Ooh, I completely forget how to do this
             // Let's do something simple.  Take the delta between the two points and move every sector of the target by that amount.  Don't worry about amputation yet.
@@ -587,7 +597,7 @@ void DataBattle::performAction(DataBattlePiece* user, ProgramAction* action, vec
                 }
             }
             if (targetPiece != nullptr) {
-                sf::Vector2i delta = targetCoord2 - targetCoord1;  // I have no idea if SFML supports this
+                sf::Vector2i delta = targetCoord2 - targetCoord1;
                 for (ProgramSector* sector : targetPiece->sectors) {
                     sector->coord += delta;
                 }
