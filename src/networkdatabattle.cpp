@@ -399,8 +399,14 @@ string NetworkDataBattle::takeCommand(string command, int playerIndex) {
         Player* localPlayer = this->players[this->localPlayerIndex];
         string charName = command.substr(10);  // Need to check if this exists
         localPlayer->loadCharacter(charName);
+    } else if (startsWith(command, "winner:")) {
+        this->serverWinner = stoi(command.substr(7));
     }
 
     return "Not implemented";
+}
+
+int NetworkDataBattle::checkForVictory() {  // Override
+    return this->serverWinner;
 }
 

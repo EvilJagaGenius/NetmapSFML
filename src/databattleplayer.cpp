@@ -12,6 +12,7 @@ DataBattlePlayer::DataBattlePlayer() {
     this->hudButton.setOutlineColor(sf::Color::White);
     this->hudButton.setOutlineThickness(2);
     this->inputBoxType = '0';
+    this->focusPiece = nullptr;
 }
 
 DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
@@ -26,6 +27,7 @@ DataBattlePlayer::DataBattlePlayer(DataBattle* db) {
     this->hudButton.setOutlineColor(sf::Color::White);
     this->hudButton.setOutlineThickness(2);
     this->inputBoxType = '0';
+    this->focusPiece = nullptr;
 
     this->setDB(db);
 }
@@ -43,8 +45,13 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     sf::Vector2<int> cursorTile(-1, -1);
 
     // Draw the grid
+    this->hudText.setColor(sf::Color(255, 255, 255, 127));
     for (int x=0; x<16; x++) {
         for (int y=0; y<16; y++) {
+            this->hudText.setPosition(sf::Vector2<float>(x*TILE_SIZE + x*GAP_SIZE + 4, y*TILE_SIZE + y*GAP_SIZE + 4));
+            this->hudText.setString(getByteCoord(sf::Vector2<int>(x, y)));
+            window->draw(this->hudText);
+
             sf::Rect<int> tileRect(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE, TILE_SIZE, TILE_SIZE);
             this->gridSprite.setTextureRect(sf::Rect<int>(0, this->db->grid[x][y]*TILE_SIZE, TILE_SIZE, TILE_SIZE));
             this->gridSprite.setPosition(sf::Vector2<float>(x*TILE_SIZE + x*GAP_SIZE, y*TILE_SIZE + y*GAP_SIZE));
@@ -161,13 +168,66 @@ void DataBattlePlayer::render(sf::RenderWindow* window) {
     this->hudPanel.clear(sf::Color::Transparent);
     int i = 0;
     for (pair<string, int> p : localPlayer->programs) {
-        //cout << p.first << '\n';
+        // This would be a really great spot to have a PROGRAM_DB again
         this->hudText.setString(p.first + "  x" + to_string(p.second));
         this->hudText.setPosition(0, i*14);
         this->hudText.setColor(sf::Color::White);
         this->hudPanel.draw(this->hudText);
         i++;
     }
+
+    // Draw focus data
+    if (this->focusPiece != nullptr) {
+        if (this->focusType == 'u') {
+            this->focusSprite.setTexture(GRID_SHEET);
+        } else if (this->focusType == 'p') {
+            this->focusSprite.setTexture(PROGRAM_SHEET);
+            this->hudText.setPosition(220, 174);
+            this->hudText.setString("Move:" + to_string(this->focusPiece->currentMove) + "/" + to_string(this->focusPiece->speed));
+            this->hudPanel.draw(this->hudText);
+
+            this->hudText.setPosition(220, 188);
+            this->hudText.setString("Size:" + to_string(this->focusPiece->size) + "/" + to_string(this->focusPiece->maxSize));
+            this->hudPanel.draw(this->hudText);
+
+            this->hudText.setPosition(16, 200);
+            for (ProgramAction* action : this->focusPiece->actions) {
+                this->hudText.setString(action->actionName);
+                if (action->checkPrereqs(this->focusPiece)) {
+                    this->hudText.setColor(sf::Color::White);
+                } else {
+                    this->hudText.setColor(sf::Color::Red);
+                }
+                this->hudPanel.draw(this->hudText);
+                this->hudText.setPosition(16, this->hudText.getPosition().y + 14);
+            }
+            this->hudText.setColor(sf::Color::Red);
+            this->hudText.setString("NO ACTION");
+            this->hudPanel.draw(this->hudText);
+            this->hudText.setColor(sf::Color::White);
+        }
+        // Draw main sprite
+        this->focusSprite.setTextureRect(sf::Rect<int>(this->focusPiece->spriteCoord.x*TILE_SIZE, this->focusPiece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+        this->focusSprite.setColor(sf::Color::White);
+        this->hudPanel.draw(this->focusSprite);
+        // Draw collar sprite
+        this->focusSprite.setTextureRect(sf::Rect<int>(0, this->focusPiece->spriteCoord.y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+        this->focusSprite.setPosition(16, 160);
+        //this->focusSprite.setColor(this->db->players[this->focusPiece->controller]->color);
+        this->hudPanel.draw(this->focusSprite);
+
+        // Draw name
+        this->hudText.setPosition(20 + TILE_SIZE, 160);
+        this->hudText.setString(this->focusPiece->screenName + "@" + getByteCoord(this->focusCoord));
+        this->hudPanel.draw(this->hudText);
+
+        // Draw description
+        this->hudText.setPosition(220, 160);
+        this->hudText.setString(this->focusPiece->description);
+        this->hudPanel.draw(this->hudText);
+    }
+
+
     this->hudText.setString("DATABATTLE INITIALIZE");
     this->hudText.setPosition(0, WY-14);
     this->hudPanel.draw(this->hudText);
@@ -290,7 +350,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                 if (event.type == sf::Event::KeyPressed) {
                     if (event.key.code == sf::Keyboard::I) {
                         cout << fps << '\n';
-                        //cout << "Victory status: " << this->checkForVictory() << '\n';
+                        cout << "Victory status: " << this->db->checkForVictory() << '\n';
                         cout << "Current program: " << this->db->currentProgram->name << '\n';
                         for (ProgramSector* s : this->db->currentProgram->sectors) {
                             cout << "Sector: " << getByteCoord(s->coord) << '\n';
@@ -330,11 +390,16 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                     // See if there's an upload zone there, set it as our selected upload
                     this->selectedUpload = nullptr;
                     for (DataBattlePiece* piece : this->db->pieces) {
-                        if (piece->pieceType == 'u' && piece->owner == this->db->localPlayerIndex) {
+                        if (piece->pieceType == 'u') {
                             if ((piece->sectors[0]->coord.x == tileCoord.x) && (piece->sectors[0]->coord.y == tileCoord.y)) {
-                                this->selectedUpload = piece;
-                                cout << "Clicked an upload zone\n";
-                                break;
+                                this->focusType = 'u';
+                                this->focusPiece = piece;
+                                this->focusCoord = tileCoord;
+                                if (piece->owner == this->db->localPlayerIndex) {
+                                    cout << "Changed selectedUpload\n";
+                                    this->selectedUpload = piece;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -348,13 +413,16 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
                             cout << "Clicked " << p.first << '\n';
                             if (selectedUpload != nullptr) {
                                 this->localPlayer->addToUploadMap(getByteCoord(selectedUpload->sectors[0]->coord), p.first);
+                                this->focusType = 'p';
+                                this->focusPiece = this->localPlayer->uploadMap[getByteCoord(selectedUpload->sectors[0]->coord)];
+                                this->focusCoord = selectedUpload->sectors[0]->coord;
                             }
                             break;
                         }
                         i++;
                     }
                     // DataBattle Initialize
-                    if (mousePos.y >= WY - 14) {  // If clicked DBI
+                    if (mousePos.y >= WY - 14 && (this->localPlayer->uploadMap.size() > 0)) {  // If clicked DBI
                         cout << "Clicked DBI\n";
                         // Send our upload commands
                         for (pair<string, DataBattlePiece*> p : this->localPlayer->uploadMap) {
@@ -368,8 +436,26 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
         }
 
         if ((this->db->currentPlayerIndex == this->db->localPlayerIndex) && (this->db->localPlayerIndex != -1)) {  // If it's our turn
-            // Do something, Taipu
             if (clicked) {
+                // If we have a program focused, see if we clicked one of its actions
+                if (this->focusType == 'p') {
+                    sf::Rect<int> actionButtonRect = sf::Rect<int>(WY+16, 200, 100, 14);
+                    for (int i=0; i<=this->focusPiece->actions.size(); i++) {
+                        //ProgramAction* action = this->focusPiece->actions[i];
+                        if (actionButtonRect.contains(mousePos)) {
+                            this->subFocus = i;
+                            if (this->focusPiece->controller == this->db->localPlayerIndex) {  // Only do important stuff like switching to aiming if we control that piece
+                                if (i == this->focusPiece->actions.size()) {  // We clicked on No Action
+                                    this->localPlayer->cmdQueue.emplace("noaction:" + this->focusPiece->name);
+                                } else {
+                                    this->focusPiece->switchToAiming(i);
+                                    this->adjustRadii();
+                                }
+                            }
+                        }
+                        actionButtonRect.top += 14;
+                    }
+                }
                 if (this->db->currentProgram->state == 'a') {  // If our program is aiming
                     if ((tileCoord.x != -1) && (tileCoord.y != -1)) {
                         this->localPlayer->cmdQueue.push("action:" + this->db->currentProgram->name + ":0:" + getByteCoord(tileCoord));
@@ -407,6 +493,7 @@ string DataBattlePlayer::play(sf::RenderWindow* window) {
 }
 
 void DataBattlePlayer::adjustRadii() {
+    this->focusPiece = this->db->currentProgram;
     if (this->db->currentProgram != nullptr) {
         if (this->db->currentProgram->state == 'm') {
             int movesRemaining = this->db->currentProgram->speed - this->db->currentProgram->currentMove;

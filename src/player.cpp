@@ -27,7 +27,7 @@ void Player::giveStartingPrograms() {
                           {"Watchman", 10}});
 }
 
-void Player::loadCharacter(string characterName) {
+void Player::loadCharacter(string characterName) {  // Note: only meant to be called once
     cout << "Loading character " << characterName << '\n';
     this->programs.clear();
 

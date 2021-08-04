@@ -21,7 +21,8 @@ class NetworkDataBattle : public DataBattle
         void connect(string ipString, unsigned short port);
         void tick();  // Override
         void load();  // Override
-        string takeCommand(string command, int playerIndex);
+        string takeCommand(string command, int playerIndex);  // Override
+        int checkForVictory();  // Override
 
     protected:
 

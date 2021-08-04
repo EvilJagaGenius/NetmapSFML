@@ -64,6 +64,7 @@ class DataBattlePiece
         virtual void addSector(sf::Vector2i coord, int pos);
         virtual void useAction(Netmap_Playable* level, int actionIndex, vector<sf::Vector2i> targets);
         virtual void switchToAiming();
+        virtual void switchToAiming(int actionIndex);
         virtual void noAction();
         virtual void takeDamage(int damage);
         //virtual void amputate(Netmap_Playable* level, sf::Vector2i coord);

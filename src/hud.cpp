@@ -45,10 +45,6 @@ void HUD::setMousePos(sf::Vector2i mousePos) {
 }
 
 void HUD::takeInput(sf::Event event, Netmap_Playable* playable) {
-    cout << "Called HUD/Netmap_Playable version of takeInput\n";
-}
-
-void HUD::takeInput(sf::Event event, DataBattle* playable) {
     if (event.type == sf::Event::MouseButtonPressed) {
         if (this->open) {
             if (this->borderRect.contains(mousePos)) {  // Check the border button
@@ -82,18 +78,6 @@ void HUD::takeInput(sf::Event event, DataBattle* playable) {
                             this->focusCoord.x = tileX;
                             this->focusCoord.y = tileY;
                             break;
-                        }
-                    }
-                    // Defenders
-                    for (pair<string, DataBattlePiece*> p : playable->defenders) {
-                        for (ProgramSector* sector : p.second->sectors) {
-                            if (sector->coord == tileCoord) {
-                                this->focusType = 'p';
-                                this->subFocus = -1;
-                                this->focusProgram = p.second;
-                                this->focusCoord.x = tileX;
-                                this->focusCoord.y = tileY;
-                            }
                         }
                     }
 

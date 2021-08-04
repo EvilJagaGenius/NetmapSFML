@@ -12,6 +12,7 @@ class DataBattlePlayer : public Netmap_Playable
         DataBattle* db;
         sf::Sprite bkgSprite;
         sf::Sprite gridSprite;
+        sf::Text gridText;
         sf::Sprite programSprite;
         string musicFilename;
         sf::Music musicTrack;
@@ -27,6 +28,11 @@ class DataBattlePlayer : public Netmap_Playable
         DataBattlePiece* selectedUpload;  // Maybe just change this to a general focus
         unordered_map<string, string> uploadMap;
         //Player* localPlayer;
+        char focusType;
+        DataBattlePiece* focusPiece;
+        sf::Sprite focusSprite;
+        sf::Vector2i focusCoord;
+        int subFocus;
 
         DataBattlePlayer();
         DataBattlePlayer(DataBattle* db);

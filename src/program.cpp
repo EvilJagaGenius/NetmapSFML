@@ -287,6 +287,17 @@ void Program::switchToAiming() {
     cout << "Done switching to aiming\n";
 }
 
+void Program::switchToAiming(int actionIndex) {
+    cout << "Switching to aiming\n";
+    this->state = 'a';
+    if (this->actions.size() > actionIndex) {
+        this->currentActionIndex = actionIndex;
+        this->currentAction = this->actions[this->currentActionIndex];
+    }
+    // Should add an if statement to automatically end the turn if we don't have any actions (like the Memory Hog)
+    cout << "Done switching to aiming\n";
+}
+
 void Program::noAction() {
     this->state = 'd';
     this->currentAction = nullptr;
